@@ -19,12 +19,6 @@ class SongQueue(Gtk.Box):
     def __init__(self):
         super().__init__()
 
-    def set_mode(self, playing:bool=False):
-        self.remove_el.set_visible(playing)
-        self.play_el.set_visible(not playing)
-        self.play_next_el.set_visible(not playing)
-        self.play_later_el.set_visible(not playing)
-
     def set_selected_mode(self, select:bool=False, selected_row:Gtk.Widget=None):
         integration = get_current_integration()
         for row in list(self.list_el):
