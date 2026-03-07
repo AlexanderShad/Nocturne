@@ -229,7 +229,7 @@ class PlayingControlPage(Adw.NavigationPage):
         r, g, b = [x / 255.0 for x in accent]
         h, l, s = colorsys.rgb_to_hls(r,g,b)
 
-        rgb1 = [str(int(x * 255)) for x in colorsys.hls_to_rgb((h - 0.1) % 1.0, l, s)]
+        rgb1 = [str(int(x * 255)) for x in colorsys.hls_to_rgb((h - 0.2) % 1.0, l, s)]
         rgb2 = [str(int(x * 255)) for x in colorsys.hls_to_rgb(h, l, s)]
 
         css = f"""
@@ -250,9 +250,14 @@ class PlayingControlPage(Adw.NavigationPage):
                 provider,
                 Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
             )
-            navigation_view.add_css_class('dynamic-accent-bg')
 
-
+        bottom_sheet = self.get_ancestor(Adw.BottomSheet)
+        if bottom_sheet:
+            bottom_bar = bottom_sheet.get_bottom_bar()
+            bottom_bar.get_style_context().add_provider(
+                provider,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
 
     def update_cover_art(self):
         integration = get_current_integration()

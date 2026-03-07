@@ -40,7 +40,7 @@ class PlayingQueuePage(Adw.NavigationPage):
                 if row.id == current_song_id:
                     current_song_index = i + 1
             songs.reverse()
-            for song_id in songs:
+            for song_id in [s for s in songs if s not in self.song_list_el.get_all_ids()]:
                 integration.verifySong(song_id, use_threading=False)
                 self.song_list_el.list_el.insert(
                     SongRow(

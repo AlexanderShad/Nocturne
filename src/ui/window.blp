@@ -14,9 +14,16 @@ template $NocturneWindow: Adw.ApplicationWindow {
         $NocturneHomePage home_page {}
       };
 
-      bottom-bar: $NocturnePlayingFooter {};
+      bottom-bar: $NocturnePlayingFooter {
+        styles [
+          "dynamic-accent-bg"
+        ]
+      };
 
       sheet: Adw.NavigationView playing_navigationview {
+        styles [
+          "dynamic-accent-bg"
+        ]
         vhomogeneous: true;
         hhomogeneous: true;
         $NocturnePlayingControlPage {}
