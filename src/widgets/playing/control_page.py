@@ -190,9 +190,11 @@ class PlayingControlPage(Adw.NavigationPage):
             self.title_el.set_tooltip_text(model.title)
 
             # Artist
-            self.artist_el.get_child().set_label(model.artists[0].get('name'))
-            self.artist_el.set_action_target_value(GLib.Variant.new_string(model.artists[0].get('id')))
-            self.artist_el.set_tooltip_text(model.artists[0].get('name'))
+            if len(model.artists) > 0:
+                self.artist_el.get_child().set_label(model.artists[0].get('name'))
+                self.artist_el.set_action_target_value(GLib.Variant.new_string(model.artists[0].get('id')))
+                self.artist_el.set_tooltip_text(model.artists[0].get('name'))
+            self.artist_el.set_visible(model.artists)
 
             # Album
             self.album_el.get_child().set_label(model.album)

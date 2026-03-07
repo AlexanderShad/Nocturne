@@ -13,20 +13,21 @@ class PlayingQueuePage(Adw.NavigationPage):
     def replace_queue(self, songs:list, current_id:str=None):
         integration = get_current_integration()
         for row in list(self.song_list_el.list_el):
-            GLib.idle_add(self.song_list_el.list_el.remove, row)
+            self.song_list_el.list_el.remove(row)
         if len(songs) > 0:
             if current_id is None:
                 current_id = songs[0]
 
             for song_id in songs:
-                GLib.idle_add(self.song_list_el.list_el.append,
+                integration.verifySong(song_id, use_threading=False)
+                self.song_list_el.list_el.append(
                     SongRow(
                         song_id,
                         draggable=True,
                         removable=True
                     )
                 )
-        GLib.idle_add(integration.loaded_models['currentSong'].set_property, 'songId', current_id)
+        integration.loaded_models['currentSong'].songId = current_id
 
     def play_next(self, songs:list):
         integration = get_current_integration()
@@ -40,6 +41,7 @@ class PlayingQueuePage(Adw.NavigationPage):
                     current_song_index = i + 1
             songs.reverse()
             for song_id in songs:
+                integration.verifySong(song_id, use_threading=False)
                 self.song_list_el.list_el.insert(
                     SongRow(
                         song_id,

@@ -79,48 +79,40 @@ class NocturneWindow(Adw.ApplicationWindow):
         integration = navidrome.get_current_integration()
         album = integration.loaded_models.get(model_id)
 
-        def on_update_finish():
+        if album:
+            integration.verifyAlbum(album.id, force_update=True, use_threading=False)
             queue_page = self.playing_navigationview.find_page('queue')
             queue_page.replace_queue([s.get('id') for s in album.song])
-
-        if album:
-            integration.verifyAlbum(album.id, force_update=True, update_callback=on_update_finish)
 
     def play_album_next(self, action, model_id:GLib.Variant):
         model_id = model_id.unpack()
         integration = navidrome.get_current_integration()
         album = integration.loaded_models.get(model_id)
 
-        def on_update_finish():
+        if album:
+            integration.verifyAlbum(album.id, force_update=True, use_threading=False)
             queue_page = self.playing_navigationview.find_page('queue')
             queue_page.play_next([s.get('id') for s in album.song])
-
-        if album:
-            integration.verifyAlbum(album.id, force_update=True, update_callback=on_update_finish)
 
     def play_playlist(self, action, model_id:GLib.Variant):
         model_id = model_id.unpack()
         integration = navidrome.get_current_integration()
         playlist = integration.loaded_models.get(model_id)
 
-        def on_update_finish():
+        if playlist:
+            integration.verifyPlaylist(playlist.id, force_update=True, use_threading=False)
             queue_page = self.playing_navigationview.find_page('queue')
             queue_page.replace_queue([s.get('id') for s in playlist.entry])
-
-        if playlist:
-            integration.verifyPlaylist(playlist.id, force_update=True, update_callback=on_update_finish)
 
     def play_playlist_next(self, action, model_id:GLib.Variant):
         model_id = model_id.unpack()
         integration = navidrome.get_current_integration()
         playlist = integration.loaded_models.get(model_id)
 
-        def on_update_finish():
+        if playlist:
+            integration.verifyPlaylist(playlist.id, force_update=True, use_threading=False)
             queue_page = self.playing_navigationview.find_page('queue')
             queue_page.play_next([s.get('id') for s in playlist.entry])
-
-        if playlist:
-            integration.verifyPlaylist(playlist.id, force_update=True, update_callback=on_update_finish)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
