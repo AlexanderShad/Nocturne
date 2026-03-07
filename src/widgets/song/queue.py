@@ -27,10 +27,11 @@ class SongQueue(Gtk.Box):
         self.play_later_el.set_visible(not playing)
 
     def set_selected_mode(self, select:bool=False, selected_row:Gtk.Widget=None):
+        integration = get_current_integration()
         for row in list(self.list_el):
             row.suffixes_stack_el.set_visible_child_name('select' if select else 'normal')
             row.check_el.set_active(row == selected_row)
-            row.set_activatable(not select)
+            row.set_activatable(not select and row.id != integration.loaded_models.get('currentSong').songId)
         self.toolbar_revealer_el.set_reveal_child(select)
 
     def get_selected_rows(self) -> list:
