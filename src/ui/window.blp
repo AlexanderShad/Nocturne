@@ -3,16 +3,34 @@ using Adw 1;
 
 template $NocturneWindow: Adw.ApplicationWindow {
   title: "Nocturne";
-  width-request: 250;
+  default-width: 800;
+  default-height: 600;
+  width-request: 340;
+  height-request: 560;
   close-request => $close_request();
+  Adw.Breakpoint {
+    condition ("max-width: 480sp")
+    setters {
+      main_split_view.collapsed: true;
+      sheet_split_view.collapsed: true;
+      main_split_view.show-content: true;
+      sheet_header.title-widget: null;
+      sheet_switch_bar.reveal: true;
+    }
+  }
 
   content: Adw.ToastOverlay {
     child: Adw.BottomSheet main_bottom_sheet {
-      full-width: false;
-      notify::open => $on_bottomsheet_open();
-
-      content: Adw.NavigationView main_navigationview {
-        $NocturneHomePage home_page {}
+      full-width: true;
+      show-drag-handle: false;
+      content: Adw.NavigationSplitView main_split_view {
+        show-content: true;
+        sidebar: $NocturneMainSidebar {};
+        content: Adw.NavigationPage {
+          child: Adw.NavigationView main_navigationview {
+            $NocturneHomePage home_page {}
+          };
+        };
       };
 
       bottom-bar: $NocturnePlayingFooter {
@@ -21,14 +39,48 @@ template $NocturneWindow: Adw.ApplicationWindow {
         ]
       };
 
-      sheet: Adw.NavigationView playing_navigationview {
+      sheet: Adw.NavigationSplitView sheet_split_view {
+        sidebar-width-fraction: 0.5;
+        max-sidebar-width: 320;
         styles [
           "dynamic-accent-bg"
         ]
-        vhomogeneous: true;
-        hhomogeneous: true;
-        $NocturnePlayingControlPage {}
-        $NocturnePlayingQueuePage {}
+
+        sidebar: $NocturnePlayingControlPage playing_page {};
+        content: Adw.NavigationPage {
+          title: _("Song Details");
+          child: Adw.ToolbarView {
+            [top]
+            Adw.HeaderBar sheet_header {
+              title-widget: Adw.ViewSwitcher {
+                stack: sheet_stack;
+                policy: wide;
+              };
+            }
+            [bottom]
+            Adw.ViewSwitcherBar sheet_switch_bar {
+              stack: sheet_stack;
+            }
+
+            Adw.ViewStack sheet_stack {
+              enable-transitions: true;
+              vhomogeneous: true;
+              hhomogeneous: true;
+              Adw.ViewStackPage {
+                name: "queue";
+                title: _("Queue");
+                icon-name: "playlist-symbolic";
+                child: $NocturnePlayingQueuePage queue_page {};
+              }
+              Adw.ViewStackPage {
+                name: "lyrics";
+                title: _("Lyrics");
+                icon-name: "format-justify-center-symbolic";
+                child: Gtk.Label {label: "#TODO";};
+              }
+            }
+          };
+        };
       };
     };
   };

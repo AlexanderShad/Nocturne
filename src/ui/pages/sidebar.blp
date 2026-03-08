@@ -1,0 +1,66 @@
+// NOT a template, this is a child of window.blp
+using Gtk 4.0;
+using Adw 1;
+
+template $NocturneMainSidebar: Adw.NavigationPage {
+  title: "Nocturne";
+  child: Adw.ToolbarView main_sidebar {
+    [top]
+    Adw.HeaderBar {}
+
+    content: Adw.Sidebar {
+      Adw.SidebarSection {
+        Adw.SidebarItem {
+          title: _("Home");
+          icon-name: "user-home-symbolic";
+        }
+      }
+      Adw.SidebarSection {
+        title: _("Album");
+        Adw.SidebarItem {
+          title: _("All");
+          icon-name: "music-queue-symbolic";
+        }
+        Adw.SidebarItem {
+          title: _("Random");
+          icon-name: "playlist-shuffle-symbolic";
+        }
+        Adw.SidebarItem {
+          title: _("Favourites");
+          icon-name: "starred-symbolic";
+        }
+        Adw.SidebarItem {
+          title: _("Recently Added");
+          icon-name: "list-add-symbolic";
+        }
+        Adw.SidebarItem {
+          title: _("Recently Played");
+          icon-name: "media-playback-start-symbolic";
+        }
+        Adw.SidebarItem {
+          title: _("Most Played");
+          icon-name: "media-playlist-repeat-symbolic";
+        }
+      }
+
+      Adw.SidebarSection {
+        Adw.SidebarItem {
+          title: _("Artists");
+          icon-name: "music-artist-symbolic";
+        }
+        Adw.SidebarItem {
+          title: _("Songs");
+          icon-name: "music-note-symbolic";
+        }
+        Adw.SidebarItem {
+          title: _("Radios");
+          icon-name: "sound-wave-symbolic";
+        }
+        Adw.SidebarItem {
+          title: _("Playlists");
+          icon-name: "playlist-symbolic";
+        }
+      }
+    };
+  };
+}

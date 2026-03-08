@@ -5,7 +5,7 @@ from ..song import SongRow
 from ...navidrome import models, get_current_integration
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/playing/queue_page.ui')
-class PlayingQueuePage(Adw.NavigationPage):
+class PlayingQueuePage(Gtk.ScrolledWindow):
     __gtype_name__ = 'NocturnePlayingQueuePage'
 
     song_list_el = Gtk.Template.Child()

@@ -22,7 +22,7 @@ class PlayingFooter(Gtk.Overlay):
         GLib.idle_add(self.connect_play_state)
 
     def connect_play_state(self):
-        self.get_root().playing_navigationview.find_page('playing').state_stack_el.bind_property(
+        self.get_root().playing_page.state_stack_el.bind_property(
             "visible-child-name",
             self.state_stack_el,
             "visible-child-name",
@@ -59,16 +59,16 @@ class PlayingFooter(Gtk.Overlay):
 
     @Gtk.Template.Callback()
     def play_clicked(self, button):
-        self.get_root().playing_navigationview.find_page('playing').play_clicked(button)
+        self.get_root().playing_page.play_clicked(button)
 
     @Gtk.Template.Callback()
     def pause_clicked(self, button):
-        self.get_root().playing_navigationview.find_page('playing').pause_clicked(button)
+        self.get_root().playing_page.pause_clicked(button)
 
     @Gtk.Template.Callback()
     def next_clicked(self, button):
-        self.get_root().playing_navigationview.find_page('playing').next_clicked(button)
+        self.get_root().playing_page.next_clicked(button)
 
     @Gtk.Template.Callback()
     def previous_clicked(self, button):
-        self.get_root().playing_navigationview.find_page('playing').previous_clicked(button)
+        self.get_root().playing_page.previous_clicked(button)

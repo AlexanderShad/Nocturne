@@ -26,19 +26,15 @@ class NocturneWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'NocturneWindow'
 
     main_navigationview = Gtk.Template.Child()
-    playing_navigationview = Gtk.Template.Child()
     home_page = Gtk.Template.Child()
     main_bottom_sheet = Gtk.Template.Child()
-
-    @Gtk.Template.Callback()
-    def on_bottomsheet_open(self, bottomsheet, state):
-        if not self.main_bottom_sheet.get_open():
-            GLib.timeout_add(1000, self.playing_navigationview.replace_with_tags, ['playing'])
+    playing_page = Gtk.Template.Child()
+    queue_page = Gtk.Template.Child()
 
     @Gtk.Template.Callback()
     def close_request(self, window):
         integration = navidrome.get_current_integration()
-        id_list = self.playing_navigationview.find_page('queue').song_list_el.get_all_ids()
+        id_list = self.queue_page.song_list_el.get_all_ids()
         current_song = integration.loaded_models.get('currentSong')
         integration.savePlayQueue(id_list, current_song.songId, current_song.positionSeconds * 1000)
 
@@ -85,8 +81,6 @@ class NocturneWindow(Adw.ApplicationWindow):
         integration = navidrome.get_current_integration()
         current_id, song_list = integration.getPlayQueue()
         if len(song_list) > 0:
-            queue_page = self.playing_navigationview.find_page('queue')
-            GLib.idle_add(queue_page.replace_queue, song_list, current_id)
-            playing_page = self.playing_navigationview.find_page('playing')
-            GLib.idle_add(lambda: playing_page.player.set_state(Gst.State.PAUSED) and False)
+            GLib.idle_add(self.queue_page.replace_queue, song_list, current_id)
+            GLib.idle_add(lambda: self.playing_page.player.set_state(Gst.State.PAUSED) and False)
 

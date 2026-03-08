@@ -30,6 +30,11 @@
     <file alias="icons/scalable/status/media-playlist-consecutive-symbolic.svg">icons/media-playlist-consecutive-symbolic.svg</file>
     <file alias="icons/scalable/status/media-playlist-repeat-song-symbolic.svg">icons/media-playlist-repeat-song-symbolic.svg</file>
     <file alias="icons/scalable/status/media-playlist-repeat-symbolic.svg">icons/media-playlist-repeat-symbolic.svg</file>
+    <file alias="icons/scalable/status/list-add-symbolic.svg">icons/list-add-symbolic.svg</file>
+    <file alias="icons/scalable/status/music-artist-symbolic.svg">icons/music-artist-symbolic.svg</file>
+    <file alias="icons/scalable/status/music-note-symbolic.svg">icons/music-note-symbolic.svg</file>
+    <file alias="icons/scalable/status/sound-wave-symbolic.svg">icons/sound-wave-symbolic.svg</file>
+    <file alias="icons/scalable/status/user-home-symbolic.svg">icons/user-home-symbolic.svg</file>
 
     <file alias="window.ui">ui/window.ui</file>
 
@@ -38,6 +43,7 @@
     <file alias="playing/queue_page.ui">ui/playing/queue_page.ui</file>
 
     <file alias="pages/home.ui">ui/pages/home.ui</file>
+    <file alias="pages/sidebar.ui">ui/pages/sidebar.ui</file>
 
     <file alias="album/button.ui">ui/album/button.ui</file>
     <file alias="album/page.ui">ui/album/page.ui</file>
@@ -54,4 +60,5 @@
     <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
   </gresource>
 </gresources>
+
 

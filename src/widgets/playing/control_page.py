@@ -48,10 +48,7 @@ class PlayingControlPage(Adw.NavigationPage):
         bus.add_signal_watch()
         bus.connect("message", self.on_player_message)
         self.volume_el.set_value(0.25) ##TODO save volume within sessions
-
-    @Gtk.Template.Callback()
-    def view_queue(self, button):
-        self.get_ancestor(Adw.NavigationView).push_by_tag('queue')
+        self.player.set_property("volume", 0.25)
 
     @Gtk.Template.Callback()
     def seek_start(self, gesture, n_press, x, y):
@@ -128,7 +125,7 @@ class PlayingControlPage(Adw.NavigationPage):
             integration.loaded_models['currentSong'].songId = current_song_id
             return
 
-        id_list = self.get_ancestor(Adw.NavigationView).find_page('queue').song_list_el.get_all_ids()
+        id_list = self.get_root().queue_page.song_list_el.get_all_ids()
 
         if len(id_list) > 0:
             if not current_song_id: # fallback in case nothing was playing
@@ -225,39 +222,50 @@ class PlayingControlPage(Adw.NavigationPage):
 
     def update_palette(self, raw_bytes:bytes):
         img_io = io.BytesIO(raw_bytes)
-        accent = ColorThief(img_io).get_color(quality=10)
-        r, g, b = [x / 255.0 for x in accent]
-        h, l, s = colorsys.rgb_to_hls(r,g,b)
-
-        rgb1 = [str(int(x * 255)) for x in colorsys.hls_to_rgb((h - 0.1) % 1.0, l, s)]
-        rgb2 = [str(int(x * 255)) for x in colorsys.hls_to_rgb(h, l, s)]
-
+        palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
         css = f"""
-        .dynamic-accent-bg {{
+        .dynamic-accent-bg, .dynamic-accent-bg > .sidebar-pane {{
             background-image: linear-gradient(
-                to bottom,
-                rgba({','.join(rgb1)},0.2),
-                rgba({','.join(rgb2)},0.2)
+                to bottom right,
+                rgba({','.join([str(c) for c in palette[0]])},0.25),
+                rgba({','.join([str(c) for c in palette[1]])},0.25)
             );
             transition: background-image 0.5s ease-in-out;
         }}
         """
         provider = Gtk.CssProvider()
         provider.load_from_data(css.encode('utf-8'))
-        navigation_view = self.get_ancestor(Adw.NavigationView)
-        if navigation_view:
-            navigation_view.get_style_context().add_provider(
-                provider,
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-            )
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(),
+            provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 
-        bottom_sheet = self.get_ancestor(Adw.BottomSheet)
-        if bottom_sheet:
-            bottom_bar = bottom_sheet.get_bottom_bar()
-            bottom_bar.get_style_context().add_provider(
-                provider,
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-            )
+        return
+        accent = ColorThief(img_io).get_color(quality=10)
+        r, g, b = [x / 255.0 for x in accent]
+        h, l, s = colorsys.rgb_to_hls(r,g,b)
+
+        rgb1 = [str(int(x * 255)) for x in colorsys.hls_to_rgb((h + 0.1) % 1.0, l, s)]
+        rgb2 = [str(int(x * 255)) for x in colorsys.hls_to_rgb(h, l, s)]
+
+        css = f"""
+        .dynamic-accent-bg, .dynamic-accent-bg > .sidebar-pane {{
+            background-image: linear-gradient(
+                to bottom right,
+                rgba({','.join(rgb1)},0.25),
+                rgba({','.join(rgb2)},0.25)
+            );
+            transition: background-image 0.5s ease-in-out;
+        }}
+        """
+        provider = Gtk.CssProvider()
+        provider.load_from_data(css.encode('utf-8'))
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(),
+            provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 
     def update_cover_art(self):
         integration = get_current_integration()
@@ -267,10 +275,10 @@ class PlayingControlPage(Adw.NavigationPage):
             raw_bytes, paintable = integration.getCoverArtWithBytes(song.coverArt, 480)
 
             if isinstance(paintable, Gdk.MemoryTexture):
-                GLib.idle_add(self.cover_el.set_from_paintable, paintable)
+                GLib.idle_add(self.cover_el.set_paintable, paintable)
                 threading.Thread(target=self.update_palette, args=(raw_bytes,)).start()
             else:
-                GLib.idle_add(self.cover_el.set_from_paintable, None)
+                GLib.idle_add(self.cover_el.set_paintable, None)
 
     def update_starred(self, starred:str):
         if starred:
@@ -304,4 +312,5 @@ class PlayingControlPage(Adw.NavigationPage):
 
         return True
         
+
 
