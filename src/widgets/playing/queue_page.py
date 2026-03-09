@@ -1,6 +1,6 @@
 # queue_page.py
 
-from gi.repository import Gtk, Adw, GObject, GLib
+from gi.repository import Gtk, Adw, GObject, GLib, Gio
 from ..song import SongRow
 from ...navidrome import models, get_current_integration
 
@@ -9,6 +9,13 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
     __gtype_name__ = 'NocturnePlayingQueuePage'
 
     song_list_el = Gtk.Template.Child()
+    autoplay_row_el = Gtk.Template.Child()
+
+    def __init__(self):
+        super().__init__()
+
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        settings.bind('auto-play', self.autoplay_row_el, 'active', Gio.SettingsBindFlags.DEFAULT)
 
     def replace_queue(self, songs:list, current_id:str=None):
         integration = get_current_integration()

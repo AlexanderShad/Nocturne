@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="nocturne">
 	<schema id="com.jeffser.Nocturne" path="/com/jeffser/Nocturne/">
+	  <key name="auto-play" type="b">
+	    <default>false</default>
+	  </key>
 	</schema>
 </schemalist>

@@ -1,12 +1,27 @@
 using Gtk 4.0;
+using Adw 1;
 
 template $NocturnePlayingQueuePage: Gtk.ScrolledWindow {
   propagate-natural-width: true;
   propagate-natural-height: true;
-  child: $NocturneSongQueue song_list_el {
-    styles [
-      "p10"
-    ]
+  child: Adw.Clamp {
+    maximum-size: 800;
+    tightening-threshold: 600;
+    child: Gtk.Box {
+      orientation: vertical;
+      spacing: 5;
+
+      Adw.SwitchRow autoplay_row_el {
+        activatable: false;
+        title: _("Autoplay");
+        subtitle: _("Generate a new queue when the current one ends");
+      }
+
+      $NocturneSongQueue song_list_el {
+        styles [
+          "p10"
+        ]
+      }
+    };
   };
 }
-  

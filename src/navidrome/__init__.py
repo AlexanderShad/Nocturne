@@ -267,6 +267,28 @@ class Navidrome(GObject.Object):
         })
         return response.get('status') == 'ok'
 
+    def getSimilarSongs(self, id:str, count:int=20):
+        # Receives an artist id
+        response = self.make_request('getSimilarSongs', {
+            'id': id,
+            'count': count
+        })
+        songs = response.get('similarSongs', {}).get('song', [])
+        for song in songs:
+            self.verifySong(song.get('id'))
+
+        return [s.get('id') for s in songs if s.get('id')]
+
+    def getRandomSongs(self, size:int=20):
+        response = self.make_request('getRandomSongs', {
+            'size': size
+        })
+        songs = response.get('randomSongs', {}).get('song', [])
+        for song in songs:
+            self.verifySong(song.get('id'))
+
+        return [s.get('id') for s in songs if s.get('id')]
+
 integration = Navidrome('http://127.0.0.1:4533', 'tentri')
 current_song = None
 

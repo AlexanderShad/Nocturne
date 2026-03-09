@@ -1,6 +1,6 @@
 # control_page.py
 
-from gi.repository import Gtk, Adw, Gdk, GLib, GObject, Gst
+from gi.repository import Gtk, Adw, Gdk, GLib, GObject, Gst, Gio
 from ...navidrome import get_current_integration
 import threading, random, io, colorsys
 from datetime import datetime
@@ -110,6 +110,18 @@ class PlayingControlPage(Adw.NavigationPage):
             stack_page_name = 'play' if state in (Gst.State.NULL, Gst.State.READY, Gst.State.PAUSED) else 'pause'
             self.state_stack_el.set_visible_child_name(stack_page_name)
 
+    def auto_play(self):
+        integration = get_current_integration()
+        current_song_id = integration.loaded_models.get('currentSong').songId
+        current_song = integration.loaded_models.get(current_song_id)
+        if current_song:
+            similar_songs = integration.getSimilarSongs(current_song.artists[0].get('id'))
+            if len(similar_songs) > 1 and False:
+                GLib.idle_add(self.get_root().queue_page.replace_queue, similar_songs)
+            else:
+                random_songs = integration.getRandomSongs()
+                GLib.idle_add(self.get_root().queue_page.replace_queue, random_songs)
+
     def handle_song_change_request(self, action:str):
         # action can be next, previous or end (song ended)
         self.player.set_state(Gst.State.READY)
@@ -142,10 +154,8 @@ class PlayingControlPage(Adw.NavigationPage):
                         integration.loaded_models['currentSong'].songId = id_list[0]
                     elif next_index < len(id_list):
                         integration.loaded_models['currentSong'].songId = id_list[next_index]
-                    else:
-                        print("TODO: implement auto-radio mode")
-                        ##NOTE
-                        # Here's where I could handle automatically adding more songs with radio
+                    elif Gio.Settings(schema_id="com.jeffser.Nocturne").get_value('auto-play').unpack():
+                        threading.Thread(target=self.auto_play).start()
                 elif mode == 'repeat-all':
                     if next_index < len(id_list) and next_index >= 0:
                         integration.loaded_models['currentSong'].songId = id_list[next_index]
@@ -312,5 +322,6 @@ class PlayingControlPage(Adw.NavigationPage):
 
         return True
         
+
 
 
