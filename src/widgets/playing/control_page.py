@@ -126,6 +126,7 @@ class PlayingControlPage(Adw.NavigationPage):
             self.state_stack_el.set_visible_child_name(stack_page_name)
 
     def auto_play(self):
+        GLib.idle_add(self.get_root().queue_page.autoplay_spinner_el.set_visible, True)
         integration = get_current_integration()
         current_song_id = integration.loaded_models.get('currentSong').songId
         current_song = integration.loaded_models.get(current_song_id)
@@ -136,6 +137,7 @@ class PlayingControlPage(Adw.NavigationPage):
             else:
                 random_songs = integration.getRandomSongs()
                 GLib.idle_add(self.get_root().queue_page.replace_queue, random_songs)
+        GLib.idle_add(self.get_root().queue_page.autoplay_spinner_el.set_visible, False)
 
     def handle_song_change_request(self, action:str):
         # action can be next, previous or end (song ended)

@@ -14,6 +14,8 @@ template $NocturnePlayingLyricsPage: Gtk.Stack {
     child: Gtk.ScrolledWindow {
       propagate-natural-width: true;
       propagate-natural-height: true;
+      max-content-width: 500;
+      max-content-height: 400;
       child: Adw.Clamp {
         maximum-size: 800;
         tightening-threshold: 600;
@@ -24,7 +26,8 @@ template $NocturnePlayingLyricsPage: Gtk.Stack {
           halign: center;
           valign: center;
           styles [
-            "title-4"
+            "title-4",
+            "p10"
           ]
         };
       };
@@ -36,6 +39,8 @@ template $NocturnePlayingLyricsPage: Gtk.Stack {
     child: Gtk.ScrolledWindow scrolledwindow {
       propagate-natural-width: true;
       propagate-natural-height: true;
+      max-content-width: 500;
+      max-content-height: 400;
       child: Adw.ClampScrollable {
         maximum-size: 800;
         tightening-threshold: 600;

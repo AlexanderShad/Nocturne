@@ -11,8 +11,7 @@
 }
 
 .lrc_list row > label {
-  transition: font-size .2s,
-  opacity .2s;
+  transition: opacity .2s;
   opacity: 30%;
   font-size: 20px;
   margin: 5px;

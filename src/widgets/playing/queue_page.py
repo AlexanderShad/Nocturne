@@ -10,6 +10,7 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
 
     song_list_el = Gtk.Template.Child()
     autoplay_row_el = Gtk.Template.Child()
+    autoplay_spinner_el = Gtk.Template.Child()
 
     def __init__(self):
         super().__init__()
