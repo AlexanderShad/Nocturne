@@ -4,5 +4,11 @@
 	  <key name="auto-play" type="b">
 	    <default>false</default>
 	  </key>
+	  <key name="default-width" type="i">
+	    <default>800</default>
+	  </key>
+	  <key name="default-height" type="i">
+	    <default>600</default>
+	  </key>
 	</schema>
 </schemalist>

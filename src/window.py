@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, Adw, GLib, Gst
+from gi.repository import Gtk, Adw, GLib, Gst, Gio
 
 from . import navidrome, actions
 
@@ -39,6 +39,9 @@ class NocturneWindow(Adw.ApplicationWindow):
         id_list = self.queue_page.song_list_el.get_all_ids()
         current_song = integration.loaded_models.get('currentSong')
         integration.savePlayQueue(id_list, current_song.songId, current_song.positionSeconds * 1000)
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        settings.set_int('default-width', self.get_width())
+        settings.set_int('default-height', self.get_height())
 
     def create_action(self, callback:callable, parameter_type:str="s"):
         self.get_application().create_action(
@@ -86,3 +89,6 @@ class NocturneWindow(Adw.ApplicationWindow):
             GLib.idle_add(self.queue_page.replace_queue, song_list, current_id)
             GLib.idle_add(lambda: self.playing_page.player.set_state(Gst.State.PAUSED) and False)
 
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        self.set_property('default-width', settings.get_value('default-width').unpack())
+        self.set_property('default-height', settings.get_value('default-height').unpack())
