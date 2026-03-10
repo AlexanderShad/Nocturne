@@ -20,7 +20,7 @@ template $NocturneWindow: Adw.ApplicationWindow {
 
   content: Adw.ToastOverlay {
     child: Adw.BottomSheet main_bottom_sheet {
-      full-width: true;
+      full-width: false;
       show-drag-handle: false;
       notify::reveal-bottom-bar => $bottom_bar_toggled();
 

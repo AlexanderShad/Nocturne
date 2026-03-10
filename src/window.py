@@ -46,6 +46,7 @@ class NocturneWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback()
     def bottom_bar_toggled(self, bottom_bar, gparam):
+        return
         self.main_navigationview.set_margin_bottom(70 if bottom_bar.get_reveal_bottom_bar() else 0)
         self.main_sidebar.set_margin_bottom(70 if bottom_bar.get_reveal_bottom_bar() else 0)
 

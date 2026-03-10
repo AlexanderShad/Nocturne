@@ -19,7 +19,3 @@ class MainSidebar(Adw.NavigationPage):
         is_small = self.get_root().get_width() < int(condition.split(': ')[1].strip('sp'))
         self.sidebar.set_mode(Adw.SidebarMode.PAGE if is_small else Adw.SidebarMode.SIDEBAR)
 
-        self.get_root().main_bottom_sheet.connect('notify::reveal-bottom-bar', self.bottom_bar_toggled)
-
-    def bottom_bar_toggled(self, bottom_bar, gparam):
-        self.set_margin_bottom(70 if bottom_bar.get_reveal_bottom_bar() else 0)

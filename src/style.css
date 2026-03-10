@@ -30,8 +30,8 @@
   margin-right: 5px;
 }
 
-navigation-view-page scrolledwindow > * {
-padding-bottom: 10px;
+navigation-view-page scrolledwindow viewport > * {
+  padding-bottom: 80px;
 }
 
 .button_no_bold label {
