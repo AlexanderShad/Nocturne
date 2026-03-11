@@ -5,6 +5,14 @@ import random
 from datetime import datetime, UTC
 from . import widgets as Widgets
 
+# -- HELPER --
+
+def __show_page(window, page):
+    # page is Adw.NavigationViewPage
+    window.main_bottom_sheet.set_open(False)
+    window.main_split_view.set_show_content(True)
+    window.main_navigationview.push(page)
+
 # -- MISC --
 
 def toggle_star(window, model_id:str):
@@ -17,6 +25,9 @@ def toggle_star(window, model_id:str):
         else:
             if integration.star(model.id):
                 model.starred = datetime.now(UTC).isoformat(timespec='microseconds').replace('+00:00', 'Z')
+
+def reload_page(window):
+    window.main_navigationview.get_visible_page().reload()
 
 # -- SONG --
 
@@ -36,9 +47,7 @@ def play_song_later(window, model_id:str):
 # -- ALBUM --
 
 def show_album(window, model_id:str):
-    window.main_bottom_sheet.set_open(False)
-    window.main_split_view.set_show_content(True)
-    window.main_navigationview.push(Widgets.AlbumPage(model_id))
+    __show_page(window, Widgets.AlbumPage(model_id))
 
 def play_album(window, model_id:str):
     integration = navidrome.get_current_integration()
@@ -77,9 +86,7 @@ def play_album_shuffle(window, model_id:str):
 # -- PLAYLIST --
 
 def show_playlist(window, model_id:str):
-    window.main_bottom_sheet.set_open(False)
-    window.main_split_view.set_show_content(True)
-    window.main_navigationview.push(Widgets.PlaylistPage(model_id))
+    __show_page(window, Widgets.PlaylistPage(model_id))
 
 def play_playlist(window, model_id:str):
     integration = navidrome.get_current_integration()
@@ -118,6 +125,5 @@ def play_playlist_shuffle(window, model_id:str):
 # -- ARTIST --
 
 def show_artist(window, model_id:str):
-    window.main_bottom_sheet.set_open(False)
-    window.main_split_view.set_show_content(True)
-    window.main_navigationview.push(Widgets.ArtistPage(model_id))
+    __show_page(window, Widgets.ArtistPage(model_id))
+

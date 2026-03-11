@@ -40,6 +40,7 @@
     <file alias="icons/scalable/status/person-symbolic.svg">icons/person-symbolic.svg</file>
 
     <file alias="window.ui">ui/window.ui</file>
+    <file alias="shortcuts-dialog.ui">ui/shortcuts-dialog.ui</file>
 
     <file alias="playing/footer.ui">ui/playing/footer.ui</file>
     <file alias="playing/control_page.ui">ui/playing/control_page.ui</file>
@@ -47,7 +48,6 @@
     <file alias="playing/lyrics_page.ui">ui/playing/lyrics_page.ui</file>
 
     <file alias="pages/home.ui">ui/pages/home.ui</file>
-    <file alias="pages/sidebar.ui">ui/pages/sidebar.ui</file>
     <file alias="pages/login.ui">ui/pages/login.ui</file>
 
     <file alias="album/button.ui">ui/album/button.ui</file>
@@ -64,8 +64,6 @@
 
     <file alias="containers/carousel.ui">ui/containers/carousel.ui</file>
     <file alias="containers/wrapbox.ui">ui/containers/wrapbox.ui</file>
-
-    <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
   </gresource>
 </gresources>
 

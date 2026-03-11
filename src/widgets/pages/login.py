@@ -40,7 +40,7 @@ class LoginPage(Adw.NavigationPage):
         root.footer.setup()
         root.lyrics_page.setup()
 
-        threading.Thread(target=root.home_page.update_all).start()
+        threading.Thread(target=root.main_navigationview.find_page('home').reload).start()
         root.restore_play_queue()
 
     @Gtk.Template.Callback()

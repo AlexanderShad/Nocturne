@@ -4,6 +4,7 @@ gnome = import('gnome')
 
 blueprints = files(
   'ui/window.blp',
+  'ui/shortcuts-dialog.blp',
 
   'ui/playing/footer.blp',
   'ui/playing/control_page.blp',
@@ -11,7 +12,6 @@ blueprints = files(
   'ui/playing/lyrics_page.blp',
 
   'ui/pages/home.blp',
-  'ui/pages/sidebar.blp',
   'ui/pages/login.blp',
 
   'ui/album/button.blp',

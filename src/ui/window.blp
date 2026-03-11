@@ -15,6 +15,7 @@ template $NocturneWindow: Adw.ApplicationWindow {
       sheet_header.title-widget: null;
       sheet_switch_bar.reveal: true;
       main_bottom_sheet.show-drag-handle: true;
+      main_sidebar.mode: page;
     }
   }
 
@@ -34,11 +35,27 @@ template $NocturneWindow: Adw.ApplicationWindow {
           full-width: false;
           show-drag-handle: false;
           reveal-bottom-bar: false;
-          notify::reveal-bottom-bar => $bottom_bar_toggled();
 
           content: Adw.NavigationSplitView main_split_view {
             show-content: true;
-            sidebar: $NocturneMainSidebar main_sidebar {};
+            sidebar: Adw.NavigationPage {
+              title:  "Nocturne";
+              child: Adw.ToolbarView {
+                [top]
+                Adw.HeaderBar {
+                  [end]
+                  MenuButton {
+                    primary: true;
+                    icon-name: "open-menu-symbolic";
+                    tooltip-text: _("Menu");
+                    menu-model: primary_menu;
+                  }
+                }
+                content: Adw.Sidebar main_sidebar {
+                  activated => $on_sidebar_activated();
+                };
+              };
+            };
             content: Adw.NavigationPage {
               child: Adw.NavigationView main_navigationview {
                 $NocturneHomePage home_page {}
@@ -99,4 +116,23 @@ template $NocturneWindow: Adw.ApplicationWindow {
       }
     }
   };
+}
+
+menu primary_menu {
+  section {
+    item {
+      label: _("Preferences");
+      action: "app.preferences";
+    }
+
+    item {
+      label: _("Keyboard Shortcuts");
+      action: "app.shortcuts";
+    }
+
+    item {
+      label: _("About Nocturne");
+      action: "app.about";
+    }
+  }
 }

@@ -17,14 +17,12 @@ class Carousel(Gtk.Box):
         self.header_button.set_sensitive(bool(action_name))
 
     def remove_all(self):
-        for i in range(self.list_el.get_n_pages()):
-            page = self.list_el.get_nth_page(i)
-            if page:
-                self.list_el.remove(page)
+        for page in list(self.list_el):
+            self.list_el.remove(page)
 
     def set_widgets(self, widgets:list):
+        GLib.idle_add(self.set_visible, len(widgets) > 0)
         if self.list_el.get_n_pages() > 0:
             GLib.idle_add(self.remove_all)
-        GLib.idle_add(self.set_visible, len(widgets) > 0)
         for page in widgets:
             GLib.idle_add(self.list_el.append, page)

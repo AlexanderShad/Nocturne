@@ -14,7 +14,8 @@ class HomePage(Adw.NavigationPage):
     artist_carousel = Gtk.Template.Child()
     playlist_carousel = Gtk.Template.Child()
 
-    def update_all(self):
+    def reload(self):
+        # call in different thread
         self.album_carousel.set_header(
             label=_("Albums"),
             icon_name="music-queue-symbolic"

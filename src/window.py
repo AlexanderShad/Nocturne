@@ -17,9 +17,15 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, Adw, GLib, Gst, Gio
+from gi.repository import Gtk, Adw, GLib, Gst, Gio, GObject
 
 from . import navidrome, actions
+from .constants import SIDEBAR_MENU
+import threading
+
+class SidebarItem(Adw.SidebarItem):
+    __gtype_name__ = 'NocturneSidebarItem'
+    page_name = GObject.Property(type=str)
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/window.ui')
 class NocturneWindow(Adw.ApplicationWindow):
@@ -27,7 +33,6 @@ class NocturneWindow(Adw.ApplicationWindow):
 
     breakpoint_el = Gtk.Template.Child()
     main_navigationview = Gtk.Template.Child()
-    home_page = Gtk.Template.Child()
     main_bottom_sheet = Gtk.Template.Child()
     main_split_view = Gtk.Template.Child()
     playing_page = Gtk.Template.Child()
@@ -49,15 +54,16 @@ class NocturneWindow(Adw.ApplicationWindow):
         settings.set_int('default-height', self.get_height())
 
     @Gtk.Template.Callback()
-    def bottom_bar_toggled(self, bottom_bar, gparam):
-        return
-        self.main_navigationview.set_margin_bottom(70 if bottom_bar.get_reveal_bottom_bar() else 0)
-        self.main_sidebar.set_margin_bottom(70 if bottom_bar.get_reveal_bottom_bar() else 0)
+    def on_sidebar_activated(self, sidebar, index):
+        page_name = sidebar.get_selected_item().page_name
+        page = self.main_navigationview.find_page(page_name)
+        threading.Thread(target=page.reload).start()
 
-    def create_action(self, callback:callable, parameter_type:str="s"):
+    def create_action(self, callback:callable, shortcuts:list=[], parameter_type:str="s"):
         self.get_application().create_action(
             name=callback.__name__,
-            callback=lambda at, va, cb=callback, win=self: cb(win, va.unpack()),
+            callback=lambda at, va, cb=callback, win=self: cb(win, va.unpack()) if va else cb(win),
+            shortcuts=shortcuts,
             parameter_type=GLib.VariantType.new(parameter_type) if parameter_type else None
         )
 
@@ -67,6 +73,19 @@ class NocturneWindow(Adw.ApplicationWindow):
         if len(song_list) > 0:
             GLib.idle_add(self.get_root().queue_page.replace_queue, song_list, current_id)
             GLib.idle_add(lambda: self.get_root().playing_page.player.set_state(Gst.State.PAUSED) and False)
+
+    def setup_sidebar(self):
+        for section in SIDEBAR_MENU:
+            section_el = Adw.SidebarSection(
+                title=section.get('title')
+            )
+            self.main_sidebar.append(section_el)
+            for item in section.get('items'):
+                section_el.append(SidebarItem(
+                    title=item.get('title'),
+                    icon_name=item.get('icon-name'),
+                    page_name=item.get('page-name')
+                ))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -79,6 +98,12 @@ class NocturneWindow(Adw.ApplicationWindow):
         add_song_to_playlist
         add_album_to_playlist
         """
+
+        self.create_action(
+            actions.reload_page,
+            shortcuts=["<ctrl>r"],
+            parameter_type=None
+        )
 
         self.create_action(actions.toggle_star)
 
@@ -103,3 +128,5 @@ class NocturneWindow(Adw.ApplicationWindow):
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         self.set_property('default-width', settings.get_value('default-width').unpack())
         self.set_property('default-height', settings.get_value('default-height').unpack())
+
+        GLib.idle_add(self.setup_sidebar)
