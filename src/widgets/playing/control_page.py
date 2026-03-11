@@ -129,6 +129,10 @@ class PlayingControlPage(Adw.NavigationPage):
             root = self.get_root()
             if root:
                 root.footer.state_stack_el.set_visible_child_name(stack_page_name)
+                if stack_page_name == 'pause':
+                    root.add_css_class('playing')
+                else:
+                    root.remove_css_class('playing')
 
     def auto_play(self):
         GLib.idle_add(self.get_root().queue_page.autoplay_spinner_el.set_visible, True)
@@ -258,7 +262,7 @@ class PlayingControlPage(Adw.NavigationPage):
         img_io = io.BytesIO(raw_bytes)
         palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
         css = f"""
-        .dynamic-accent-bg, .dynamic-accent-bg > .sidebar-pane {{
+        .dynamic-accent-bg {{
             background-image: linear-gradient(
                 to bottom right,
                 rgba({','.join([str(c) for c in palette[0]])},0.25),
