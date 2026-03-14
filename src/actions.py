@@ -398,15 +398,19 @@ def show_artist(window, model_id:str):
 
 def play_shuffle_artist(window, model_id:str):
     integration = navidrome.get_current_integration()
-    model = integration.loaded_models.get(model_id)
-    if model:
-        songs = []
-        for album in model.album:
-            album_model = integration.loaded_models.get(album.get('id'))
-            if album_model:
-                songs.extend([s.get('id') for s in album_model.song])
-        if len(songs) > 0:
-            play_songs(window, '|'.join(random.sample(songs, min(20, len(songs)))))
+    def run():
+        integration.verifyArtist(model_id, force_update=True, use_threading=False)
+        model = integration.loaded_models.get(model_id)
+        if model:
+            songs = []
+            for album in model.album:
+                integration.verifyAlbum(album.get('id'), force_update=True, use_threading=False)
+                album_model = integration.loaded_models.get(album.get('id'))
+                if album_model:
+                    songs.extend([s.get('id') for s in album_model.song])
+            if len(songs) > 0:
+                play_songs(window, '|'.join(random.sample(songs, min(20, len(songs)))))
+    threading.Thread(target=run).start()
 
 def play_radio_artist(window, model_id:str):
     integration = navidrome.get_current_integration()

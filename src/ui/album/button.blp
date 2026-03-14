@@ -7,6 +7,13 @@ template $NocturneAlbumButton: Gtk.Box {
   width-request: 240;
 
   Gtk.Button play_el {
+    Gtk.GestureClick {
+      button: 3;
+      released => $show_popover_image();
+    }
+    Gtk.GestureLongPress {
+      pressed => $show_popover_image();
+    }
     styles [
       "force_p0",
       "flat",
@@ -42,6 +49,13 @@ template $NocturneAlbumButton: Gtk.Box {
   }
 
   Gtk.Button name_el {
+    Gtk.GestureClick {
+      button: 3;
+      released => $show_popover_name();
+    }
+    Gtk.GestureLongPress {
+      pressed => $show_popover_name();
+    }
     styles [
       "title-3",
       "flat",
@@ -57,6 +71,13 @@ template $NocturneAlbumButton: Gtk.Box {
   }
 
   Gtk.Button artist_el {
+    Gtk.GestureClick {
+      button: 3;
+      released => $show_popover_artist();
+    }
+    Gtk.GestureLongPress {
+      pressed => $show_popover_artist();
+    }
     styles [
       "dimmed",
       "flat",

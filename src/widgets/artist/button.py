@@ -2,6 +2,8 @@
 
 from gi.repository import Gtk, Adw, GLib, Gdk
 from ...navidrome import get_current_integration
+from ...constants import CONTEXT_ARTIST
+from ..containers import ContextContainer
 import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/artist/button.ui')
@@ -45,3 +47,20 @@ class ArtistButton(Gtk.Button):
             self.album_count_el.set_label(_("{} Albums").format(albumCount))
 
         self.album_count_el.set_visible(albumCount)
+
+    @Gtk.Template.Callback()
+    def show_popover(self, *args):
+        rect = Gdk.Rectangle()
+        if len(args) == 4:
+            rect.x, rect.y = args[2], args[3]
+        else:
+            rect.x, rect.y = args[1], args[2]
+
+        popover = Gtk.Popover(
+            child=ContextContainer(CONTEXT_ARTIST, self.id),
+            pointing_to=rect,
+            has_arrow=False
+        )
+        popover.set_parent(self)
+        popover.popup()
+

@@ -1,7 +1,9 @@
 # button.py
 
-from gi.repository import Gtk, Adw, GLib
+from gi.repository import Gtk, Adw, GLib, Gdk
 from ...navidrome import get_current_integration
+from ...constants import CONTEXT_PLAYLIST
+from ..containers import ContextContainer
 import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/playlist/button.ui')
@@ -46,3 +48,20 @@ class PlaylistButton(Gtk.Box):
             self.song_count_label_el.set_label(_("{} Songs").format(songCount))
 
         self.song_count_label_el.set_visible(songCount)
+
+    @Gtk.Template.Callback()
+    def show_popover(self, *args):
+        rect = Gdk.Rectangle()
+        if len(args) == 4:
+            rect.x, rect.y = args[2], args[3]
+        else:
+            rect.x, rect.y = args[1], args[2]
+
+        popover = Gtk.Popover(
+            child=ContextContainer(CONTEXT_PLAYLIST, self.id),
+            pointing_to=rect,
+            has_arrow=False
+        )
+        popover.set_parent(self)
+        popover.popup()
+

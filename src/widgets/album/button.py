@@ -1,7 +1,9 @@
 # button.py
 
-from gi.repository import Gtk, Adw, GLib
-from ...navidrome import get_current_integration, models
+from gi.repository import Gtk, Adw, GLib, Gdk
+from ...navidrome import get_current_integration
+from ...constants import CONTEXT_ALBUM, CONTEXT_ARTIST
+from ..containers import ContextContainer
 import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/album/button.ui')
@@ -46,3 +48,54 @@ class AlbumButton(Gtk.Box):
 
     def update_artist_id(self, artistId:str):
         self.artist_el.set_action_target_value(GLib.Variant.new_string(artistId))
+
+    @Gtk.Template.Callback()
+    def show_popover_image(self, *args):
+        rect = Gdk.Rectangle()
+        if len(args) == 4:
+            rect.x, rect.y = args[2], args[3]
+        else:
+            rect.x, rect.y = args[1], args[2]
+
+        popover = Gtk.Popover(
+            child=ContextContainer(CONTEXT_ALBUM, self.id),
+            pointing_to=rect,
+            has_arrow=False
+        )
+        popover.set_parent(self.play_el)
+        popover.popup()
+
+    @Gtk.Template.Callback()
+    def show_popover_name(self, *args):
+        rect = Gdk.Rectangle()
+        if len(args) == 4:
+            rect.x, rect.y = args[2], args[3]
+        else:
+            rect.x, rect.y = args[1], args[2]
+
+        popover = Gtk.Popover(
+            child=ContextContainer(CONTEXT_ALBUM, self.id),
+            pointing_to=rect,
+            has_arrow=False
+        )
+        popover.set_parent(self.name_el)
+        popover.popup()
+
+    @Gtk.Template.Callback()
+    def show_popover_artist(self, *args):
+        integration = get_current_integration()
+        artist_id = integration.loaded_models.get(self.id).artistId
+        if artist_id:
+            rect = Gdk.Rectangle()
+            if len(args) == 4:
+                rect.x, rect.y = args[2], args[3]
+            else:
+                rect.x, rect.y = args[1], args[2]
+
+            popover = Gtk.Popover(
+                child=ContextContainer(CONTEXT_ARTIST, artist_id),
+                pointing_to=rect,
+                has_arrow=False
+            )
+            popover.set_parent(self.artist_el)
+            popover.popup()

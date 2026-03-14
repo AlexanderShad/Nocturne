@@ -458,9 +458,14 @@ class Navidrome(GObject.Object):
 
 integration = None
 
+def ping_without_login(url:str) -> bool:
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json().get('subsonic-response') is not None
+    return False
+
 def get_current_integration():
     global integration
-    integration.search('Ado', artistCount=3)
     return integration
 
 def set_current_integration(new_integration):
