@@ -396,3 +396,27 @@ def remove_songs_from_playlist(window, song_list:str):
 def show_artist(window, model_id:str):
     __show_page(window, Widgets.ArtistPage(model_id))
 
+def play_shuffle_artist(window, model_id:str):
+    integration = navidrome.get_current_integration()
+    model = integration.loaded_models.get(model_id)
+    if model:
+        songs = []
+        for album in model.album:
+            album_model = integration.loaded_models.get(album.get('id'))
+            if album_model:
+                songs.extend([s.get('id') for s in album_model.song])
+        if len(songs) > 0:
+            play_songs(window, '|'.join(random.sample(songs, min(20, len(songs)))))
+
+def play_radio_artist(window, model_id:str):
+    integration = navidrome.get_current_integration()
+    def run():
+        songs = integration.getSimilarSongs(model_id)
+        if len(songs) > 0:
+            play_songs(window, '|'.join(songs))
+        else:
+            toast = Adw.Toast(
+                title=_("No songs found")
+            )
+            GLib.idle_add(window.toast_overlay.add_toast, toast)
+    threading.Thread(target=run).start()

@@ -143,6 +143,8 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.remove_songs_from_playlist)
 
         self.create_action(actions.show_artist)
+        self.create_action(actions.play_shuffle_artist)
+        self.create_action(actions.play_radio_artist)
 
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         self.set_property('default-width', settings.get_value('default-width').unpack())

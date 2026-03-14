@@ -17,6 +17,8 @@ class ArtistPage(Adw.NavigationPage):
     star_el = Gtk.Template.Child()
     album_wrapbox = Gtk.Template.Child()
     artist_carousel = Gtk.Template.Child()
+    play_shuffle_el = Gtk.Template.Child()
+    play_radio_el = Gtk.Template.Child()
 
     def __init__(self, id:str):
         self.id = id
@@ -27,6 +29,8 @@ class ArtistPage(Adw.NavigationPage):
         )
 
         self.star_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        self.play_shuffle_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        self.play_radio_el.set_action_target_value(GLib.Variant.new_string(self.id))
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'biography', self.update_biography)
