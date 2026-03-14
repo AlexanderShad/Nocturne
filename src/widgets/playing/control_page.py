@@ -43,6 +43,7 @@ class PlayingControlPage(Adw.NavigationPage):
         self.volume_el.set_value(0.25) ##TODO save volume within sessions
         self.player.set_property("volume", 0.25)
         GLib.idle_add(self.setup_sidebar_button_connection)
+        GLib.timeout_add(500, self.update_stream_progress)
 
     def setup(self):
         # Called after login
@@ -258,6 +259,10 @@ class PlayingControlPage(Adw.NavigationPage):
                 self.radio_homepage_el.set_tooltip_text(model.homePageUrl)
             self.radio_homepage_el.set_visible(model.isRadio and model.homePageUrl)
 
+            # Timestamp (radio)
+            self.positive_progress_el.set_visible(not model.isRadio)
+            self.negative_progress_el.set_visible(not model.isRadio)
+
             # Artist
             if len(model.artists) > 0:
                 self.artist_el.get_child().set_label(model.artists[0].get('name'))
@@ -366,7 +371,6 @@ class PlayingControlPage(Adw.NavigationPage):
             stream_url = integration.get_stream_url(songId)
             self.player.set_property('uri', stream_url)
             self.player.set_state(Gst.State.PLAYING)
-            GLib.timeout_add(500, self.update_stream_progress)
 
     def update_stream_progress(self):
         if self.is_seeking:
