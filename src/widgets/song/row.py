@@ -182,7 +182,10 @@ class SongRow(Adw.ActionRow):
     def remove_selected(self):
         queue = self.get_ancestor(SongQueue)
         if queue.playlist_id: #is playlist
-            target_value = GLib.Variant('s', '{}|{}'.format(queue.playlist_id, str(list(queue.list_el).index(self))))
+            target_value = GLib.Variant('a{sv}', {
+                'playlist': GLib.Variant('s', queue.playlist_id),
+                'indexes': GLib.Variant('as', str(list(queue.list_el).index(self)))
+            })
             self.get_root().activate_action("app.remove_songs_from_playlist", target_value)
             queue.list_el.remove(self)
         else:
