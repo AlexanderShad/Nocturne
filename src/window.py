@@ -137,6 +137,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.add_songs_to_playlist, parameter_type="a{sv}")
         self.create_action(actions.prompt_add_song_to_playlist)
         self.create_action(actions.prompt_add_album_to_playlist)
+        self.create_action(actions.delete_playlist)
 
         self.create_action(actions.show_artist)
         self.create_action(actions.play_shuffle_artist)

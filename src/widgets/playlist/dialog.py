@@ -9,6 +9,7 @@ import re
 class PlaylistDialog(Adw.Dialog):
     __gtype_name__ = 'NocturnePlaylistDialog'
 
+    search_entry_el = Gtk.Template.Child()
     preferences_group_el = Gtk.Template.Child()
     list_el = Gtk.Template.Child()
     add_button_el = Gtk.Template.Child()
@@ -31,6 +32,7 @@ class PlaylistDialog(Adw.Dialog):
         else:
             integration.verifySong(self.song_list[0], force_update=True, use_threading=False)
             self.preferences_group_el.set_description(integration.loaded_models.get(self.song_list[0]).title)
+        self.search_changed(self.search_entry_el)
 
     @Gtk.Template.Callback()
     def search_changed(self, entry):
@@ -50,5 +52,5 @@ class PlaylistDialog(Adw.Dialog):
         })
         self.add_button_el.set_action_target_value(target_value)
         self.add_button_el.set_action_name('app.add_songs_to_playlist')
-        self.add_button_el.set_title(query)
+        self.add_button_el.set_title(query or _("New Playlist"))
 

@@ -457,6 +457,30 @@ def add_songs_to_playlist(window, data):
             args=(window, data.get('playlist'), "name", ' | '.join(message))
         ).start()
 
+def delete_playlist(window, model_id:str):
+    integration = navidrome.get_current_integration()
+    model = integration.loaded_models.get(model_id)
+
+    def show_toast(model):
+        __show_custom_toast(window, model.id, "name", _("Playlist Deleted"))
+        del integration.loaded_models[model.id]
+        window.main_navigationview.get_visible_page().reload()
+
+    def response(dialog, task, model):
+        if dialog.choose_finish(task) == "delete":
+            result = integration.deletePlaylist(model.id)
+            if result:
+                threading.Thread(target=show_toast, args=(model,)).start()
+
+    dialog = Adw.AlertDialog(
+        heading=_("Delete Playlist"),
+        body=_("Are you sure you want to delete '{}'?").format(model.name)
+    )
+    dialog.add_response("cancel", _("Cancel"))
+    dialog.add_response("delete", _("Delete"))
+    dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
+    dialog.choose(window, None, response, model)
+
 # -- ARTIST --
 
 def show_artist(window, model_id:str):

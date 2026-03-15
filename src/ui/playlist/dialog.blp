@@ -7,7 +7,7 @@ template $NocturnePlaylistDialog: Adw.Dialog {
   child: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
-      title-widget: Gtk.SearchEntry {
+      title-widget: Gtk.SearchEntry search_entry_el {
         placeholder-text: _("Search (or create new playlist)");
         hexpand: true;
         search-changed => $search_changed();
