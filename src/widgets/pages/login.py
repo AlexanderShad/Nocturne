@@ -31,7 +31,10 @@ class LoginPage(Adw.NavigationPage):
             set_current_integration(integration)
             GLib.idle_add(self.login_success)
         else:
-            GLib.idle_add(lambda: self.get_root().main_stack.set_visible_child_name('login'))
+            GLib.idle_add(self.get_root().main_stack.set_visible_child_name, 'login')
+            toast = Adw.Toast(title=_("Login Failed"))
+            GLib.idle_add(self.get_ancestor(Adw.ToastOverlay).add_toast, toast)
+            GLib.idle_add(self.password_el.set_text, "")
 
     def login_success(self):
         root = self.get_root()
@@ -42,7 +45,7 @@ class LoginPage(Adw.NavigationPage):
         root.lyrics_page.setup()
 
         threading.Thread(target=root.main_navigationview.find_page('home').reload).start()
-        root.restore_play_queue()
+        GLib.idle_add(root.playing_page.player.restore_play_queue)
 
     @Gtk.Template.Callback()
     def login_button_clicked(self, button):

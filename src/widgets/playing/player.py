@@ -367,3 +367,9 @@ class Player(EventAdapter):
         return True
 
 
+    def restore_play_queue(self):
+        integration = get_current_integration()
+        current_id, song_list = integration.getPlayQueue()
+        if len(song_list) > 0:
+            self.control_page.get_root().queue_page.replace_queue(song_list, current_id)
+            GLib.idle_add(lambda: self.gst.set_state(Gst.State.PAUSED) and False)

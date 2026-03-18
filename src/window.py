@@ -79,13 +79,6 @@ class NocturneWindow(Adw.ApplicationWindow):
             parameter_type=GLib.VariantType.new(parameter_type) if parameter_type else None
         )
 
-    def restore_play_queue(self):
-        integration = navidrome.get_current_integration()
-        current_id, song_list = integration.getPlayQueue()
-        if len(song_list) > 0:
-            GLib.idle_add(self.get_root().queue_page.replace_queue, song_list, current_id)
-            GLib.timeout_add(200, lambda: self.playing_page.player.gst.set_state(Gst.State.PAUSED) and False)
-
     def setup_sidebar(self):
         for section in SIDEBAR_MENU:
             section_el = Adw.SidebarSection(
