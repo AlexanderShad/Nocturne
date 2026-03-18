@@ -8,6 +8,7 @@ class Album(GObject.Object):
     id = GObject.Property(type=str)
     gdkPaintable = GObject.Property(type=GObject.TYPE_PYOBJECT) #Gdk.Paintable
     gdkPaintableBytes = GObject.Property(type=GObject.TYPE_PYOBJECT) #Bytes
+    coverArtUrl = GObject.Property(type=str)
     name = GObject.Property(type=str)
     artist = GObject.Property(type=str)
     artistId = GObject.Property(type=str)
@@ -55,6 +56,7 @@ class Artist(GObject.Object):
     id = GObject.Property(type=str)
     gdkPaintable = GObject.Property(type=GObject.TYPE_PYOBJECT) #Gdk.Paintable
     gdkPaintableBytes = GObject.Property(type=GObject.TYPE_PYOBJECT) #Bytes
+    coverArtUrl = GObject.Property(type=str)
     name = GObject.Property(type=str)
     coverArt = GObject.Property(type=str)
     albumCount = GObject.Property(type=int)
@@ -90,6 +92,7 @@ class Playlist(GObject.Object):
     id = GObject.Property(type=str)
     gdkPaintable = GObject.Property(type=GObject.TYPE_PYOBJECT) #Gdk.Paintable
     gdkPaintableBytes = GObject.Property(type=GObject.TYPE_PYOBJECT) #Bytes
+    coverArtUrl = GObject.Property(type=str)
     name = GObject.Property(type=str)
     songCount = GObject.Property(type=int)
     duration = GObject.Property(type=int)

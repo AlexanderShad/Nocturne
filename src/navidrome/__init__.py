@@ -101,7 +101,7 @@ class Navidrome(GObject.Object):
                             model.set_property('coverArtUrl', icons[0].url)
                             model.set_property('gdkPaintableBytes', png_bytes)
                             model.set_property('gdkPaintable', texture)
-                            return model.gdkPaintableBytes, model.gdkPaintable
+                            return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
                         except Exception as e:
                             pass
 
@@ -133,7 +133,7 @@ class Navidrome(GObject.Object):
                     model.set_property('coverArtUrl', '{}?{}'.format(integration.get_url('getCoverArt'), "&".join([f"{k}={v}" for k, v in params.items()])))
                     model.set_property('gdkPaintableBytes', response_bytes)
                     model.set_property('gdkPaintable', texture)
-                    return model.gdkPaintableBytes, model.gdkPaintable
+                    return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
                 except Exception as e:
                     pass
 
