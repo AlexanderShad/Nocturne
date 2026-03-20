@@ -33,7 +33,8 @@ class NocturneApplication(Adw.Application):
     __gtype_name__ = 'NocturneApplication'
     """The main application singleton class."""
 
-    def __init__(self):
+    def __init__(self, version):
+        self.version = version
         super().__init__(application_id='com.jeffser.Nocturne',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS,
                          resource_base_path='/com/jeffser/Nocturne')
@@ -48,14 +49,16 @@ class NocturneApplication(Adw.Application):
         win.present()
 
     def on_about_action(self, *args):
-        about = Adw.AboutDialog(application_name='nocturne',
-                                application_icon='com.jeffser.Nocturne',
-                                developer_name='Jeffry Samuel',
-                                version='0.1.0',
-                                developers=['Jeffry Samuel'],
-                                copyright='© 2026 Jeffry Samuel')
-        # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
-        about.set_translator_credits(_('translator-credits'))
+        about = Adw.AboutDialog(
+            application_icon="com.jeffser.Nocturne",
+            application_name="Nocturne",
+            copyright="© 2026 Jeffry Samuel",
+            developer_name="Jeffry Samuel",
+            issue_url="https://github.com/Jeffser/Nocturne/issues",
+            license="GPL-3.0-or-later",
+            version=self.version,
+            website="https://jeffser.com/nocturne"
+        )
         about.present(self.props.active_window)
 
     def on_preferences_action(self, widget, _):
@@ -71,5 +74,4 @@ class NocturneApplication(Adw.Application):
 
 def main(version):
     """The application's entry point."""
-    app = NocturneApplication()
-    return app.run(sys.argv)
+    return NocturneApplication(version).run(sys.argv)

@@ -14,7 +14,6 @@ class WelcomePage(Adw.NavigationPage):
     def check_status(self):
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         if get_navidrome_path() or settings.get_value('welcome-viewed').unpack():
-            self.get_root().main_stack.set_visible_child_name('login')
             self.get_root().login_page.load_defaults()
         else:
             self.get_root().main_stack.set_visible_child_name('welcome')
