@@ -6,6 +6,14 @@
   padding: 10px;
 }
 
+.lrc_list_p0 > row {
+	padding:0;
+}
+
+.lrc_list_p0 > row > row {
+	margin: 0;
+}
+
 .lrc_list, .lrc_list row:selected {
   background: transparent;
 }

@@ -2,11 +2,10 @@
 
 from gi.repository import Gtk, Adw, Gdk, GLib, Pango
 from ...navidrome import get_current_integration
-from ...constants import CONTEXT_PLAYLIST
+from ...constants import CONTEXT_PLAYLIST, get_display_time
 from ..containers import get_context_buttons_list
 from ..song import SongRow
 import threading, uuid
-from datetime import timedelta
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/playlist/page.ui')
 class PlaylistPage(Adw.NavigationPage):
@@ -82,5 +81,5 @@ class PlaylistPage(Adw.NavigationPage):
         self.song_count_el.set_visible(songCount)
 
     def update_duration(self, duration:int):
-        self.duration_el.set_label(str(timedelta(seconds=duration)).removeprefix('0:'))
+        self.duration_el.set_label(get_display_time(duration))
         self.duration_el.set_visible(duration)

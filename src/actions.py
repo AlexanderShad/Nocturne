@@ -1,10 +1,11 @@
 # actions.py
 
 from . import navidrome
-import random, threading
+import random, threading, os
 from datetime import datetime, UTC
 from . import widgets as Widgets
 from gi.repository import Gio, Adw, Gtk, GLib
+from .constants import DATA_DIR
 
 # -- HELPER --
 
@@ -239,6 +240,37 @@ def play_songs_later(window, song_list:list):
             target=__show_custom_toast,
             args=(window, song_list[0], "title", _("Playing Later"))
         ).start()
+
+def edit_lyrics(window, song_id:str):
+    Widgets.LyricsDialog(song_id).present(window)
+
+def save_lyrics(window, lyric_dict:dict):
+    # lyric_dict KEYS
+    # id:str
+    # content:str
+    # is_synced:bool
+
+    integration = navidrome.get_current_integration()
+    model = integration.loaded_models.get(lyric_dict.get('id'))
+    file_name_without_ext = '{}|{}|{}|{}'.format(
+        model.get_property('title'),
+        model.get_property('artist'),
+        model.get_property('album') or model.get_property('title'),
+        model.get_property('duration')
+    )
+    lyrics_dir = os.path.join(DATA_DIR, 'lyrics')
+    lrc_path = os.path.join(lyrics_dir, file_name_without_ext+'.lrc')
+    plain_path = os.path.join(lyrics_dir, file_name_without_ext+'.txt')
+
+    with open(lrc_path if lyric_dict.get('is_synced') else plain_path, 'w') as f:
+        f.write(lyric_dict.get('content'))
+
+    window.lyrics_page.song_changed(lyric_dict.get('id'))
+
+    threading.Thread(
+        target=__show_custom_toast,
+        args=(window, lyric_dict.get('id'), "title", _("Lyrics Saved"))
+    ).start()
 
 # -- ALBUM --
 

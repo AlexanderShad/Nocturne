@@ -1,0 +1,141 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $NocturneLyricsDialog: Adw.Dialog {
+  title: _("Lyrics Editor");
+  content-width: 620;
+  content-height: 720;
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-end-title-buttons: false;
+      show-start-title-buttons: false;
+
+      [start]
+      Gtk.Button {
+        label: _("Cancel");
+        tooltip-text: _("Cancel");
+        clicked => $cancel_clicked();
+      }
+
+      [end]
+      Gtk.Button {
+        label: _("Save");
+        tooltip-text: _("Save");
+        styles [
+          "suggested-action"
+        ]
+        clicked => $save_clicked();
+      }
+    }
+
+    [bottom]
+    Gtk.ActionBar {
+      [center]
+      Gtk.Box {
+        spacing: 5;
+        Gtk.Stack state_stack_el {
+          transition-type: crossfade;
+          notify::visible-child-name => $state_stack_changed();
+
+          Gtk.StackPage {
+            name: "play";
+            child: Gtk.Button {
+              icon-name: "media-playback-start-symbolic";
+              valign: center;
+              clicked => $play_clicked();
+              tooltip-text: _("Play");
+              styles [
+                "circular",
+                "accent"
+              ]
+            };
+          }
+
+          Gtk.StackPage {
+            name: "pause";
+            child: Gtk.Button {
+              icon-name: "media-playback-pause-symbolic";
+              valign: center;
+              clicked => $pause_clicked();
+              tooltip-text: _("Pause");
+              styles [
+                "circular",
+                "accent"
+              ]
+            };
+          }
+        }
+
+        Gtk.SpinButton position_spin {
+          adjustment: Gtk.Adjustment {
+            lower: 0;
+            upper: 1;
+            value: 0;
+            step-increment: 0.10;
+          };
+          digits: 2;
+          output => $position_spin_changed();
+        }
+
+        Gtk.Scale progress_el {
+          orientation: horizontal;
+          hexpand: true;
+          GestureClick {
+            pressed => $seek_start();
+            stopped => $seek_end();
+          }
+          adjustment: Gtk.Adjustment {
+            lower: 0;
+            upper: 1;
+            value: 0;
+            value-changed => $progress_bar_changed();
+          };
+          styles [
+            "p0"
+          ]
+          accessibility {
+            label: _("Current song progress bar");
+          }
+        }
+
+        Gtk.Button {
+          tooltip-text: _("Add Line at Timestamp");
+          icon-name: "list-add-symbolic";
+          clicked => $add_line();
+          styles [
+            "circular"
+          ]
+        }
+      }
+    }
+
+    content: Gtk.Stack main_stack {
+      Gtk.StackPage {
+        name: "loading";
+        child: Adw.Spinner {};
+      }
+
+      Gtk.StackPage {
+        name: "content";
+        child: Gtk.ScrolledWindow {
+          propagate-natural-width: true;
+          propagate-natural-height: true;
+          max-content-width: 500;
+          max-content-height: 400;
+          child: Adw.Clamp {
+            maximum-size: 800;
+            tightening-threshold: 600;
+            child: Gtk.ListBox lrc_list_el {
+              margin-start: 10;
+              margin-end: 10;
+              styles [
+                "boxed-list"
+              ]
+            };
+          };
+        };
+      }
+    };
+  };
+}

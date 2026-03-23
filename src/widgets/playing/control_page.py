@@ -2,9 +2,9 @@
 
 from gi.repository import Gtk, Adw, Gdk, GLib, GObject, Gst, Gio
 from ...navidrome import get_current_integration
-from ...constants import MPRIS_COVER_PATH
+from ...constants import MPRIS_COVER_PATH, get_display_time
 import threading, random, io, colorsys, os
-from datetime import datetime, timedelta
+from datetime import datetime
 from PIL import Image
 from colorthief import ColorThief
 from urllib.parse import urlparse
@@ -50,8 +50,8 @@ class PlayingControlPage(Adw.NavigationPage):
         if current_song:
             song = integration.loaded_models.get(current_song.get_property('songId'))
             if song:
-                label_positive = str(timedelta(seconds=int(positionSeconds))).removeprefix('0:')
-                label_negative = str(timedelta(seconds=int(song.get_property('duration') - positionSeconds))).removeprefix('0:')
+                label_positive = get_display_time(positionSeconds)
+                label_negative = get_display_time(song.get_property('duration') - positionSeconds)
                 self.positive_progress_el.set_label(label_positive)
                 self.negative_progress_el.set_label('-{}'.format(label_negative))
                 self.progress_el.get_adjustment().set_value(positionSeconds)

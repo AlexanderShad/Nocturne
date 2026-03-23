@@ -1,0 +1,57 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $NocturneLyricEditRow: Adw.EntryRow {
+  activatable: false;
+  [prefix]
+  Gtk.MenuButton ts_button {
+    valign: center;
+    tooltip-text: _("Timestamp");
+    icon-name: "view-more-symbolic";
+    popover: Gtk.Popover {
+      child: Gtk.Box {
+        orientation: vertical;
+        Gtk.Button {
+          tooltip-text: _("Go to Timestamp");
+          child: Adw.ButtonContent {
+            label: _("Go to Timestamp");
+            icon-name: "snapshots-alt-symbolic";
+            halign: start;
+          };
+          clicked => $go_to_timestamp();
+          styles [
+            "flat"
+          ]
+        }
+        Gtk.Button {
+          tooltip-text: _("Set Current Timestamp");
+          child: Adw.ButtonContent {
+            label: _("Set Current Timestamp");
+            icon-name: "stopwatch-symbolic";
+            halign: start;
+          };
+          clicked => $set_current_timestamp();
+          styles [
+            "flat"
+          ]
+        }
+        Gtk.Button {
+          tooltip-text: _("Remove Line");
+          child: Adw.ButtonContent {
+            label: _("Remove Line");
+            icon-name: "user-trash-symbolic";
+            halign: start;
+          };
+          clicked => $remove();
+          styles [
+            "flat",
+            "error"
+          ]
+        }
+      };
+    };
+    styles [
+      "flat"
+    ]
+  }
+}

@@ -43,6 +43,9 @@ blueprints = files(
 
   'ui/containers/carousel.blp',
   'ui/containers/wrapbox.blp',
+
+  'ui/lyrics/dialog.blp',
+  'ui/lyrics/edit_row.blp',
 )
 
 blueprints = custom_target('blueprints',

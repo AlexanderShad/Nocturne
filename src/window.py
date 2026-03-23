@@ -117,6 +117,8 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.play_songs, parameter_type="as")
         self.create_action(actions.play_songs_next, parameter_type="as")
         self.create_action(actions.play_songs_later, parameter_type="as")
+        self.create_action(actions.edit_lyrics)
+        self.create_action(actions.save_lyrics, parameter_type="a{sv}") # dict with string keys and any values
 
         self.create_action(actions.show_album)
         self.create_action(actions.play_album)
@@ -131,7 +133,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.play_playlist_shuffle)
         self.create_action(actions.update_playlist)
         self.create_action(actions.create_playlist, parameter_type=None)
-        self.create_action(actions.remove_songs_from_playlist, parameter_type="a{sv}") # dict with string keys and any values
+        self.create_action(actions.remove_songs_from_playlist, parameter_type="a{sv}")
         self.create_action(actions.prompt_add_songs_to_playlist, parameter_type="as")
         self.create_action(actions.add_songs_to_playlist, parameter_type="a{sv}")
         self.create_action(actions.prompt_add_song_to_playlist)

@@ -3,7 +3,6 @@
 from gi.repository import Gtk, Adw, Gdk, GLib, Pango
 from ...navidrome import get_current_integration
 import threading, uuid
-from datetime import timedelta
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/song/queue.ui')
 class SongQueue(Gtk.Box):

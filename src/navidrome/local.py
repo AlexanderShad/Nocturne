@@ -44,16 +44,13 @@ class Local(GObject.Object):
                         continue
 
                     # Making Song Model
-                    song_id = "SONG:{}".format(file_path)
                     song = {
-                        'id': song_id,
                         'path': file_path,
                         'duration': audio.info.length if hasattr(audio, 'info') else 0,
                         'title': "",
                         'album': "",
                         'artist': "",
-                        'artists': [],
-                        'starred': star_dict.get(song_id)
+                        'artists': []
                     }
 
                     if file_path.suffix.lower() == '.mp3':
@@ -101,6 +98,10 @@ class Local(GObject.Object):
 
                     song["artistId"] = "ARTIST:{}".format(song.get("artist")) if song.get('artist') else ""
                     song["albumId"] = "ALBUM:{}".format(song.get("album")) if song.get('album') else ""
+
+                    song_id = "SONG:{}-{}".format(file_path.name.removesuffix(file_path.suffix), song.get('duration'))
+                    song["id"] = song_id
+                    song["starred"] = star_dict.get(song_id)
 
                     self.loaded_models[song.get('id')] = models.Song(**song)
 

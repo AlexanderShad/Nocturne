@@ -55,6 +55,22 @@ def check_if_navidrome_ready() -> bool:
             pass
     return False
 
+def get_display_time(seconds:float, show_ms:bool=False) -> str:
+    total_seconds = max(0, seconds)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if show_ms:
+        seconds_str = f"{seconds:05.2f}"
+    else:
+        seconds_str = f"{seconds:02.0f}"
+
+    if hours > 0:
+        # Format H:MM:SS.ms
+        return f"{hours:01.0f}:{minutes:02.0f}:{seconds_str}"
+    else:
+        # Format MM:SS.ms
+        return f"{minutes:02.0f}:{seconds_str}"
+
 SIDEBAR_MENU = [
     { # Section
         'items': [
@@ -225,6 +241,11 @@ CONTEXT_SONG = {
         "name": _("Edit"),
         "icon-name": "document-edit-symbolic",
         "action-name": "app.update_radio"
+    },
+    "edit-lyrics": {
+        "name": _("Edit Lyrics"),
+        "icon-name": "text-justify-center-symbolic",
+        "action-name": "app.edit_lyrics"
     },
     "delete": {
         "name": _("Delete"),

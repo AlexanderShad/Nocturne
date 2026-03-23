@@ -9,7 +9,7 @@ from mpris_server import Metadata, ValidMetadata, Track, Position, Volume, Rate,
 
 from ...constants import MPRIS_COVER_PATH
 from ...navidrome import get_current_integration
-from datetime import datetime, timedelta
+from ..lyrics import LyricsDialog
 from urllib.parse import urlparse
 import threading, os
 
@@ -250,8 +250,10 @@ class Player(EventAdapter):
             stack_page_name = 'play' if state in (Gst.State.NULL, Gst.State.READY, Gst.State.PAUSED) else 'pause'
             # UI
             self.control_page.state_stack_el.set_visible_child_name(stack_page_name)
-            root = self.control_page.get_root()
-            if root:
+            if root := self.control_page.get_root():
+                for dialog in root.get_dialogs():
+                    if isinstance(dialog, LyricsDialog):
+                        dialog.state_stack_el.set_visible_child_name(stack_page_name)
                 root.footer.state_stack_el.set_visible_child_name(stack_page_name)
                 if stack_page_name == 'pause':
                     root.add_css_class('playing')
