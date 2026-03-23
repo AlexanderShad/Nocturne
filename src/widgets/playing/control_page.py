@@ -2,7 +2,8 @@
 
 from gi.repository import Gtk, Adw, Gdk, GLib, GObject, Gst, Gio
 from ...navidrome import get_current_integration
-import threading, random, io, colorsys
+from ...constants import MPRIS_COVER_PATH
+import threading, random, io, colorsys, os
 from datetime import datetime, timedelta
 from PIL import Image
 from colorthief import ColorThief
@@ -247,9 +248,12 @@ class PlayingControlPage(Adw.NavigationPage):
             if paintable:
                 GLib.idle_add(self.cover_el.set_paintable, paintable)
                 GLib.idle_add(self.cover_el.set_visible, True)
+                paintable.save_to_png(MPRIS_COVER_PATH)
             else:
                 GLib.idle_add(self.cover_el.set_paintable, None)
                 GLib.idle_add(self.cover_el.set_visible, False)
+                if os.path.isfile(MPRIS_COVER_PATH):
+                    os.remove(MPRIS_COVER_PATH)
 
     def update_starred(self, starred:str):
         if starred:

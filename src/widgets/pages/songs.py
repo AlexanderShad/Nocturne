@@ -53,7 +53,7 @@ class SongsPage(Adw.NavigationPage):
 
     @Gtk.Template.Callback()
     def scroll_edge_reached(self, scrolledwindow, pos):
-        if pos == Gtk.PositionType.BOTTOM:
+        if pos == Gtk.PositionType.BOTTOM and self.end_stack.get_visible_child_name() == 'loading':
             threading.Thread(target=self.search).start()
 
     def update_visibility(self):

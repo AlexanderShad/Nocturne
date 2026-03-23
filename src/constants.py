@@ -9,7 +9,7 @@ def get_xdg_home(env, default):
     if IN_FLATPAK:
         return os.getenv(env)
     base = os.getenv(env) or os.path.expanduser(default)
-    path = os.path.join(base, "com.jeffser.Alpaca")
+    path = os.path.join(base, "com.jeffser.Nocturne")
     if not os.path.exists(path):
         os.makedirs(path)
     return path
@@ -20,6 +20,7 @@ CACHE_DIR = get_xdg_home("XDG_CACHE_HOME", "~/.cache")
 MUSIC_DIR = subprocess.check_output(["xdg-user-dir", "MUSIC"], text=True).strip() or os.path.expanduser("~/Music")
 LOCAL_DATA_DIR = os.path.join(DATA_DIR, "local")
 os.makedirs(LOCAL_DATA_DIR, exist_ok=True)
+MPRIS_COVER_PATH = os.path.join(CACHE_DIR, 'cover.png')
 
 BASE_NAVIDROME_DIR = os.path.join(DATA_DIR, "navidrome")
 os.makedirs(BASE_NAVIDROME_DIR, exist_ok=True)

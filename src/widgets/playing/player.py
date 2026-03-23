@@ -7,10 +7,11 @@ from mpris_server.events import EventAdapter
 from mpris_server.server import Server
 from mpris_server import Metadata, ValidMetadata, Track, Position, Volume, Rate, PlayState, DbusObj, MetadataObj, ActivePlaylist, PlaylistEntry, MprisInterface
 
+from ...constants import MPRIS_COVER_PATH
 from ...navidrome import get_current_integration
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
-import threading
+import threading, os
 
 Gst.init(None)
 
@@ -62,7 +63,7 @@ class PlayerAdapter(MprisAdapter):
         return MetadataObj(
             album=song.get_property('album'),
             album_artists=[a.get('name') for a in song.get_property('albumArtists')],
-            art_url=song.get_property('coverArtUrl'),
+            art_url='file://{}'.format(MPRIS_COVER_PATH),
             artists=[urlparse(song.get_property('homePageUrl')).netloc.capitalize()] if song.get_property('isRadio') and song.get_property('homePageUrl') else [a.get('name') for a in song.get_property('artists')],
             as_text=[song.get_property('title')],
             audio_bpm=song.get_property('bpm'),

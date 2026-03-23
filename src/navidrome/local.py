@@ -3,7 +3,7 @@
 from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models
 from datetime import datetime, timezone
-import requests, random, threading, favicon, io, pathlib, re, json, os
+import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid
 from PIL import Image
 from mutagen import File
 from ..constants import MUSIC_DIR, LOCAL_DATA_DIR
@@ -434,7 +434,7 @@ class Local(GObject.Object):
         except Exception:
             radio_dict = {}
 
-        radio_id = 'RADIO:{}'.format(streamUrl)
+        radio_id = str(uuid.uuid4())
         radio_dict[radio_id] = {
             'name': name,
             'streamUrl': streamUrl,
@@ -509,7 +509,7 @@ class Local(GObject.Object):
         except Exception:
             playlist_dict = {}
 
-        playlistId = playlistId or "PLAYLIST:{}".format(name)
+        playlistId = playlistId or str(uuid.uuid4())
 
         playlist_dict[playlistId] = {
             'name': name,
@@ -588,5 +588,25 @@ class Local(GObject.Object):
         return True
 
     def scrobble(self, id:str):
-        # not implemented
-        pass
+        if not id:
+            return
+        SCROBBLEFILE = os.path.join(LOCAL_DATA_DIR, 'scrobble.json')
+        try:
+            with open(SCROBBLEFILE, 'r') as f:
+                scrobble_dict = json.load(f)
+            if not isinstance(scrobble_dict, dict):
+                scrobble_dict = {}
+        except Exception:
+            scrobble_dict = {}
+
+        if id in scrobble_dict:
+            scrobble_dict[id]['plays'] += 1
+            scrobble_dict[id]['last_play'] = int(time.time())
+        else:
+            scrobble_dict[id] = {
+                'plays': 1,
+                'last_play': int(time.time())
+            }
+
+        with open(SCROBBLEFILE, 'w') as f:
+            json.dump(scrobble_dict, f, ensure_ascii=False)

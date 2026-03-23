@@ -99,7 +99,6 @@ class Navidrome(GObject.Object):
                                 img.save(png_buffer, format="PNG")
                                 png_bytes = png_buffer.getvalue()
                             texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(png_bytes))
-                            model.set_property('coverArtUrl', icons[0].url)
                             model.set_property('gdkPaintableBytes', png_bytes)
                             model.set_property('gdkPaintable', texture)
                             return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
@@ -130,7 +129,6 @@ class Navidrome(GObject.Object):
                 if response_bytes and len(response_bytes) > 0:
                     try:
                         texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(response_bytes))
-                        model.set_property('coverArtUrl', '{}?{}'.format(self.get_url('getCoverArt'), "&".join([f"{k}={v}" for k, v in params.items()])))
                         model.set_property('gdkPaintableBytes', response_bytes)
                         model.set_property('gdkPaintable', texture)
                         return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
