@@ -1,11 +1,11 @@
 # actions.py
 
 from .integrations import get_current_integration
-import random, threading, os
+import random, threading, os, shutil
 from datetime import datetime, UTC
 from . import widgets as Widgets
 from gi.repository import Gio, Adw, Gtk, GLib
-from .constants import DATA_DIR
+from .constants import DATA_DIR, BASE_NAVIDROME_DIR
 
 # -- HELPER --
 
@@ -91,6 +91,35 @@ def show_external_file_warning(window):
     )
     dialog.add_response('close', _('Close'))
     dialog.choose(window, None, lambda *_: None, None)
+
+def update_navidrome_server(window):
+    window.main_stack.set_visible_child_name('setup')
+
+def delete_navidrome_server(window):
+    def response(dialog, task):
+        selected_option = dialog.choose_finish(task)
+        if selected_option == "delete":
+            shutil.rmtree(BASE_NAVIDROME_DIR)
+        elif selected_option == "keep_data":
+            os.remove(os.path.join(BASE_NAVIDROME_DIR, 'navidrome'))
+        elif selected_option == "cancel":
+            return
+        toast = Adw.Toast(
+            title=_("Navidrome server deleted successfully"),
+            timeout=2
+        )
+        GLib.idle_add(window.toast_overlay.add_toast, toast)
+        GLib.idle_add(window.main_stack.set_visible_child_name, 'welcome')
+
+    dialog = Adw.AlertDialog(
+        heading=_("Delete Navidrome Server"),
+        body=_("Are you sure you want to delete the integrated Navidrome server?")
+    )
+    dialog.add_response('cancel', _('Cancel'))
+    dialog.add_response("keep_data", _("Keep Data"))
+    dialog.add_response("delete", _("Delete Everything"))
+    dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
+    dialog.choose(window, None, response)
 
 # -- RADIO --
 

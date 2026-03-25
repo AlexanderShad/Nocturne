@@ -9,6 +9,7 @@ import threading, subprocess
 class LoginPage(Adw.NavigationPage):
     __gtype_name__ = 'NocturneLoginPage'
 
+    integrated_server_button_el = Gtk.Template.Child()
     url_el = Gtk.Template.Child()
     user_el = Gtk.Template.Child()
     password_el = Gtk.Template.Child()
@@ -36,6 +37,7 @@ class LoginPage(Adw.NavigationPage):
                 self.navidrome_proc = subprocess.Popen([navidrome_path], env=navidrome_env)
 
         self.integrated_instance_link_el.get_parent().set_visible(self.use_integrated_server)
+        self.integrated_server_button_el.set_visible(self.use_integrated_server)
 
     def verify_login(self, ip:str, user:str):
         GLib.idle_add(self.get_root().main_stack.set_visible_child_name, 'loading')

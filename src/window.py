@@ -107,6 +107,8 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.toggle_star)
         self.create_action(actions.logout, parameter_type=None)
         self.create_action(actions.show_external_file_warning, parameter_type=None)
+        self.create_action(actions.update_navidrome_server, parameter_type=None)
+        self.create_action(actions.delete_navidrome_server, parameter_type=None)
 
         self.create_action(actions.play_radio)
         self.create_action(actions.add_radio, parameter_type=None)
@@ -161,4 +163,5 @@ class NocturneWindow(Adw.ApplicationWindow):
             self.add_css_class('player-blur')
 
         GLib.idle_add(self.setup_sidebar)
+
 
