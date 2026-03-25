@@ -240,6 +240,11 @@ class Local(GObject.Object):
         if list_type == "random":
             album_list = [id for id in list(self.loaded_models) if id.startswith('ALBUM:')]
             random.shuffle(album_list)
+        elif list_type == "newest":
+            albums = {} # id : creation_time
+            for model in [self.loaded_models.get(id) for id in list(self.loaded_models) if id.startswith('ALBUM:')]:
+                albums[model.id] = pathlib.Path(model.path).stat().st_ctime
+            album_list = sorted(albums, key=lambda x: albums.get(x), reverse=True)
         elif list_type in ("frequent", "recent"):
             try:
                 with open(os.path.join(LOCAL_DATA_DIR, 'scrobble.json'), 'r') as f:
