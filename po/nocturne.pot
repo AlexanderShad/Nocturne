@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-25 15:31-0600\n"
+"POT-Creation-Date: 2026-03-25 16:17-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -250,8 +250,8 @@ msgstr ""
 msgid "Are you sure you want to delete '{}'?"
 msgstr ""
 
-#: src/actions.py:231 src/actions.py:570 src/constants.py:289
-#: src/constants.py:322
+#: src/actions.py:231 src/actions.py:570 src/constants.py:293
+#: src/constants.py:326
 msgid "Delete"
 msgstr ""
 
@@ -348,12 +348,12 @@ msgid "No songs found"
 msgstr ""
 
 #. Item
-#: src/constants.py:149 src/ui/pages/home.blp:5
+#: src/constants.py:153 src/ui/pages/home.blp:5
 msgid "Home"
 msgstr ""
 
 #. Section
-#: src/constants.py:156 src/ui/pages/albums_all.blp:5
+#: src/constants.py:160 src/ui/pages/albums_all.blp:5
 #: src/ui/pages/albums_all.blp:12 src/ui/pages/albums.blp:5
 #: src/ui/preferences.blp:84 src/widgets/artist/page.py:50
 #: src/widgets/pages/home.py:46
@@ -361,104 +361,104 @@ msgid "Albums"
 msgstr ""
 
 #. Item
-#: src/constants.py:159
+#: src/constants.py:163
 msgid "All"
 msgstr ""
 
 #. Item
-#: src/constants.py:164
+#: src/constants.py:168
 msgid "Random"
 msgstr ""
 
 #. Item
-#: src/constants.py:170
+#: src/constants.py:174
 msgid "Starred"
 msgstr ""
 
 #. Item
-#: src/constants.py:176
+#: src/constants.py:180
 msgid "Recently Added"
 msgstr ""
 
 #. Item
-#: src/constants.py:182
+#: src/constants.py:186
 msgid "Recently Played"
 msgstr ""
 
 #. Item
-#: src/constants.py:188
+#: src/constants.py:192
 msgid "Most Played"
 msgstr ""
 
 #. Item
-#: src/constants.py:198 src/ui/pages/artists.blp:5 src/ui/pages/artists.blp:12
+#: src/constants.py:202 src/ui/pages/artists.blp:5 src/ui/pages/artists.blp:12
 #: src/ui/preferences.blp:93 src/widgets/pages/home.py:55
 msgid "Artists"
 msgstr ""
 
 #. Item
-#: src/constants.py:203 src/ui/pages/songs.blp:5 src/ui/pages/songs.blp:12
+#: src/constants.py:207 src/ui/pages/songs.blp:5 src/ui/pages/songs.blp:12
 #: src/ui/preferences.blp:75 src/widgets/album/page.py:30
 #: src/widgets/pages/home.py:31 src/widgets/playlist/page.py:29
 msgid "Songs"
 msgstr ""
 
 #. Item
-#: src/constants.py:208 src/ui/pages/radios.blp:5 src/ui/pages/radios.blp:22
+#: src/constants.py:212 src/ui/pages/radios.blp:5 src/ui/pages/radios.blp:22
 msgid "Radios"
 msgstr ""
 
 #. Item
-#: src/constants.py:213 src/ui/pages/playlists.blp:5
+#: src/constants.py:217 src/ui/pages/playlists.blp:5
 #: src/ui/pages/playlists.blp:22 src/ui/preferences.blp:102
 #: src/widgets/pages/home.py:64
 msgid "Playlists"
 msgstr ""
 
-#: src/constants.py:223 src/constants.py:264 src/ui/album/button.blp:24
+#: src/constants.py:227 src/constants.py:268 src/ui/album/button.blp:24
 #: src/ui/lyrics/dialog.blp:47 src/ui/playing/control_page.blp:176
 #: src/ui/playing/footer.blp:87 src/ui/playlist/button.blp:24
 #: src/ui/song/queue.blp:47 src/ui/song/queue.blp:49
 msgid "Play"
 msgstr ""
 
-#: src/constants.py:228 src/constants.py:251 src/constants.py:269
+#: src/constants.py:232 src/constants.py:255 src/constants.py:273
 msgid "Shuffle"
 msgstr ""
 
-#: src/constants.py:233 src/constants.py:274 src/constants.py:302
+#: src/constants.py:237 src/constants.py:278 src/constants.py:306
 #: src/ui/song/queue.blp:55 src/ui/song/queue.blp:57
 msgid "Play Next"
 msgstr ""
 
-#: src/constants.py:238 src/constants.py:279 src/constants.py:307
+#: src/constants.py:242 src/constants.py:283 src/constants.py:311
 #: src/ui/song/queue.blp:63 src/ui/song/queue.blp:65
 msgid "Play Later"
 msgstr ""
 
-#: src/constants.py:243 src/constants.py:328 src/ui/song/queue.blp:71
+#: src/constants.py:247 src/constants.py:332 src/ui/song/queue.blp:71
 #: src/ui/song/queue.blp:73
 msgid "Add To Playlist"
 msgstr ""
 
-#: src/constants.py:256 src/ui/playing/lyrics_page.blp:83
+#: src/constants.py:260 src/ui/playing/lyrics_page.blp:83
 #: src/widgets/song/row.py:86
 msgid "Radio"
 msgstr ""
 
-#: src/constants.py:284 src/constants.py:312
+#: src/constants.py:288 src/constants.py:316
 msgid "Edit"
 msgstr ""
 
-#: src/constants.py:298
+#: src/constants.py:302
 msgid "Select"
 msgstr ""
 
-#: src/constants.py:317
+#: src/constants.py:321
 msgid "Edit Lyrics"
 msgstr ""
 
-#: src/constants.py:333 src/ui/song/queue.blp:82 src/ui/song/queue.blp:84
+#: src/constants.py:337 src/ui/song/queue.blp:82 src/ui/song/queue.blp:84
 msgid "Remove"
 msgstr ""
 
@@ -661,7 +661,7 @@ msgid "Downloading"
 msgstr ""
 
 #: src/ui/pages/setup.blp:46
-msgid "An Error Ocurred"
+msgid "An Error Occurred"
 msgstr ""
 
 #: src/ui/pages/setup.blp:47
@@ -704,27 +704,27 @@ msgid ""
 "one Nocturne can automatically set up a Navidrome instance for you!"
 msgstr ""
 
-#: src/ui/pages/welcome.blp:25
+#: src/ui/pages/welcome.blp:25 src/ui/pages/welcome.blp:26
 msgid "Connect to Server"
 msgstr ""
 
-#: src/ui/pages/welcome.blp:26
+#: src/ui/pages/welcome.blp:27
 msgid "Use existing instance"
 msgstr ""
 
-#: src/ui/pages/welcome.blp:36
+#: src/ui/pages/welcome.blp:37 src/ui/pages/welcome.blp:38
 msgid "Use Navidrome"
 msgstr ""
 
-#: src/ui/pages/welcome.blp:37
-msgid "Integrated instance"
+#: src/ui/pages/welcome.blp:39
+msgid "Use integrated instance"
 msgstr ""
 
-#: src/ui/pages/welcome.blp:47
-msgid "Only Use Local Files"
+#: src/ui/pages/welcome.blp:49 src/ui/pages/welcome.blp:50
+msgid "Only Local Files"
 msgstr ""
 
-#: src/ui/pages/welcome.blp:48
+#: src/ui/pages/welcome.blp:51
 msgid "Limited functionallity"
 msgstr ""
 
@@ -939,19 +939,19 @@ msgid "Reload homepage to see changes"
 msgstr ""
 
 #: src/ui/preferences.blp:76
-msgid "Max ammount of songs to be shown"
+msgid "Max amount of songs to be shown"
 msgstr ""
 
 #: src/ui/preferences.blp:85
-msgid "Max ammount of albums to be shown"
+msgid "Max amount of albums to be shown"
 msgstr ""
 
 #: src/ui/preferences.blp:94
-msgid "Max ammount of artists to be shown"
+msgid "Max amount of artists to be shown"
 msgstr ""
 
 #: src/ui/preferences.blp:103
-msgid "Max ammount of playlists to be shown"
+msgid "Max amount of playlists to be shown"
 msgstr ""
 
 #: src/ui/shortcuts-dialog.blp:6

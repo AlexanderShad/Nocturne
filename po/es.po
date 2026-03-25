@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-25 15:31-0600\n"
+"POT-Creation-Date: 2026-03-25 16:17-0600\n"
 "PO-Revision-Date: 2026-03-25 15:34-0600\n"
 "Last-Translator: Jeffry Samuel <jeffrysamuer@gmail.com>\n"
 "Language-Team: Spanish <es@tp.org.es>\n"
@@ -92,8 +92,9 @@ msgstr "Nuevo"
 
 #: data/com.jeffser.Nocturne.metainfo.xml.in:90
 msgid "Added screen to indicate when no lyrics are found inside editor"
-msgstr "Se agregó una pantalla para indicar cuándo no se encuentran letras "
-"dentro del editor"
+msgstr ""
+"Se agregó una pantalla para indicar cuándo no se encuentran letras dentro "
+"del editor"
 
 #: data/com.jeffser.Nocturne.metainfo.xml.in:91
 msgid "Added transitions when logging in"
@@ -105,8 +106,9 @@ msgstr "Se agregó la opción de actualizar / eliminar el servidor Navidrome"
 
 #: data/com.jeffser.Nocturne.metainfo.xml.in:93
 msgid "Added newest, recent and frequent album filtering for local instance"
-msgstr "Se agregó el filtrado de álbumes más recientes, nuevos y frecuentes "
-"para la instancia local"
+msgstr ""
+"Se agregó el filtrado de álbumes más recientes, nuevos y frecuentes para la "
+"instancia local"
 
 #: data/com.jeffser.Nocturne.metainfo.xml.in:94
 msgid "Better shadows for album buttons"
@@ -134,18 +136,21 @@ msgstr "Los elementos de la barra lateral se seleccionan al cambiar de página"
 
 #: data/com.jeffser.Nocturne.metainfo.xml.in:102
 msgid "Fixed show sidebar button being shown in wide mode"
-msgstr "Se solucionó el problema de que el botón de la barra lateral se "
-"mostraba en modo ancho"
+msgstr ""
+"Se solucionó el problema de que el botón de la barra lateral se mostraba en "
+"modo ancho"
 
 #: data/com.jeffser.Nocturne.metainfo.xml.in:103
 msgid "Save lyrics as lrc from editor even when not fully synced"
-msgstr "Guarda las letras como archivos lrc desde el editor, incluso cuando "
-"no estén completamente sincronizadas."
+msgstr ""
+"Guarda las letras como archivos lrc desde el editor, incluso cuando no estén "
+"completamente sincronizadas."
 
 #: data/com.jeffser.Nocturne.metainfo.xml.in:104
 msgid "Fixed external files being saved in restore queue"
-msgstr "Se solucionó el problema de que los archivos externos se guardaban "
-"en la cola de restauración"
+msgstr ""
+"Se solucionó el problema de que los archivos externos se guardaban en la "
+"cola de restauración"
 
 #: data/com.jeffser.Nocturne.metainfo.xml.in:105
 msgid ""
@@ -261,8 +266,8 @@ msgstr "Eliminar Estación de Radio"
 msgid "Are you sure you want to delete '{}'?"
 msgstr "¿Estás seguro de que quieres eliminar '{}'?"
 
-#: src/actions.py:231 src/actions.py:570 src/constants.py:289
-#: src/constants.py:322
+#: src/actions.py:231 src/actions.py:570 src/constants.py:293
+#: src/constants.py:326
 msgid "Delete"
 msgstr "Eliminar"
 
@@ -359,12 +364,12 @@ msgid "No songs found"
 msgstr "No se encontraron canciones"
 
 #. Item
-#: src/constants.py:149 src/ui/pages/home.blp:5
+#: src/constants.py:153 src/ui/pages/home.blp:5
 msgid "Home"
 msgstr "Hogar"
 
 #. Section
-#: src/constants.py:156 src/ui/pages/albums_all.blp:5
+#: src/constants.py:160 src/ui/pages/albums_all.blp:5
 #: src/ui/pages/albums_all.blp:12 src/ui/pages/albums.blp:5
 #: src/ui/preferences.blp:84 src/widgets/artist/page.py:50
 #: src/widgets/pages/home.py:46
@@ -372,104 +377,104 @@ msgid "Albums"
 msgstr "Álbumes"
 
 #. Item
-#: src/constants.py:159
+#: src/constants.py:163
 msgid "All"
 msgstr "Todos"
 
 #. Item
-#: src/constants.py:164
+#: src/constants.py:168
 msgid "Random"
 msgstr "Aleatorio"
 
 #. Item
-#: src/constants.py:170
+#: src/constants.py:174
 msgid "Starred"
 msgstr "Estrellas"
 
 #. Item
-#: src/constants.py:176
+#: src/constants.py:180
 msgid "Recently Added"
 msgstr "Agregado Recientemente"
 
 #. Item
-#: src/constants.py:182
+#: src/constants.py:186
 msgid "Recently Played"
 msgstr "Reproducido Recientemente"
 
 #. Item
-#: src/constants.py:188
+#: src/constants.py:192
 msgid "Most Played"
 msgstr "Más reproducida"
 
 #. Item
-#: src/constants.py:198 src/ui/pages/artists.blp:5 src/ui/pages/artists.blp:12
+#: src/constants.py:202 src/ui/pages/artists.blp:5 src/ui/pages/artists.blp:12
 #: src/ui/preferences.blp:93 src/widgets/pages/home.py:55
 msgid "Artists"
 msgstr "Artistas"
 
 #. Item
-#: src/constants.py:203 src/ui/pages/songs.blp:5 src/ui/pages/songs.blp:12
+#: src/constants.py:207 src/ui/pages/songs.blp:5 src/ui/pages/songs.blp:12
 #: src/ui/preferences.blp:75 src/widgets/album/page.py:30
 #: src/widgets/pages/home.py:31 src/widgets/playlist/page.py:29
 msgid "Songs"
 msgstr "Canciones"
 
 #. Item
-#: src/constants.py:208 src/ui/pages/radios.blp:5 src/ui/pages/radios.blp:22
+#: src/constants.py:212 src/ui/pages/radios.blp:5 src/ui/pages/radios.blp:22
 msgid "Radios"
 msgstr "Radios"
 
 #. Item
-#: src/constants.py:213 src/ui/pages/playlists.blp:5
+#: src/constants.py:217 src/ui/pages/playlists.blp:5
 #: src/ui/pages/playlists.blp:22 src/ui/preferences.blp:102
 #: src/widgets/pages/home.py:64
 msgid "Playlists"
 msgstr "Playlists"
 
-#: src/constants.py:223 src/constants.py:264 src/ui/album/button.blp:24
+#: src/constants.py:227 src/constants.py:268 src/ui/album/button.blp:24
 #: src/ui/lyrics/dialog.blp:47 src/ui/playing/control_page.blp:176
 #: src/ui/playing/footer.blp:87 src/ui/playlist/button.blp:24
 #: src/ui/song/queue.blp:47 src/ui/song/queue.blp:49
 msgid "Play"
 msgstr "Reproducir"
 
-#: src/constants.py:228 src/constants.py:251 src/constants.py:269
+#: src/constants.py:232 src/constants.py:255 src/constants.py:273
 msgid "Shuffle"
 msgstr "Mezclar"
 
-#: src/constants.py:233 src/constants.py:274 src/constants.py:302
+#: src/constants.py:237 src/constants.py:278 src/constants.py:306
 #: src/ui/song/queue.blp:55 src/ui/song/queue.blp:57
 msgid "Play Next"
 msgstr "Reproducir a Continuación"
 
-#: src/constants.py:238 src/constants.py:279 src/constants.py:307
+#: src/constants.py:242 src/constants.py:283 src/constants.py:311
 #: src/ui/song/queue.blp:63 src/ui/song/queue.blp:65
 msgid "Play Later"
 msgstr "Reproducir Más Tarde"
 
-#: src/constants.py:243 src/constants.py:328 src/ui/song/queue.blp:71
+#: src/constants.py:247 src/constants.py:332 src/ui/song/queue.blp:71
 #: src/ui/song/queue.blp:73
 msgid "Add To Playlist"
 msgstr "Agregar a Playlist"
 
-#: src/constants.py:256 src/ui/playing/lyrics_page.blp:83
+#: src/constants.py:260 src/ui/playing/lyrics_page.blp:83
 #: src/widgets/song/row.py:86
 msgid "Radio"
 msgstr "Radio"
 
-#: src/constants.py:284 src/constants.py:312
+#: src/constants.py:288 src/constants.py:316
 msgid "Edit"
 msgstr "Editar"
 
-#: src/constants.py:298
+#: src/constants.py:302
 msgid "Select"
 msgstr "Seleccionar"
 
-#: src/constants.py:317
+#: src/constants.py:321
 msgid "Edit Lyrics"
 msgstr "Editar Letra"
 
-#: src/constants.py:333 src/ui/song/queue.blp:82 src/ui/song/queue.blp:84
+#: src/constants.py:337 src/ui/song/queue.blp:82 src/ui/song/queue.blp:84
 msgid "Remove"
 msgstr "Eliminar"
 
@@ -547,8 +552,9 @@ msgstr "Sin Letras"
 
 #: src/ui/lyrics/dialog.blp:134
 msgid "No lyrics found for this track, to get started add a new line"
-msgstr "No se encontraron letras para esta canción. Para empezar, añade "
-"una nueva línea"
+msgstr ""
+"No se encontraron letras para esta canción. Para empezar, añade una nueva "
+"línea"
 
 #: src/ui/lyrics/edit_row.blp:9
 msgid "Timestamp"
@@ -673,8 +679,8 @@ msgid "Downloading"
 msgstr "Descargando"
 
 #: src/ui/pages/setup.blp:46
-msgid "An Error Ocurred"
-msgstr "Se ha producido un error"
+msgid "An Error Occurred"
+msgstr "Se ha Producido un Error"
 
 #: src/ui/pages/setup.blp:47
 msgid "Please try again later"
@@ -689,8 +695,8 @@ msgid ""
 "Before continuing make sure you create an admin account and also make sure "
 "all your tracks are inside your music directory"
 msgstr ""
-"Antes de continuar, asegúrese de crear una cuenta de administrador y "
-"también de que todas sus pistas estén dentro de su directorio de música"
+"Antes de continuar, asegúrese de crear una cuenta de administrador y también "
+"de que todas sus pistas estén dentro de su directorio de música"
 
 #: src/ui/pages/setup.blp:67 src/ui/pages/setup.blp:68
 msgid "Continue"
@@ -718,29 +724,30 @@ msgid ""
 "one Nocturne can automatically set up a Navidrome instance for you!"
 msgstr ""
 "Nocturne funciona con una instancia compatible con Subsonic; si no dispone "
-"de una, ¡Nocturne puede configurar automáticamente una instancia de Navidrome!"
+"de una, ¡Nocturne puede configurar automáticamente una instancia de "
+"Navidrome!"
 
-#: src/ui/pages/welcome.blp:25
+#: src/ui/pages/welcome.blp:25 src/ui/pages/welcome.blp:26
 msgid "Connect to Server"
 msgstr "Conectarse a Servidor"
 
-#: src/ui/pages/welcome.blp:26
+#: src/ui/pages/welcome.blp:27
 msgid "Use existing instance"
 msgstr "Utilizar una instancia existente"
 
-#: src/ui/pages/welcome.blp:36
+#: src/ui/pages/welcome.blp:37 src/ui/pages/welcome.blp:38
 msgid "Use Navidrome"
 msgstr "Usa Navidrome"
 
-#: src/ui/pages/welcome.blp:37
-msgid "Integrated instance"
-msgstr "Instancia integrada"
+#: src/ui/pages/welcome.blp:39
+msgid "Use integrated instance"
+msgstr "Usa instancia integrada"
 
-#: src/ui/pages/welcome.blp:47
-msgid "Only Use Local Files"
-msgstr "Utilizar Solo Archivos Locales"
+#: src/ui/pages/welcome.blp:49 src/ui/pages/welcome.blp:50
+msgid "Only Local Files"
+msgstr "Solo Archivos Locales"
 
-#: src/ui/pages/welcome.blp:48
+#: src/ui/pages/welcome.blp:51
 msgid "Limited functionallity"
 msgstr "Funcionalidad limitada"
 
@@ -894,8 +901,9 @@ msgstr "Mostrar Botón de Contexto en las Filas"
 
 #: src/ui/preferences.blp:14
 msgid "The menu can also be shown by right clicking / long pressing"
-msgstr "El menú también se puede mostrar haciendo clic con el botón "
-"derecho / manteniendo pulsado"
+msgstr ""
+"El menú también se puede mostrar haciendo clic con el botón derecho / "
+"manteniendo pulsado"
 
 #: src/ui/preferences.blp:17
 msgid "Use Dynamic Background in Player"
@@ -911,8 +919,8 @@ msgstr "Difuminar el Fondo en el Reproductor (Experimental)"
 
 #: src/ui/preferences.blp:23
 msgid "Make background of player slightly transparent and blur the backdrop"
-msgstr "Haz que el fondo del reproductor sea ligeramente transparente y "
-"difuminado"
+msgstr ""
+"Haz que el fondo del reproductor sea ligeramente transparente y difuminado"
 
 #: src/ui/preferences.blp:28
 msgid "Behavior"
@@ -959,19 +967,19 @@ msgid "Reload homepage to see changes"
 msgstr "Actualiza la página del hogar para ver cambios"
 
 #: src/ui/preferences.blp:76
-msgid "Max ammount of songs to be shown"
+msgid "Max amount of songs to be shown"
 msgstr "Cantidad máxima de canciones que se mostrarán"
 
 #: src/ui/preferences.blp:85
-msgid "Max ammount of albums to be shown"
+msgid "Max amount of albums to be shown"
 msgstr "Cantidad máxima de álbumes que se mostrarán"
 
 #: src/ui/preferences.blp:94
-msgid "Max ammount of artists to be shown"
+msgid "Max amount of artists to be shown"
 msgstr "Cantidad máxima de artistas que se mostrarán"
 
 #: src/ui/preferences.blp:103
-msgid "Max ammount of playlists to be shown"
+msgid "Max amount of playlists to be shown"
 msgstr "Cantidad máxima de playlists que se mostrarán"
 
 #: src/ui/shortcuts-dialog.blp:6
@@ -1084,3 +1092,24 @@ msgstr "Agregar canciones a '{}'"
 #: src/widgets/song/row.py:124 src/widgets/song/row.py:129
 msgid "Multiple Artists"
 msgstr "Multiples Artistas"
+
+#~ msgid "An Error Ocurred"
+#~ msgstr "Se ha producido un error"
+
+#~ msgid "Integrated instance"
+#~ msgstr "Instancia integrada"
+
+#~ msgid "Only Use Local Files"
+#~ msgstr "Utilizar Solo Archivos Locales"
+
+#~ msgid "Max ammount of songs to be shown"
+#~ msgstr "Cantidad máxima de canciones que se mostrarán"
+
+#~ msgid "Max ammount of albums to be shown"
+#~ msgstr "Cantidad máxima de álbumes que se mostrarán"
+
+#~ msgid "Max ammount of artists to be shown"
+#~ msgstr "Cantidad máxima de artistas que se mostrarán"
+
+#~ msgid "Max ammount of playlists to be shown"
+#~ msgstr "Cantidad máxima de playlists que se mostrarán"
