@@ -12,6 +12,7 @@ class LoginPage(Adw.NavigationPage):
     url_el = Gtk.Template.Child()
     user_el = Gtk.Template.Child()
     password_el = Gtk.Template.Child()
+    integrated_instance_link_el = Gtk.Template.Child()
     navidrome_proc = None
 
     def load_defaults(self, use_integrated_server:bool):
@@ -33,6 +34,8 @@ class LoginPage(Adw.NavigationPage):
             if navidrome_path := get_navidrome_path():
                 navidrome_env = get_navidrome_env()
                 self.navidrome_proc = subprocess.Popen([navidrome_path], env=navidrome_env)
+
+        self.integrated_instance_link_el.get_parent().set_visible(self.use_integrated_server)
 
     def verify_login(self, ip:str, user:str):
         GLib.idle_add(self.get_root().main_stack.set_visible_child_name, 'loading')
