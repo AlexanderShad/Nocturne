@@ -17,7 +17,7 @@ def keyring_available() -> bool:
         service = Secret.Service.get_sync(Secret.ServiceFlags.NONE, None)
         return bool(service)
     except Exception as e:
-        print('Keyring failed, using fallback: ', e)
+        pass
     return False
 
 def store_password(password:str):
