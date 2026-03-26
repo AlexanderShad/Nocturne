@@ -7,6 +7,21 @@ template $NocturneArtistsPage: Adw.NavigationPage {
   child: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
+      [start]
+      Adw.ToggleGroup toggle_group_el {
+        active-name: "list";
+        Adw.Toggle {
+          icon-name: "view-list-bullet-symbolic";
+          tooltip: _("List");
+          name: "list";
+        }
+        Adw.Toggle {
+          icon-name: "grid-filled-symbolic";
+          tooltip: _("Grid");
+          name: "grid";
+        }
+      }
+
       title-widget: Gtk.SearchEntry search_entry {
         hexpand: true;
         placeholder-text: _("Artists");
@@ -37,17 +52,38 @@ template $NocturneArtistsPage: Adw.NavigationPage {
               orientation: vertical;
               spacing: 5;
 
-              Gtk.ListBox list_el {
-                styles [
-                  "boxed-list"
-                ]
+              Gtk.Stack {
+                transition-type: crossfade;
+                visible-child-name: bind toggle_group_el.active-name;
+                interpolate-size: true;
+                vhomogeneous: false;
                 margin-top: 10;
                 margin-bottom: 10;
                 margin-start: 10;
                 margin-end: 10;
-                selection-mode: none;
-                valign: start;
+
+                Gtk.StackPage {
+                  name: "list";
+                  child: Gtk.ListBox list_el {
+                    styles [
+                      "boxed-list"
+                    ]
+                    selection-mode: none;
+                    valign: start;
+                  };
+                }
+
+                Gtk.StackPage {
+                  name: "grid";
+                  child: Adw.WrapBox wrapbox_el {
+                    hexpand: true;
+                    halign: center;
+                    child-spacing: 10;
+                    line-spacing: 10;
+                  };
+                }
               }
+
               Gtk.Stack end_stack {
                 Gtk.StackPage {
                   name: "loading";

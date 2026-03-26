@@ -8,13 +8,18 @@ template $NocturnePlaylistsPage: Adw.NavigationPage {
     [top]
     Adw.HeaderBar {
       [start]
-      Gtk.Button {
-        styles [
-          "flat"
-        ]
-        icon-name: "list-add-symbolic";
-        tooltip-text: _("Create Playlist");
-        action-name: "app.create_playlist";
+      Adw.ToggleGroup toggle_group_el {
+        active-name: "list";
+        Adw.Toggle {
+          icon-name: "view-list-bullet-symbolic";
+          tooltip: _("List");
+          name: "list";
+        }
+        Adw.Toggle {
+          icon-name: "grid-filled-symbolic";
+          tooltip: _("Grid");
+          name: "grid";
+        }
       }
 
       title-widget: Gtk.SearchEntry {
@@ -25,6 +30,16 @@ template $NocturnePlaylistsPage: Adw.NavigationPage {
           label: _("Search playlists");
         }
       };
+
+      [end]
+      Gtk.Button {
+        styles [
+          "flat"
+        ]
+        icon-name: "list-add-symbolic";
+        tooltip-text: _("Create Playlist");
+        action-name: "app.create_playlist";
+      }
     }
 
     content: Gtk.Stack main_stack {
@@ -46,16 +61,36 @@ template $NocturnePlaylistsPage: Adw.NavigationPage {
               orientation: vertical;
               spacing: 5;
 
-              Gtk.ListBox list_el {
-                styles [
-                  "boxed-list"
-                ]
+              Gtk.Stack {
+                transition-type: crossfade;
+                visible-child-name: bind toggle_group_el.active-name;
+                interpolate-size: true;
+                vhomogeneous: false;
                 margin-top: 10;
                 margin-bottom: 10;
                 margin-start: 10;
                 margin-end: 10;
-                selection-mode: none;
-                valign: start;
+
+                Gtk.StackPage {
+                  name: "list";
+                  child: Gtk.ListBox list_el {
+                    styles [
+                      "boxed-list"
+                    ]
+                    selection-mode: none;
+                    valign: start;
+                  };
+                }
+
+                Gtk.StackPage {
+                  name: "grid";
+                  child: Adw.WrapBox wrapbox_el {
+                    hexpand: true;
+                    halign: center;
+                    child-spacing: 10;
+                    line-spacing: 10;
+                  };
+                }
               }
             }
           };

@@ -7,16 +7,6 @@ template $NocturneRadiosPage: Adw.NavigationPage {
   child: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
-      [start]
-      Gtk.Button {
-        styles [
-          "flat"
-        ]
-        icon-name: "list-add-symbolic";
-        tooltip-text: _("Add Radio");
-        action-name: "app.add_radio";
-      }
-
       title-widget: Gtk.SearchEntry {
         hexpand: true;
         placeholder-text: _("Radios");
@@ -25,6 +15,16 @@ template $NocturneRadiosPage: Adw.NavigationPage {
           label: _("Search radios");
         }
       };
+
+      [end]
+      Gtk.Button {
+        styles [
+          "flat"
+        ]
+        icon-name: "list-add-symbolic";
+        tooltip-text: _("Add Radio");
+        action-name: "app.add_radio";
+      }
     }
 
     content: Gtk.Stack main_stack {

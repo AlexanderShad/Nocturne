@@ -25,7 +25,6 @@ class RadiosPage(Adw.NavigationPage):
 
     @Gtk.Template.Callback()
     def on_search(self, search_entry):
-        GLib.idle_add(self.main_stack.set_visible_child_name, 'loading')
         query = search_entry.get_text()
         for child in list(self.list_el):
             child.set_visible(child.get_name() != 'GtkListBoxRow' and re.search(query, child.get_name(), re.IGNORECASE))

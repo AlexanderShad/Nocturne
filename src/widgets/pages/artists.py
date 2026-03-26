@@ -2,7 +2,7 @@
 
 from gi.repository import Gtk, Adw, GLib, GObject, Gio
 from ...integrations import get_current_integration, models
-from ..artist import ArtistRow
+from ..artist import ArtistRow, ArtistButton
 import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/artists.ui')
@@ -12,19 +12,19 @@ class ArtistsPage(Adw.NavigationPage):
     search_entry = Gtk.Template.Child()
     main_stack = Gtk.Template.Child()
     list_el = Gtk.Template.Child()
+    wrapbox_el = Gtk.Template.Child()
     end_stack = Gtk.Template.Child()
     offset = 0
     searching = False
 
     def reload(self):
-        if len(list(self.list_el)) == 0:
+        if len(list(self.list_el)) + len(list(self.wrapbox_el)) == 0:
             GLib.idle_add(self.on_search, self.search_entry)
 
     def search(self):
         if self.searching:
             return
         self.searching = True
-        GLib.idle_add(self.main_stack.set_visible_child_name, 'loading')
         query = self.search_entry.get_text()
         integration = get_current_integration()
         search_results = integration.search(
@@ -33,13 +33,21 @@ class ArtistsPage(Adw.NavigationPage):
             artistOffset=self.offset
         )
         for artist_id in search_results.get('artist'):
-            results = [row for row in list(self.list_el) if row.id == artist_id]
-            if len(results) > 0:
-                GLib.idle_add(results[0].set_visible, True)
+            results_list = [row for row in list(self.list_el) if row.id == artist_id]
+            if len(results_list) > 0:
+                GLib.idle_add(results_list[0].set_visible, True)
             else:
                 row = ArtistRow(artist_id)
                 GLib.idle_add(self.list_el.append, row)
-        self.end_stack.set_visible_child_name('end' if max(self.offset, 30) > len([row for row in list(self.list_el) if row.get_visible()]) else 'loading')
+
+            results_wrapbox = [button for button in list(self.wrapbox_el) if button.id == artist_id]
+            if len(results_wrapbox) > 0:
+                GLib.idle_add(results_wrapbox[0].set_visible, True)
+            else:
+                button = ArtistButton(artist_id)
+                GLib.idle_add(self.wrapbox_el.append, button)
+
+        GLib.idle_add(self.end_stack.set_visible_child_name, 'end' if len(search_results.get('artist')) < 30 else 'loading')
         self.offset += 30
         self.searching = False
         GLib.idle_add(self.update_visibility)
@@ -47,7 +55,7 @@ class ArtistsPage(Adw.NavigationPage):
     @Gtk.Template.Callback()
     def on_search(self, search_entry):
         self.offset = 0
-        for row in list(self.list_el):
+        for row in list(self.list_el) + list(self.wrapbox_el):
             row.set_visible(False)
         threading.Thread(target=self.search).start()
             
@@ -57,7 +65,7 @@ class ArtistsPage(Adw.NavigationPage):
             threading.Thread(target=self.search).start()
 
     def update_visibility(self):
-        for row in list(self.list_el):
+        for row in list(self.list_el) + list(self.wrapbox_el):
             if row.get_visible():
                 self.main_stack.set_visible_child_name('content')
                 return

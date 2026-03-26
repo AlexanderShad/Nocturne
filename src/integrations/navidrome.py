@@ -49,6 +49,7 @@ class Navidrome(GObject.Object):
     # ----------- #
 
     def connect_to_model(self, id:str, parameter:str, callback:callable, use_gtk_thread:bool=True) -> str:
+        use_gtk_thread = True
         # returns connection id so it can be disconnected if needed, mostly used by currentSong
         connection_id = ""
         if id in self.loaded_models:
