@@ -57,16 +57,13 @@ template $NocturneArtistsPage: Adw.NavigationPage {
                 visible-child-name: bind toggle_group_el.active-name;
                 interpolate-size: true;
                 vhomogeneous: false;
-                margin-top: 10;
-                margin-bottom: 10;
-                margin-start: 10;
-                margin-end: 10;
 
                 Gtk.StackPage {
                   name: "list";
                   child: Gtk.ListBox list_el {
                     styles [
-                      "boxed-list"
+                      "boxed-list",
+                      "m10"
                     ]
                     selection-mode: none;
                     valign: start;

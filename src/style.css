@@ -6,6 +6,10 @@
   padding: 10px;
 }
 
+.m10 {
+  margin: 10px;
+}
+
 .lrc_list_p0 > row {
 	padding:0;
 }
