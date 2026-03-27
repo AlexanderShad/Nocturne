@@ -426,7 +426,6 @@ class Local(Base):
             model.set_property('name', name)
             model.set_property('streamUrl', streamUrl)
             model.set_property('homePageUrl', homePageUrl)
-            model.set_property('coverArt', str(random.randint(1,1000)))
 
         with open(RADIOFILE, 'w') as f:
             json.dump(radio_dict, f, ensure_ascii=False)
@@ -472,7 +471,6 @@ class Local(Base):
         if len(songId) > 0:
             if model := self.loaded_models.get(songId[0]):
                 path_str = model.path
-        print('CREATE', path_str)
 
         self.loaded_models[playlistId] = models.Playlist(
             id=playlistId,
@@ -512,9 +510,7 @@ class Local(Base):
                 if len(songId) > 0:
                     if model := self.loaded_models.get(songId[0]):
                         path_str = model.path
-                print('UPDATE', path_str)
                 model.set_property('path', path_str)
-                model.set_property('coverArt', str(random.randint(1,1000)))
 
         with open(PLAYLISTFILE, 'w') as f:
             json.dump(playlist_dict, f, ensure_ascii=False)
