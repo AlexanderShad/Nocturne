@@ -28,23 +28,25 @@ def store_password(password:str):
         with open(FALLBACK_PASSWORD_PATH, 'w') as f:
             f.write(password)
 
-def get_hashed_password() -> tuple:
-    # returns salt, hashed password
-    password = ""
+def get_plain_password() -> str:
+    # returns plain password
     try:
         attributes = {"type": "password"}
 
-        password = Secret.password_lookup_sync(
+        return Secret.password_lookup_sync(
             BASE_SCHEMA,
             attributes,
             None
         )
     except Exception as e:
         with open(FALLBACK_PASSWORD_PATH, 'r') as f:
-            password = f.read()
+            return f.read()
+    return ""
 
+def get_hashed_password() -> tuple:
+    # returns salt, hashed password
     salt = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(8))
-    salted_password = password + salt
+    salted_password = get_plain_password() + salt
 
     hashed_password = hashlib.md5(salted_password.encode('utf-8')).hexdigest()
 

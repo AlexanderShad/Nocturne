@@ -1,5 +1,6 @@
 # __init__.py
 
+from .jellyfin import Jellyfin
 from .navidrome import Navidrome, NavidromeIntegrated
 from .local import Local
 from .base import Base

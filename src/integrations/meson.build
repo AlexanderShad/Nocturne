@@ -7,6 +7,7 @@ widgets = [
   'local.py',
   'navidrome.py',
   'base.py',
+  'jellyfin.py',
 ]
 
 install_data(widgets, install_dir: moduledir)

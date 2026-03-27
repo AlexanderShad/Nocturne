@@ -2,7 +2,7 @@
 
 from gi.repository import Gtk, Adw, Gio, GLib
 from ...constants import get_navidrome_path, DEFAULT_MUSIC_DIR
-from ...integrations import set_current_integration, get_available_integrations, Local, Navidrome, NavidromeIntegrated
+from ...integrations import set_current_integration, get_available_integrations, Local, Navidrome, NavidromeIntegrated, Jellyfin
 import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/welcome.ui')
@@ -21,7 +21,7 @@ class WelcomePage(Adw.NavigationPage):
         GLib.idle_add(self.check_auto_login)
 
     def setup_page(self):
-        integrations = [Navidrome, NavidromeIntegrated, Local]
+        integrations = [Navidrome, NavidromeIntegrated, Jellyfin, Local]
         for integration in integrations:
             metadata = integration.button_metadata
             row = Adw.ActionRow(
@@ -35,17 +35,17 @@ class WelcomePage(Adw.NavigationPage):
                 valign=Gtk.Align.CENTER
             ))
             row.connect('activated', self.option_selected, integration)
-            self.listbox_el.append(row)
+            GLib.idle_add(self.listbox_el.append, row)
 
     def check_auto_login(self):
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         selected_instance = settings.get_value("selected-instance-type").unpack()
         if not selected_instance:
             self.get_root().main_stack.set_visible_child_name('welcome')
-            self.setup_page()
         elif integration := get_available_integrations().get(selected_instance):
             self.get_root().login_page.setup_page(integration())
             self.get_root().login_page.login_button_clicked(skip_password=True)
+        threading.Thread(target=self.setup_page).start()
 
     def option_selected(self, row, integration):
         integration = integration()

@@ -139,37 +139,6 @@ class Local(Base):
             return model.streamUrl
         return 'file://{}'.format(model.path)
 
-    def getRadioCoverArt(self, id:str=None) -> tuple:
-        # returns bytes, Gdk.Paintable or None, None
-        if id:
-            if model := self.loaded_models.get(id):
-                homepage_url = ""
-                if model.gdkPaintable:
-                    return model.gdkPaintableBytes, model.gdkPaintable
-                if model.homePageUrl:
-                    icons = favicon.get(model.homePageUrl)
-                    if len(icons) > 0:
-                        try:
-                            response = requests.get(icons[0].url, timeout=5)
-                            response.raise_for_status()
-                            response_bytes = response.content
-                            stream = io.BytesIO(response_bytes)
-                            png_bytes = b''
-                            with Image.open(stream) as img:
-                                img = img.convert("RGBA")
-                                png_buffer = io.BytesIO()
-                                img.save(png_buffer, format="PNG")
-                                png_bytes = png_buffer.getvalue()
-                            gbytes = GLib.Bytes.new(png_bytes)
-                            texture = Gdk.Texture.new_from_bytes(gbytes)
-                            model.set_property('gdkPaintableBytes', gbytes)
-                            model.set_property('gdkPaintable', texture)
-                            return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
-                        except Exception as e:
-                            pass
-
-        return None, None
-
     def getCoverArt(self, id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
         if id:
