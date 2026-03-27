@@ -44,8 +44,8 @@ class WelcomePage(Adw.NavigationPage):
             self.get_root().main_stack.set_visible_child_name('welcome')
             self.setup_page()
         elif integration := get_available_integrations().get(selected_instance):
-            self.get_root().main_stack.set_visible_child_name('login')
             self.get_root().login_page.setup_page(integration())
+            self.get_root().login_page.login_button_clicked(skip_password=True)
 
     def option_selected(self, row, integration):
         integration = integration()

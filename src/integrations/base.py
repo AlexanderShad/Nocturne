@@ -2,6 +2,7 @@
 
 from gi.repository import Gtk, GLib, GObject, Gdk
 from . import models
+import requests
 
 # DO NOT USE DIRECTLY
 class Base(GObject.Object):

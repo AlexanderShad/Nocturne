@@ -84,17 +84,17 @@ class NocturnePreferences(Adw.PreferencesDialog):
         )
 
         if integration := get_current_integration():
-            if integration.__gtype_name__ == 'NocturneIntegrationNavidrome':
+            if integration.__gtype_name__.startswith('NocturneIntegrationNavidrome'):
                 self.instance_el.set_visible(True)
                 response = integration.make_request('ping')
-                self.instance_el.set_title(integration.username.title())
-                self.instance_el.set_action_target_value(GLib.Variant('s', integration.base_url))
+                self.instance_el.set_title(integration.get_property('user').title())
+                self.instance_el.set_action_target_value(GLib.Variant('s', integration.get_property('url')))
 
                 if response.get('status') == 'ok':
-                    self.instance_el.set_subtitle('{} | {} {}'.format(integration.base_url, response.get('type'), response.get('serverVersion')))
+                    self.instance_el.set_subtitle('{} | {} {}'.format(integration.get_property('url'), response.get('type'), response.get('serverVersion')))
                     self.instance_el.remove_css_class('error')
                 else:
-                    self.instance_el.set_subtitle('{} | {}'.format(integration.base_url, _("Offline")))
+                    self.instance_el.set_subtitle('{} | {}'.format(integration.get_property('url'), _("Offline")))
                     self.instance_el.add_css_class('error')
 
     @Gtk.Template.Callback()

@@ -43,6 +43,7 @@ class LoginPage(Adw.NavigationPage):
 
         # Password
         self.password_el.set_visible('password' in metadata.get('entries'))
+        self.password_el.set_text('')
 
         # Directory
         self.directory_el.set_visible('library-dir' in metadata.get('entries'))
@@ -90,13 +91,14 @@ class LoginPage(Adw.NavigationPage):
         GLib.idle_add(self.get_root().main_stack.set_visible_child_name, 'welcome')
 
     @Gtk.Template.Callback()
-    def login_button_clicked(self, button):
-        button.set_sensitive(False)
+    def login_button_clicked(self, button=None, skip_password:bool=False):
+        if button:
+            button.set_sensitive(False)
         if self.url_el.get_visible():
             self.integration.set_property('url', self.url_el.get_text())
         if self.user_el.get_visible():
             self.integration.set_property('user', self.user_el.get_text())
-        if self.password_el.get_visible():
+        if self.password_el.get_visible() and not skip_password:
             secret.store_password(self.password_el.get_text())
         if self.directory_el.get_visible():
             self.integration.set_property('library_dir', self.directory_el.get_subtitle())
@@ -109,7 +111,9 @@ class LoginPage(Adw.NavigationPage):
             else:
                 toast = Adw.Toast(title=_("Login Failed"))
                 GLib.idle_add(self.get_ancestor(Adw.ToastOverlay).add_toast, toast)
-            GLib.idle_add(button.set_sensitive, True)
+                GLib.idle_add(self.get_root().main_stack.set_visible_child_name, 'login')
+            if button:
+                GLib.idle_add(button.set_sensitive, True)
         threading.Thread(target=verify_login).start()
 
     def login_success(self):
