@@ -210,3 +210,11 @@ class Base(GObject.Object):
         # called when a song is played
         print('WARNING', 'scrobble', 'not implemented')
     
+    def getServerInformation(self) -> dict:
+        # should return these keys:
+        # picture : gdk.Paintable
+        # username : str
+        # title : str
+        # link : str
+        print('WARNING', 'getServerInformation', 'not implemented')
+        return {}

@@ -691,3 +691,32 @@ class Jellyfin(Base):
     def scrobble(self, id:str):
         # not needed in jellyfin
         pass
+
+    def getServerInformation(self) -> dict:
+        server_information = {
+            'link': self.get_property('url').strip('/'),
+            'username': self.get_property('user').title()
+        }
+        try:
+            params = {
+                "maxWidth": 240,
+                "quality": 90
+            }
+            response = requests.get(self.get_url('Users/{userId}/Images/Primary'), params=params)
+            response_bytes = response.content if response.status_code == 200 else b''
+            if response_bytes and len(response_bytes) > 0:
+                gbytes = GLib.Bytes.new(response_bytes)
+                server_information['picture'] = Gdk.Texture.new_from_bytes(gbytes)
+        except Exception:
+            pass
+
+        try:
+            info = self.make_request(
+                action="System/Info",
+                mode="GET"
+            )
+            server_information["title"] = "{} {}".format(info.get("ServerName"), info.get("Version"))
+        except Exception:
+            pass
+
+        return server_information

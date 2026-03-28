@@ -45,8 +45,12 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
         action-name: "app.visit_url";
         action-target: "''";
         use-markup: false;
+        [prefix]
+        Adw.Avatar instance_avatar_el {
+          size: 32;
+        }
         [suffix]
-        Gtk.Image {
+        Gtk.Image instance_icon_el {
           valign: center;
           icon-name: "external-link-symbolic";
           accessibility {

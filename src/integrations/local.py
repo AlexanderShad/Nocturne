@@ -4,7 +4,7 @@ from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models
 from .base import Base
 from datetime import datetime, timezone
-import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid
+import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid, pwd, getpass
 from PIL import Image
 from mutagen import File
 from ..constants import LOCAL_DATA_DIR, get_song_info_from_file
@@ -525,3 +525,16 @@ class Local(Base):
             with open(SCROBBLEFILE, 'w') as f:
                 json.dump(scrobble_dict, f, ensure_ascii=False)
 
+    def getServerInformation(self) -> dict:
+        server_information = {
+            'link': 'file://{}'.format(self.get_property('library_dir')),
+            'title': _("Local Files")
+        }
+        try:
+            gecos_temp = pwd.getpwnam(getpass.getuser()).pw_gecos.split(',')
+            if len(gecos_temp) > 0:
+                server_information["username"] = pwd.getpwnam(getpass.getuser()).pw_gecos.split(',')[0].title()
+        except Exception:
+            pass
+
+        return server_information

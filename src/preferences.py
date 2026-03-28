@@ -20,6 +20,8 @@ class NocturnePreferences(Adw.PreferencesDialog):
     hp_artists_el = Gtk.Template.Child()
     hp_playlists_el = Gtk.Template.Child()
 
+    instance_avatar_el = Gtk.Template.Child()
+    instance_icon_el = Gtk.Template.Child()
     instance_el = Gtk.Template.Child()
 
     def __init__(self):
@@ -86,18 +88,19 @@ class NocturnePreferences(Adw.PreferencesDialog):
         if integration := get_current_integration():
             self.restore_el.set_visible('no-restore-queue' not in integration.limitations)
 
-            if integration.__gtype_name__.startswith('NocturneIntegrationNavidrome'):
-                self.instance_el.set_visible(True)
-                response = integration.make_request('ping')
-                self.instance_el.set_title(integration.get_property('user').title())
-                self.instance_el.set_action_target_value(GLib.Variant('s', integration.get_property('url')))
+            data = integration.getServerInformation()
+            self.instance_el.set_title(data.get('username', ""))
 
-                if response.get('status') == 'ok':
-                    self.instance_el.set_subtitle('{} | {} {}'.format(integration.get_property('url'), response.get('type'), response.get('serverVersion')))
-                    self.instance_el.remove_css_class('error')
-                else:
-                    self.instance_el.set_subtitle('{} | {}'.format(integration.get_property('url'), _("Offline")))
-                    self.instance_el.add_css_class('error')
+            self.instance_el.set_subtitle(data.get('title', ""))
+
+            self.instance_el.set_tooltip_text(data.get('link'))
+            self.instance_el.set_action_target_value(GLib.Variant('s', data.get('link', '')))
+            self.instance_icon_el.set_visible(data.get('link'))
+            self.instance_el.set_activatable(data.get('link'))
+
+            self.instance_avatar_el.set_custom_image(data.get('picture'))
+            self.instance_avatar_el.set_text(data.get('username', ''))
+            self.instance_el.set_visible(len(data) > 0)
 
     @Gtk.Template.Callback()
     def on_dynamic_bg_toggled(self, row, gparam):

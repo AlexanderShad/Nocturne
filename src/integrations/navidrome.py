@@ -52,6 +52,10 @@ class Navidrome(Base):
 
     # ----------- #
 
+    def on_login(self):
+        self.getServerInformation()
+        pass
+
     def get_stream_url(self, song_id:str) -> str:
         # streams are handled by gst not requests
         model = self.loaded_models.get(song_id)
@@ -395,6 +399,34 @@ class Navidrome(Base):
                 self.make_request('scrobble', {
                     'id': id
                 })
+
+    def getServerInformation(self) -> dict:
+        server_information = {
+            'link': self.get_property('url').strip('/'),
+            'username': self.get_property('user').title()
+        }
+        try:
+            response = requests.get(self.get_url('ping'), params=self.get_base_params())
+            if response.status_code == 200:
+                data = response.json().get('subsonic-response', {})
+                server_information['title'] = "{} {}".format(data.get('type'), data.get('serverVersion')).title()
+        except Exception:
+            pass
+
+        try:
+            params = {
+                **self.get_base_params(),
+                'username': self.get_property('user')
+            }
+            response = requests.get(self.get_url('getAvatar'), params=params)
+            response_bytes = response.content if response.status_code == 200 else b''
+            if response_bytes and len(response_bytes) > 0:
+                gbytes = GLib.Bytes.new(response_bytes)
+                server_information['picture'] = Gdk.Texture.new_from_bytes(gbytes)
+        except Exception:
+            pass
+
+        return server_information
 
 class NavidromeIntegrated(Navidrome):
     __gtype_name__ = 'NocturneIntegrationNavidromeIntegrated'

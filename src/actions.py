@@ -57,6 +57,11 @@ def replace_root_page(window, page_tag:str):
         pass
 
 def visit_url(window, url:str):
+    if url.startswith('file://'):
+        url = Gio.File.new_for_path(url.removeprefix('file://')).get_uri()
+        os.system('xdg-open {}'.format(url))
+        return
+
     Gio.AppInfo.launch_default_for_uri(url, None)
 
 def toggle_star(window, model_id:str):
