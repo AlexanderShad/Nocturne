@@ -5,14 +5,14 @@ from . import secret, models, local
 from ..constants import JELLYFIN_DATA_DIR
 from .base import Base
 import requests, subprocess, random, threading, base64, os, json, platform
-print('hash', str(abs(hash(platform.node()))))
+
 class Jellyfin(Base):
     __gtype_name__ = 'NocturneIntegrationJellyfin'
 
     login_page_metadata = {
         'icon-name': "music-note-symbolic",
         'title': "Jellyfin",
-        'entries': ["url", "user", "password"],
+        'entries': ["url", "user", "password", "trust-server"],
         'default-url': "http://127.0.0.1:8096"
     }
     button_metadata = {
@@ -21,10 +21,10 @@ class Jellyfin(Base):
     }
     limitations = ('no-edit-radio',)
     cache_actions = {
-        'deleted-radios': [],
-        'deleted-playlists': []
+        'deleted-radios': []
     }
     url = GObject.Property(type=str)
+    trust_server = GObject.Property(type=bool, default=False)
     user = GObject.Property(type=str)
 
     AUTH_HEADER = 'MediaBrowser Client="Nocturne", Device="{}", DeviceId="{}", Version="1.0.0"'.format(platform.node(), str(abs(hash(platform.node()))))
@@ -59,21 +59,24 @@ class Jellyfin(Base):
                     self.get_url(action, **action_keys),
                     params=params,
                     json=json,
-                    headers=headers
+                    headers=headers,
+                    verify=not self.get_property('trust_server')
                 )
             elif mode == 'POST':
                 response = requests.post(
                     self.get_url(action, **action_keys),
                     params=params,
                     json=json,
-                    headers=headers
+                    headers=headers,
+                    verify=not self.get_property('trust_server')
                 )
             elif mode == 'DELETE':
                 response = requests.delete(
                     self.get_url(action, **action_keys),
                     params=params,
                     json=json,
-                    headers=headers
+                    headers=headers,
+                    verify=not self.get_property('trust_server')
                 )
             if response.status_code in (200, 201):
                 return response.json()
@@ -114,7 +117,8 @@ class Jellyfin(Base):
                 response = requests.get(
                     self.get_url('Items/{id}/Images/Primary', id=id),
                     headers=self.get_base_header(),
-                    params=params
+                    params=params,
+                    verify=not self.get_property('trust_server')
                 )
                 response_bytes = response.content if response.status_code == 200 else b''
 
@@ -737,7 +741,11 @@ class Jellyfin(Base):
                 "maxWidth": 240,
                 "quality": 90
             }
-            response = requests.get(self.get_url('Users/{userId}/Images/Primary'), params=params)
+            response = requests.get(
+                self.get_url('Users/{userId}/Images/Primary'),
+                params=params,
+                verify=not self.get_property('trust_server')
+            )
             response_bytes = response.content if response.status_code == 200 else b''
             if response_bytes and len(response_bytes) > 0:
                 gbytes = GLib.Bytes.new(response_bytes)

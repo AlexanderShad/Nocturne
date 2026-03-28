@@ -37,6 +37,26 @@ template $NocturneLoginPage: Adw.NavigationPage {
 
         Adw.EntryRow url_el {
           title: _("Url");
+          [prefix]
+          Gtk.MenuButton url_options_el {
+            styles [
+              "flat"
+            ]
+            icon-name: "view-more-symbolic";
+            tooltip-text: _("More Options");
+            valign: center;
+            popover: Gtk.Popover {
+              child: Gtk.ListBox {
+                styles [
+                  "boxed-list"
+                ]
+                selection-mode: none;
+                Adw.SwitchRow trust_server_el {
+                  title: _("Trust Server Certificates");
+                }
+              };
+            };
+          }
         }
 
         Adw.EntryRow user_el {
