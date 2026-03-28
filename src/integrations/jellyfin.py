@@ -502,9 +502,9 @@ class Jellyfin(Base):
                 "starred": song.get("UserData", {}).get("IsFavorite", False)
             }
             if song.get("Id") in self.loaded_models:
-                self.loaded_models.get(id).update_data(**properties)
+                self.loaded_models.get(song.get("Id")).update_data(**properties)
             else:
-                self.loaded_models[id] = models.Song(**properties)
+                self.loaded_models[song.get("Id")] = models.Song(**properties)
             id_list.append(song.get("Id"))
         return id_list
 
@@ -537,9 +537,9 @@ class Jellyfin(Base):
                 "starred": song.get("UserData", {}).get("IsFavorite", False)
             }
             if song.get("Id") in self.loaded_models:
-                self.loaded_models.get(id).update_data(**properties)
+                self.loaded_models.get(song.get("Id")).update_data(**properties)
             else:
-                self.loaded_models[id] = models.Song(**properties)
+                self.loaded_models[song.get("Id")] = models.Song(**properties)
             id_list.append(song.get("Id"))
         return id_list
 

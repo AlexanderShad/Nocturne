@@ -29,8 +29,6 @@ class AlbumButton(Gtk.Box):
         integration.connect_to_model(self.id, 'artistId', self.update_artist_id)
         integration.connect_to_model(self.id, 'gdkPaintable', self.update_cover)
 
-        threading.Thread(target=self.update_cover).start()
-
     def update_cover(self, paintable:Gdk.Paintable=None):
         if paintable:
             self.cover_el.set_from_paintable(paintable)
