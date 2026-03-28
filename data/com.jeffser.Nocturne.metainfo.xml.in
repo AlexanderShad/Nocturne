@@ -82,6 +82,24 @@
   </screenshots>
 
   <releases>
+    <release version="0.4.0" date="2026-03-27">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.4.0</url>
+      <description translate="no">
+        <p>New</p>
+        <ul>
+          <li>Added compatibility with Jellyfin</li>
+          <li>Give user the option to change local directory</li>
+          <li>Better login experience</li>
+          <li>Changed how radios are handled</li>
+          <li>Simplified object models to improve performance</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Made coverArt fetching more consistent</li>
+          <li>Fixed problems with stability</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.1" date="2026-03-26">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.3.1</url>
       <description translate="no">
