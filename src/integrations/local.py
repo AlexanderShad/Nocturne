@@ -388,7 +388,7 @@ class Local(Base):
             'streamUrl': streamUrl
         }
         if model := self.loaded_models.get(id):
-            model.set_property('name', name)
+            model.set_property('title', name)
             model.set_property('streamUrl', streamUrl)
 
         with open(RADIOFILE, 'w') as f:

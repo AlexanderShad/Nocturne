@@ -18,6 +18,7 @@ class Jellyfin(Base):
         'title': "Jellyfin",
         'subtitle': _("Use an existing Jellyfin instance")
     }
+    limitations = ('no-edit-radio',)
     url = GObject.Property(type=str)
     user = GObject.Property(type=str)
 
@@ -76,11 +77,17 @@ class Jellyfin(Base):
                 )
             if response.status_code == 200:
                 return response.json()
+            else:
+                print(self.get_url(action, **action_keys), response.status_code)
+            #elif response.status_code == 204:
+                #return {'updated': 'ok'}
         except Exception as e:
+            print('error', e)
             pass
         return {}
 
     def refresh_library(self):
+        return
         self.make_request(
             action='ScheduledTasks/Running/6739958999814421481e05001648981b',
             mode="POST"
@@ -484,7 +491,6 @@ class Jellyfin(Base):
         return id_list
 
     def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
-        m3u_content = f"#EXTINF:0,{name}\n{streamUrl}"
         radio = self.make_request(
             action='LiveTv/TunerHosts',
             mode='POST',
@@ -504,3 +510,4 @@ class Jellyfin(Base):
             self.refresh_library()
             return True
         return False
+

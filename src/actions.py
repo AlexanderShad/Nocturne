@@ -137,7 +137,7 @@ def update_radio(window, id:str=""):
         if dialog.choose_finish(task) == 'save':
             name = name_el.get_text()
             stream = stream_el.get_text()
-            if name and stream:
+            if name and (stream or not stream_el.get_visible()):
                 integration = get_current_integration()
                 if id:
                     result = integration.updateInternetRadioStation(
@@ -176,7 +176,10 @@ def update_radio(window, id:str=""):
     if model and model.get_property('isRadio'):
         name_el.set_text(model.get_property('title'))
     list_box.append(name_el)
-    stream_el = Adw.EntryRow(title=_("Stream Url"))
+    stream_el = Adw.EntryRow(
+        title=_("Stream Url"),
+        visible=model.get_property('streamUrl')
+    )
     if model and model.get_property('isRadio'):
         stream_el.set_text(model.get_property('streamUrl'))
     list_box.append(stream_el)
@@ -188,7 +191,7 @@ def update_radio(window, id:str=""):
     dialog.add_response("cancel", _("Cancel"))
     dialog.add_response("save", _("Save"))
     dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
-    dialog.choose(window, None, response, name_el, stream_el, id)
+    dialog.choose(window, None, lambda *prms: threading.Thread(target=response, args=prms).start(), name_el, stream_el, id)
 
 def add_radio(window):
     update_radio(window)

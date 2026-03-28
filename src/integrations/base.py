@@ -13,6 +13,7 @@ class Base(GObject.Object):
     # For how to fill these checkout navidrome.py and local.py
     login_page_metadata = {}
     button_metadata = {}
+    limitations = ()
 
     # Always have a currentSong inside loaded_models
     loaded_models = {'currentSong': models.CurrentSong()}
