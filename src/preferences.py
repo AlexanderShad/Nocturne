@@ -20,6 +20,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
     hp_artists_el = Gtk.Template.Child()
     hp_playlists_el = Gtk.Template.Child()
 
+    session_group_el = Gtk.Template.Child()
     instance_avatar_el = Gtk.Template.Child()
     instance_icon_el = Gtk.Template.Child()
     instance_el = Gtk.Template.Child()
@@ -86,8 +87,6 @@ class NocturnePreferences(Adw.PreferencesDialog):
         )
 
         if integration := get_current_integration():
-            self.restore_el.set_visible('no-restore-queue' not in integration.limitations)
-
             data = integration.getServerInformation()
             self.instance_el.set_title(data.get('username', ""))
 
@@ -101,6 +100,9 @@ class NocturnePreferences(Adw.PreferencesDialog):
             self.instance_avatar_el.set_custom_image(data.get('picture'))
             self.instance_avatar_el.set_text(data.get('username', ''))
             self.instance_el.set_visible(len(data) > 0)
+            self.session_group_el.set_visible(True)
+        else:
+            self.session_group_el.set_visible(False)
 
     @Gtk.Template.Callback()
     def on_dynamic_bg_toggled(self, row, gparam):

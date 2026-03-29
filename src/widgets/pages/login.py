@@ -13,6 +13,8 @@ class LoginPage(Adw.NavigationPage):
     extra_menu_el = Gtk.Template.Child()
     status_page = Gtk.Template.Child()
     url_el = Gtk.Template.Child()
+    url_options_el = Gtk.Template.Child()
+    trust_server_el = Gtk.Template.Child()
     user_el = Gtk.Template.Child()
     password_el = Gtk.Template.Child()
     directory_el = Gtk.Template.Child()
@@ -35,6 +37,10 @@ class LoginPage(Adw.NavigationPage):
         # Url
         self.url_el.set_visible('url' in metadata.get('entries'))
         self.url_el.set_text(metadata.get("default-url", ""))
+
+        # Url Extra Options
+        self.url_options_el.set_visible('trust-server' in metadata.get('entries')) # Change line if more options are added
+        self.trust_server_el.set_visible('trust-server' in metadata.get('entries'))
 
         # User
         self.user_el.set_visible('user' in metadata.get('entries'))
@@ -95,6 +101,9 @@ class LoginPage(Adw.NavigationPage):
             button.set_sensitive(False)
         if self.url_el.get_visible():
             self.integration.set_property('url', self.url_el.get_text())
+        if self.url_options_el.get_visible():
+            if self.trust_server_el.get_visible():
+                self.integration.set_property('trust_server', self.trust_server_el.get_active())
         if self.user_el.get_visible():
             self.integration.set_property('user', self.user_el.get_text())
         if self.password_el.get_visible() and not skip_password:

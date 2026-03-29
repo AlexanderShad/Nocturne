@@ -13,7 +13,7 @@ class Navidrome(Base):
     login_page_metadata = {
         'icon-name': "music-note-symbolic",
         'title': _("Navidrome"),
-        'entries': ['url', 'user', 'password'],
+        'entries': ['url', 'user', 'password', 'trust-server'],
         'default-url': "http://127.0.0.1:4533"
     }
     button_metadata = {
@@ -21,6 +21,7 @@ class Navidrome(Base):
         'subtitle': _("Use an existing Navidrome / Subsonic instance")
     }
     url = GObject.Property(type=str)
+    trust_server = GObject.Property(type=bool, default=False)
     user = GObject.Property(type=str)
 
     def get_base_params(self) -> dict:
@@ -43,7 +44,11 @@ class Navidrome(Base):
             **params
         }
         try:
-            response = requests.get(self.get_url(action), params=params)
+            response = requests.get(
+                self.get_url(action),
+                params=params,
+                verify=not self.get_property('trust_server')
+            )
             if response.status_code == 200:
                 return response.json().get('subsonic-response', {})
         except Exception:
@@ -84,7 +89,11 @@ class Navidrome(Base):
                     'id': model.id,
                     'size': 480
                 }
-                response = requests.get(self.get_url('getCoverArt'), params=params)
+                response = requests.get(
+                    self.get_url('getCoverArt'),
+                    params=params,
+                    verify=not self.get_property('trust_server')
+                )
                 response_bytes = response.content if response.status_code == 200 else b''
 
                 if response_bytes and len(response_bytes) > 0:
@@ -299,6 +308,22 @@ class Navidrome(Base):
 
         return [s.get('id') for s in songs if s.get('id')]
 
+    def getLyrics(self, songId:str) -> dict:
+        lyrics = self.make_request('getLyricsBySongId', {'id': songId}).get('lyricsList', {}).get('structuredLyrics', [{}])[0]
+
+        if lyrics.get('synced', False):
+            lrc_lines = []
+            for line in lyrics.get('line', []):
+                lrc_lines.append({
+                    'ms': line.get('start'),
+                    'content': line.get('value')
+                })
+            return {
+                'type': 'lrc',
+                'content': lrc_lines
+            }
+        return {'type': 'not-found'}
+
     def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
         response = self.make_request('search3', {
             'query': query,
@@ -406,7 +431,11 @@ class Navidrome(Base):
             'username': self.get_property('user').title()
         }
         try:
-            response = requests.get(self.get_url('ping'), params=self.get_base_params())
+            response = requests.get(
+                self.get_url('ping'),
+                params=self.get_base_params(),
+                verify=not self.get_property('trust_server')
+            )
             if response.status_code == 200:
                 data = response.json().get('subsonic-response', {})
                 server_information['title'] = "{} {}".format(data.get('type'), data.get('serverVersion')).title()
@@ -418,7 +447,11 @@ class Navidrome(Base):
                 **self.get_base_params(),
                 'username': self.get_property('user')
             }
-            response = requests.get(self.get_url('getAvatar'), params=params)
+            response = requests.get(
+                self.get_url('getAvatar'),
+                params=params,
+                verify=not self.get_property('trust_server')
+            )
             response_bytes = response.content if response.status_code == 200 else b''
             if response_bytes and len(response_bytes) > 0:
                 gbytes = GLib.Bytes.new(response_bytes)
@@ -447,6 +480,7 @@ class NavidromeIntegrated(Navidrome):
         'subtitle': _("Create and use Navidrome instance")
     }
     library_dir = GObject.Property(type=str)
+    trust_server = GObject.Property(type=bool, default=True)
     process = None
 
     def __init__(self):

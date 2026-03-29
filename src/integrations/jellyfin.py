@@ -2,9 +2,9 @@
 
 from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models, local
-from ..constants import get_pc_name
+from ..constants import JELLYFIN_DATA_DIR
 from .base import Base
-import requests, subprocess, random, threading, base64
+import requests, subprocess, random, threading, base64, os, json, platform
 
 class Jellyfin(Base):
     __gtype_name__ = 'NocturneIntegrationJellyfin'
@@ -12,37 +12,33 @@ class Jellyfin(Base):
     login_page_metadata = {
         'icon-name': "music-note-symbolic",
         'title': "Jellyfin",
-        'entries': ["url", "user", "password"],
+        'entries': ["url", "user", "password", "trust-server"],
         'default-url': "http://127.0.0.1:8096"
     }
     button_metadata = {
         'title': _("Jellyfin (Experimental)"),
         'subtitle': _("Use an existing Jellyfin instance")
     }
-    limitations = ('no-edit-radio','no-restore-queue')
+    limitations = ('no-edit-radio',)
     cache_actions = {
-        'deleted-radios': [],
-        'deleted-playlists': []
+        'deleted-radios': []
     }
     url = GObject.Property(type=str)
+    trust_server = GObject.Property(type=bool, default=False)
     user = GObject.Property(type=str)
 
-    AUTH_HEADER = 'MediaBrowser Client="Nocturne", Device="{}", DeviceId="{}", Version="1.0.0"'.format(get_pc_name(), str(random.randint(1000, 9999)))
+    AUTH_HEADER = 'MediaBrowser Client="Nocturne", Device="{}", DeviceId="{}", Version="1.0.0"'.format(platform.node(), str(abs(hash(platform.node()))))
 
     # Loaded by API
     accessToken = GObject.Property(type=str)
     userId = GObject.Property(type=str)
 
-    def get_base_params(self) -> dict:
-        #TODO
-        return {}
-
     def get_base_header(self) -> dict:
         headers = {
-            "X-Emby-Authorization": self.AUTH_HEADER
+            "Authorization": self.AUTH_HEADER
         }
         if token := self.get_property('accessToken'):
-            headers["X-Emby-Authorization"] += ', Token="{}"'.format(token)
+            headers["Authorization"] += ', Token="{}"'.format(token)
         return headers
 
     def get_url(self, action:str, **keys) -> str:
@@ -51,7 +47,6 @@ class Jellyfin(Base):
 
     def make_request(self, action:str, json:dict={}, params:dict={}, mode:str="GET", action_keys:dict={}) -> dict:
         params = {
-            **self.get_base_params(),
             **params
         }
         headers = {
@@ -64,21 +59,24 @@ class Jellyfin(Base):
                     self.get_url(action, **action_keys),
                     params=params,
                     json=json,
-                    headers=headers
+                    headers=headers,
+                    verify=not self.get_property('trust_server')
                 )
             elif mode == 'POST':
                 response = requests.post(
                     self.get_url(action, **action_keys),
                     params=params,
                     json=json,
-                    headers=headers
+                    headers=headers,
+                    verify=not self.get_property('trust_server')
                 )
             elif mode == 'DELETE':
                 response = requests.delete(
                     self.get_url(action, **action_keys),
                     params=params,
                     json=json,
-                    headers=headers
+                    headers=headers,
+                    verify=not self.get_property('trust_server')
                 )
             if response.status_code in (200, 201):
                 return response.json()
@@ -113,14 +111,14 @@ class Jellyfin(Base):
                     return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
 
                 params = {
-                    **self.get_base_params(),
                     'maxWidth': 480,
                     'quality': 90
                 }
                 response = requests.get(
                     self.get_url('Items/{id}/Images/Primary', id=id),
                     headers=self.get_base_header(),
-                    params=params
+                    params=params,
+                    verify=not self.get_property('trust_server')
                 )
                 response_bytes = response.content if response.status_code == 200 else b''
 
@@ -455,9 +453,50 @@ class Jellyfin(Base):
         return not response.get('IsFavorite', False)
 
     def getPlayQueue(self) -> tuple:
-        return "", []
+        QUEUEFILE = os.path.join(JELLYFIN_DATA_DIR, 'queue.json')
+
+        try:
+            with open(QUEUEFILE, 'r') as f:
+                queue_dict = json.load(f)
+            if not isinstance(queue_dict, dict):
+                queue_dict = {}
+        except Exception:
+            queue_dict = {}
+
+        song_list = [id for id in queue_dict.get('id', [])]
+        current = queue_dict.get('current', "")
+        if current not in song_list:
+            if len(song_list) > 0:
+                current = song_list[0]
+            else:
+                current = ""
+
+        return current, song_list
 
     def savePlayQueue(self, id_list:list, current:str, position:int) -> bool:
+        QUEUEFILE = os.path.join(JELLYFIN_DATA_DIR, 'queue.json')
+
+        final_id_list = []
+        for id in id_list:
+            if model := self.loaded_models.get(id):
+                if not model.isExternalFile:
+                    final_id_list.append(id)
+
+        if current not in final_id_list:
+            if len(final_id_list) > 0:
+                current = final_id_list[0]
+            else:
+                current = ""
+
+        queue_dict = {
+            'id': final_id_list,
+            'current': current,
+            'position': position
+        }
+
+        with open(QUEUEFILE, 'w') as f:
+            json.dump(queue_dict, f, ensure_ascii=False)
+
         return True
 
     def getSimilarSongs(self, id:str, count:int=20) -> list:
@@ -542,6 +581,33 @@ class Jellyfin(Base):
                 self.loaded_models[song.get("Id")] = models.Song(**properties)
             id_list.append(song.get("Id"))
         return id_list
+
+    def getLyrics(self, songId:str) -> dict:
+        result = self.make_request(
+            action='Audio/{id}/Lyrics',
+            action_keys={'id': songId},
+            mode='GET'
+        )
+        isSynced = bool(result.get('Lyrics', [{}])[0].get('Start'))
+        if isSynced:
+            lines = []
+            for line in result.get('Lyrics', []):
+                lines.append({
+                    'content': line.get('Text'),
+                    'ms': line.get('Start') / 10000
+                })
+            return {
+                'type': 'lrc',
+                'content': lines
+            }
+        else:
+            text = '\n'.join([line.get('Text') for line in result.get('Lyrics', [])])
+            if text:
+                return {
+                    'type': 'plain',
+                    'content': text
+                }
+        return {'type': 'not-found'}
 
     def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
         def fetch_type(item_type:str, limit:int, offset:int, fields:str=""):
@@ -702,7 +768,11 @@ class Jellyfin(Base):
                 "maxWidth": 240,
                 "quality": 90
             }
-            response = requests.get(self.get_url('Users/{userId}/Images/Primary'), params=params)
+            response = requests.get(
+                self.get_url('Users/{userId}/Images/Primary'),
+                params=params,
+                verify=not self.get_property('trust_server')
+            )
             response_bytes = response.content if response.status_code == 200 else b''
             if response_bytes and len(response_bytes) > 0:
                 gbytes = GLib.Bytes.new(response_bytes)

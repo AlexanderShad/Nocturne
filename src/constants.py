@@ -19,6 +19,8 @@ DATA_DIR = get_xdg_home("XDG_DATA_HOME", "~/.local/share")
 CONFIG_DIR = get_xdg_home("XDG_CONFIG_HOME", "~/.config")
 CACHE_DIR = get_xdg_home("XDG_CACHE_HOME", "~/.cache")
 DEFAULT_MUSIC_DIR = subprocess.check_output(["xdg-user-dir", "MUSIC"], text=True).strip() or os.path.expanduser("~/Music")
+JELLYFIN_DATA_DIR = os.path.join(DATA_DIR, "jellyfin")
+os.makedirs(JELLYFIN_DATA_DIR, exist_ok=True)
 LOCAL_DATA_DIR = os.path.join(DATA_DIR, "local")
 os.makedirs(LOCAL_DATA_DIR, exist_ok=True)
 MPRIS_COVER_PATH = os.path.join(CACHE_DIR, 'cover.png')
@@ -35,10 +37,6 @@ NAVIDROME_ENV = {
     "ND_LOGLEVEL": "ERROR",
     "ND_ENABLEINSIGHTSCOLLECTOR": "false"
 }
-
-def get_pc_name() -> str:
-    # used by Jellyfin for auth header
-    return subprocess.check_output(['cat', '/proc/sys/kernel/hostname'], stderr=subprocess.STDOUT).decode("utf-8").strip()
 
 def get_navidrome_path() -> str | None:
     NAVIDROME_PATH = os.path.join(BASE_NAVIDROME_DIR, 'navidrome')
