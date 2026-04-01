@@ -157,7 +157,7 @@ window.popout-window.fullscreen navigation-view-page toolbarview stack scrolledw
 
 window.popout-window.fullscreen .view_box,
 window.popout-window.fullscreen navigation-view-page > toolbarview stack > scrolledwindow > * > * {
-  padding-bottom: 132px;
+  padding-bottom: 152px;
 }
 
 toast {

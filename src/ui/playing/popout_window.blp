@@ -77,6 +77,14 @@ template $NocturnePopoutWindow: Adw.ApplicationWindow {
                 orientation: horizontal;
                 spacing: 15;
 
+                $NocturnePlaybackModeButton {
+                  valign: center;
+                  styles [
+                    "circular",
+                    "flat"
+                  ]
+                }
+
                 Gtk.Button {
                   icon-name: "media-skip-backward-symbolic";
 
@@ -129,6 +137,14 @@ template $NocturnePopoutWindow: Adw.ApplicationWindow {
                   tooltip-text: _("Next");
                   styles [
                     "circular"
+                  ]
+                }
+
+                $NocturneVolumeButton {
+                  valign: center;
+                  styles [
+                    "circular",
+                    "flat"
                   ]
                 }
               };

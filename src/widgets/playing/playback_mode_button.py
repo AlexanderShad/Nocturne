@@ -13,7 +13,7 @@ class PlaybackModeButton(Gtk.MenuButton):
         super().__init__()
         self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         self.settings.connect('changed::playback-mode', lambda settings, key: self.mode_changed(settings.get_value(key).unpack()))
-        selected_mode = self.settings.get_value('playback-mode').unpack()
+        self.mode_changed(self.settings.get_value('playback-mode').unpack())
 
         for name, metadata in PLAYBACK_MODES.items():
             button = Gtk.Button(
@@ -24,7 +24,6 @@ class PlaybackModeButton(Gtk.MenuButton):
             )
             button.connect('clicked', lambda btn: self.mode_changed(btn.get_name()))
             self.container.append(button)
-        self.mode_changed(selected_mode)
 
     def mode_changed(self, name:str):
         self.set_icon_name(PLAYBACK_MODES.get(name, {}).get('icon-name'))
