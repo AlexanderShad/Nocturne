@@ -1,6 +1,6 @@
 # constants.py
 
-import os, subprocess, json
+import os, subprocess, json, pathlib
 from mutagen._file import File
 
 IN_FLATPAK = bool(os.getenv("FLATPAK_ID"))
@@ -87,9 +87,8 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
     audio = File(file_path)
     if audio is None:
         return None
-
+    file_path = pathlib.Path(file_path)
     song = {
-        'id': "SONG:{}-{}".format(file_path.name.removesuffix(file_path.suffix), audio.info.length if hasattr(audio, 'info') else 0),
         'path': file_path,
         'duration': audio.info.length if hasattr(audio, 'info') else 0,
         'title': "",

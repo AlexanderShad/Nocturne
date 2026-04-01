@@ -4,7 +4,7 @@ from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models
 from .base import Base
 from datetime import datetime, timezone
-import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid, pwd, getpass
+import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid, pwd, getpass, time
 from PIL import Image
 from mutagen import File
 from mutagen.id3 import ID3
@@ -17,7 +17,8 @@ class Local(Base):
         'icon-name': "music-note-symbolic",
         'title': _("Local Files"),
         'entries': ['library-dir'],
-        'login-label': _("Continue")
+        'login-label': _("Continue"),
+        'default-page': 'songs'
     }
     button_metadata = {
         'title': _("Local Files"),
@@ -30,64 +31,11 @@ class Local(Base):
         audio_data_list = []
         path_obj = pathlib.Path(self.get_property('library_dir'))
 
-        # load star_dict
-        STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
-        try:
-            with open(STARFILE, 'r') as f:
-                star_dict = json.load(f)
-            if not isinstance(star_dict, dict):
-                star_dict = {}
-        except Exception:
-            star_dict = {}
-
         # load songs, albums, artists
         for file_path in path_obj.rglob("*"):
             if file_path.suffix.lower() in ('.mp3', '.flac', '.m4a', '.ogg', '.wav'):
-                try:
-                    # Making Song Model
-                    song = get_song_info_from_file(file_path, star_dict)
-                    if not song:
-                        continue
-                    self.loaded_models[song.get('id')] = models.Song(**song)
-
-                    # Making Album Model
-                    if song.get('albumId'):
-                        if song.get('albumId') in self.loaded_models:
-                            self.loaded_models.get(song.get('albumId')).song.append({'id': song.get('id')})
-                        else:
-                            album = {
-                                'id': song.get('albumId'),
-                                'path': song.get('path'),
-                                'name': song.get('album'),
-                                'artist': song.get('artist'),
-                                'artistId': song.get('artistId'),
-                                'song': [{'id': song.get('id')}],
-                                'starred': song.get('albumId') in star_dict
-                            }
-                            self.loaded_models[album.get('id')] = models.Album(**album)
-
-                    # Making Artist Model
-                    for a_dict in song.get('artists', []):
-                        if a_dict.get('id'):
-                            if a_dict.get('id') not in self.loaded_models:
-                                artist = {
-                                    'id': a_dict.get('id'),
-                                    'path': song.get('path'),
-                                    'name': a_dict.get('name'),
-                                    'album': [],
-                                    'albumCount': 0,
-                                    'starred': a_dict.get('id') in star_dict
-                                }
-                                self.loaded_models[artist.get('id')] = models.Artist(**artist)
-
-                            # Add album
-                            album_list = self.loaded_models.get(a_dict.get('id')).album
-                            if not any([album.get('id') == song.get('albumId') for album in album_list]):
-                                self.loaded_models.get(a_dict.get('id')).album.append({'id': song.get('albumId')})
-                                self.loaded_models.get(a_dict.get('id')).albumCount += 1
-
-                except Exception as e:
-                    print('Error loading items:', e)
+                song_id = 'SONG:{}'.format(file_path)
+                self.loaded_models[song_id] = models.Song(id=song_id, path=file_path)
 
         # Load radios
         RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
@@ -236,6 +184,65 @@ class Local(Base):
         threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
     def verifySong(self, id:str, force_update:bool=False, use_threading:bool=True):
+        def run():
+            # load star_dict
+            STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
+            try:
+                with open(STARFILE, 'r') as f:
+                    star_dict = json.load(f)
+                if not isinstance(star_dict, dict):
+                    star_dict = {}
+            except Exception:
+                star_dict = {}
+
+            # Updating Song Model
+            song = get_song_info_from_file(self.loaded_models.get(id).get_property("path"), star_dict)
+            if not song:
+                return
+            self.loaded_models.get(id).update_data(**song)
+
+            # Making Album Model
+            if song.get('albumId'):
+                if song.get('albumId') in self.loaded_models:
+                    self.loaded_models.get(song.get('albumId')).song.append({'id': id})
+                else:
+                    album = {
+                        'id': song.get('albumId'),
+                        'path': song.get('path'),
+                        'name': song.get('album'),
+                        'artist': song.get('artist'),
+                        'artistId': song.get('artistId'),
+                        'song': [{'id': id}],
+                        'starred': song.get('albumId') in star_dict
+                    }
+                    self.loaded_models[album.get('id')] = models.Album(**album)
+
+            # Making Artist Model
+            for a_dict in song.get('artists', []):
+                if a_dict.get('id'):
+                    if a_dict.get('id') not in self.loaded_models:
+                        artist = {
+                            'id': a_dict.get('id'),
+                            'path': song.get('path'),
+                            'name': a_dict.get('name'),
+                            'album': [],
+                            'albumCount': 0,
+                            'starred': a_dict.get('id') in star_dict
+                        }
+                        self.loaded_models[artist.get('id')] = models.Artist(**artist)
+
+                    # Add album
+                    album_list = self.loaded_models.get(a_dict.get('id')).album
+                    if not any([album.get('id') == song.get('albumId') for album in album_list]):
+                        self.loaded_models.get(a_dict.get('id')).album.append({'id': song.get('albumId')})
+                        self.loaded_models.get(a_dict.get('id')).albumCount += 1
+
+        if force_update or not self.loaded_models.get(id).get_property('title'):
+            if use_threading:
+                threading.Thread(target=run).start()
+            else:
+                run()
+
         threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
     def star(self, id:str) -> bool:
@@ -328,7 +335,7 @@ class Local(Base):
         return self.getRandomSongs(count)
 
     def getRandomSongs(self, size:int=20) -> list:
-        songs = [id for id in list(self.loaded_models) if id.startswith('SONG:')]
+        songs = [song_id for song_id in list(self.loaded_models) if song_id.startswith('SONG:')]
         return random.sample(songs, k=min(size, len(songs)))
 
     def getLyrics(self, songId:str) -> dict:
