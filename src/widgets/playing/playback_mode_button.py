@@ -24,8 +24,7 @@ class PlaybackModeButton(Gtk.MenuButton):
             )
             button.connect('clicked', lambda btn: self.mode_changed(btn.get_name()))
             self.container.append(button)
-            if selected_mode == name:
-                self.mode_changed(button)
+        self.mode_changed(selected_mode)
 
     def mode_changed(self, name:str):
         self.set_icon_name(PLAYBACK_MODES.get(name, {}).get('icon-name'))
