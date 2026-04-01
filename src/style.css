@@ -160,7 +160,7 @@ window.popout-window.fullscreen navigation-view-page > toolbarview stack > scrol
   padding-bottom: 152px;
 }
 
-switch {
+switch:checked {
   background: var(--accent-color);
 }
 
