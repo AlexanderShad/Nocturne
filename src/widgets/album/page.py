@@ -42,6 +42,17 @@ class AlbumPage(Adw.NavigationPage):
         integration.connect_to_model(self.id, 'song', self.update_song_list)
         integration.connect_to_model(self.id, 'gdkPaintable', self.update_cover)
         integration.connect_to_model(self.id, 'gdkPaintableBytes', self.update_background)
+        self.song_list_el.list_el.set_sort_func(self.song_list_sort_func)
+
+    def song_list_sort_func(self, r1, r2):
+        integration = get_current_integration()
+        trackN1 = 0
+        trackN2 = 0
+        if model1 := integration.loaded_models.get(r1.id):
+            trackN1 = model1.get_property('track')
+        if model2 := integration.loaded_models.get(r2.id):
+            trackN2 = model2.get_property('track')
+        return trackN1 - trackN2
 
     def update_cover(self, paintable:Gdk.Paintable=None):
         if paintable:
@@ -101,4 +112,4 @@ class AlbumPage(Adw.NavigationPage):
         for song_dict in song_list:
             self.song_list_el.list_el.append(SongRow(song_dict.get('id')))
         self.song_list_el.main_stack.set_visible_child_name('content' if len(song_list) > 0 else 'no-content')
-            
+        self.song_list_el.list_el.invalidate_sort()

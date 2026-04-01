@@ -96,13 +96,22 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
         'album': "",
         'artist': "",
         'artists': [],
-        'isExternalFile': is_external_file
+        'isExternalFile': is_external_file,
+        'track': 0
     }
 
     if file_path.suffix.lower() == '.mp3':
         # ID3 Mapping
         song['title'] = audio.get('TIT2', file_path.name.removesuffix(file_path.suffix))
         song['album'] = str(audio.get('TALB') or '')
+
+        if trackN := audio.get("TRCK"):
+            trackN = trackN.text[0]
+            trackN = int(trackN.split('/')[0])
+        else:
+            trackN = 0
+        song['track'] = trackN
+
         artists = [artist.strip() for artist in str(audio.get('TPE1') or '').split(';')]
         if len(artists) > 0:
             song['artist'] = artists[0]
@@ -125,6 +134,11 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
         else:
             song["album"] = audio.get('©alb', [""])[0]
 
+        if trackN := audio.get('trkn'):
+            trackN = int(trackN[0][0])
+        else:
+            trackN = 0
+        song['track'] = trackN
 
         if 'artist' in audio:
             artist_list = audio.get('artist', [])

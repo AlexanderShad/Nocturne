@@ -333,11 +333,17 @@ class Jellyfin(Base):
                     "ParentId": id,
                     "IncludeItemTypes": "Audio",
                     "Recursive": "true",
-                    "Fields": "RunTimeTicks"
+                    "Fields": "RunTimeTicks,IndexNumber,ParentIndexNumber",
+                    "SortBy": "ParentIndexNumber,IndexNumber",
+                    "SortOrder": "Ascending"
                 }
             ).get("Items", [])
 
             duration = int(sum(song.get("RunTimeTicks", 0) for song in songs) / 10000000)
+
+            for i, song in enumerate(songs):
+                if model := self.loaded_models.get(song.get("Id")):
+                    model.update_data(track=song.get("IndexNumber") or i)
 
             self.loaded_models.get(id).update_data(
                 id=album.get("Id"),
@@ -403,7 +409,7 @@ class Jellyfin(Base):
     def verifySong(self, id:str, force_update:bool=False, use_threading:bool=True):
         def run():
             params = {
-                "Fields": "ArtistItems,AlbumId,RunTimeTicks,UserData"
+                "Fields": "ArtistItems,AlbumId,RunTimeTicks,UserData,IndexNumber,ParentIndexNumber"
             }
             song = self.make_request(
                 action='Users/{userId}/Items/{id}',
@@ -423,7 +429,8 @@ class Jellyfin(Base):
                 artistId=song.get("ArtistItems", [{}])[0].get("Id"),
                 duration=duration,
                 artists=[{"id": art.get("Id"), "name": art.get("Name")} for art in song.get("ArtistItems", [])],
-                starred=song.get("UserData", {}).get("IsFavorite", False)
+                starred=song.get("UserData", {}).get("IsFavorite", False),
+                track=song.get("IndexNumber") or 0
             )
 
         if id not in self.loaded_models or force_update:

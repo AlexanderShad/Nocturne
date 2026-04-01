@@ -101,6 +101,7 @@ class Song(GObject.Object):
     artistId = GObject.Property(type=str)
     artists = GObject.Property(type=GObject.TYPE_PYOBJECT) # list
     starred = GObject.Property(type=bool, default=False)
+    track = GObject.Property(type=int) #Track N in album
     isExternalFile = GObject.Property(type=bool, default=False)
 
     # --RADIO--
