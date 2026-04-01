@@ -25,6 +25,9 @@
 	  <key name="auto-play" type="b">
 	    <default>true</default>
 	  </key>
+	  <key name="volume" type="d">
+	    <default>0.25</default>
+	  </key>
 	  <key name="show-context-button" type="b">
 	    <default>true</default>
 	  </key>

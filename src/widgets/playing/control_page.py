@@ -47,6 +47,12 @@ class PlayingControlPage(Adw.NavigationPage):
         integration.connect_to_model('currentSong', 'positionSeconds', self.update_position)
         integration.connect_to_model('currentSong', 'buttonState', self.state_stack_el.set_visible_child_name)
         integration.connect_to_model('currentSong', 'songId', lambda id: threading.Thread(target=self.song_changed, args=(id,)).start())
+        Gio.Settings(schema_id="com.jeffser.Nocturne").bind(
+            "volume",
+            self.volume_el.get_adjustment(),
+            "value",
+            Gio.SettingsBindFlags.DEFAULT
+        )
         GLib.idle_add(self.setup_sidebar_button_connection)
 
     def update_position(self, positionSeconds:int):
@@ -91,8 +97,7 @@ class PlayingControlPage(Adw.NavigationPage):
 
     @Gtk.Template.Callback()
     def on_volume_changed(self, scale_el):
-        value = round(scale_el.get_value(), 2)
-        self.player.gst.set_property("volume", value)
+        value = scale_el.get_value()
         if value == 0:
             self.volume_button_el.set_icon_name("speaker-0-symbolic")
         elif value < 0.33:

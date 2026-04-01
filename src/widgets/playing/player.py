@@ -226,9 +226,19 @@ class Player(EventAdapter):
     __gtype_name__ = 'NocturnePlayer'
 
     def __init__(self, control_page):
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        volume = max(settings.get_value("volume").unpack(), 0.2)
+        settings.set_double("volume", volume)
         self.control_page = control_page
         self.gst = Gst.ElementFactory.make("playbin", "music-player")
-        self.gst.set_property('volume', 0.25)
+
+        settings.bind(
+            "volume",
+            self.gst,
+            "volume",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+
         self.bus = self.gst.get_bus()
         self.bus.add_signal_watch()
         self.bus.connect("message", self.on_message)
