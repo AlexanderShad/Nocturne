@@ -94,8 +94,13 @@ class PlayingLyricsPage(Gtk.Stack):
                 int(selection_model.get_selected_item().ms/1000 * Gst.SECOND)
             )
 
+        view_height = self.scrolledwindow.get_vadjustment().get_page_size()
+        visible_count = 2
+        if first_row := self.lrc_list_el.get_first_child():
+            visible_count = round(view_height / first_row.get_height())
+
         GLib.idle_add(self.lrc_list_el.scroll_to,
-            min(max(selection_model.get_selected() + 7, 0), len(list(selection_model))-1),
+            int(min(max(selection_model.get_selected() + visible_count / 2.25, 0), len(list(selection_model))-1)),
             Gtk.ListScrollFlags.FOCUS,
             None
         )
