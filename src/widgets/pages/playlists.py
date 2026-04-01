@@ -9,9 +9,19 @@ import re
 class PlaylistsPage(Adw.NavigationPage):
     __gtype_name__ = 'NocturnePlaylistsPage'
 
+    toggle_group_el = Gtk.Template.Child()
     main_stack = Gtk.Template.Child()
     list_el = Gtk.Template.Child()
     wrapbox_el = Gtk.Template.Child()
+
+    def __init__(self):
+        super().__init__()
+        Gio.Settings(schema_id="com.jeffser.Nocturne").bind(
+            "default-view-mode",
+            self.toggle_group_el,
+            "active-name",
+            Gio.SettingsBindFlags.DEFAULT
+        )
 
     def reload(self):
         # call in different thread

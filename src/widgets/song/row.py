@@ -42,8 +42,7 @@ class SongRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'isExternalFile', self.update_is_external)
         integration.connect_to_model('currentSong', 'songId', self.current_song_changed)
 
-        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
-        settings.bind(
+        Gio.Settings(schema_id="com.jeffser.Nocturne").bind(
             "show-context-button",
             self.menu_button_el,
             "visible",

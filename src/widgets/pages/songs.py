@@ -9,6 +9,7 @@ import threading
 class SongsPage(Adw.NavigationPage):
     __gtype_name__ = 'NocturneSongsPage'
 
+    toggle_group_el = Gtk.Template.Child()
     search_entry = Gtk.Template.Child()
     main_stack = Gtk.Template.Child()
     list_el = Gtk.Template.Child()
@@ -17,6 +18,15 @@ class SongsPage(Adw.NavigationPage):
     scrolledwindow = Gtk.Template.Child()
     offset = 0
     searching = False
+
+    def __init__(self):
+        super().__init__()
+        Gio.Settings(schema_id="com.jeffser.Nocturne").bind(
+            "default-view-mode",
+            self.toggle_group_el,
+            "active-name",
+            Gio.SettingsBindFlags.DEFAULT
+        )
 
     def reload(self):
         if len(list(self.list_el.list_el)) + len(list(self.wrapbox_el)) == 0:
