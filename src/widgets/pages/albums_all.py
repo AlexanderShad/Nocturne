@@ -15,6 +15,7 @@ class AlbumsAllPage(Adw.NavigationPage):
     list_el = Gtk.Template.Child()
     wrapbox_el = Gtk.Template.Child()
     end_stack = Gtk.Template.Child()
+    scrolledwindow = Gtk.Template.Child()
     offset = 0
     searching = False
 
@@ -26,6 +27,11 @@ class AlbumsAllPage(Adw.NavigationPage):
             "active-name",
             Gio.SettingsBindFlags.DEFAULT
         )
+        self.scrolledwindow.get_vadjustment().connect('notify::upper', lambda va, ud: GLib.timeout_add(1000, self.check_scrollbar, va))
+
+    def check_scrollbar(self, adjustment):
+        if adjustment.get_upper() <= adjustment.get_page_size():
+            threading.Thread(target=self.search).start()
 
     def reload(self):
         if len(list(self.list_el)) + len(list(self.wrapbox_el)) == 0:

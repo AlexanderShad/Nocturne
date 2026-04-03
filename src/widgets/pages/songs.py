@@ -27,6 +27,11 @@ class SongsPage(Adw.NavigationPage):
             "active-name",
             Gio.SettingsBindFlags.DEFAULT
         )
+        self.scrolledwindow.get_vadjustment().connect('notify::upper', lambda va, ud: GLib.timeout_add(1000, self.check_scrollbar, va))
+
+    def check_scrollbar(self, adjustment):
+        if adjustment.get_upper() <= adjustment.get_page_size():
+            threading.Thread(target=self.search, args=(60,)).start()
 
     def reload(self):
         if len(list(self.list_el.list_el)) + len(list(self.wrapbox_el)) == 0:
@@ -74,16 +79,6 @@ class SongsPage(Adw.NavigationPage):
     def scroll_edge_reached(self, scrolledwindow, pos):
         if pos == Gtk.PositionType.BOTTOM and self.end_stack.get_visible_child_name() == 'loading':
             threading.Thread(target=self.search).start()
-
-    @Gtk.Template.Callback()
-    def toggle_view_changed(self, toggle_group, ud):
-        def check_scrollbar():
-            va = self.scrolledwindow.get_vadjustment()
-            if va.get_upper() <= va.get_page_size():
-                threading.Thread(target=self.search, args=(60,)).start()
-
-        if toggle_group.get_active_name() == "grid":
-            GLib.timeout_add(1000, check_scrollbar)
 
     def update_visibility(self):
         for row in list(self.list_el.list_el) + list(self.wrapbox_el):

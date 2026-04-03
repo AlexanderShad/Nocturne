@@ -40,7 +40,7 @@ template $NocturneAlbumsAllPage: Adw.NavigationPage {
       }
       Gtk.StackPage {
         name: "content";
-        child: Gtk.ScrolledWindow {
+        child: Gtk.ScrolledWindow scrolledwindow {
           propagate-natural-width: true;
           propagate-natural-height: true;
           edge-reached => $scroll_edge_reached();
