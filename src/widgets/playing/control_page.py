@@ -186,20 +186,20 @@ class PlayingControlPage(Adw.NavigationPage):
 
         window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
             background-image: linear-gradient(
-                to bottom right,
+                to bottom,
                 rgba({','.join([str(c) for c in palette[0]])},0.3),
                 rgba({','.join([str(c) for c in palette[1]])},0.3)
             );
         }}
         window.popout-window {{
             background-image: linear-gradient(
-                to bottom right,
+                to bottom,
                 rgba({','.join([str(c) for c in palette[0]])},0.6),
                 rgba({','.join([str(c) for c in palette[1]])},0.6)
             );
         }}
         window.popout-window .fullscreen-bottom-bar {{
-            background-color: color-mix(in srgb, var(--window-bg-color) 50%, rgba({','.join([str(c) for c in palette[0]])}, 0.25));
+            background-color: color-mix(in srgb, var(--window-bg-color) 25% rgba({','.join([str(c) for c in palette[1]])}, 0.25));
         }}
         .dynamic-accent-bg {{
             transition: background-image 0.5s ease-in-out;

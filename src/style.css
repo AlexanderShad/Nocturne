@@ -180,10 +180,6 @@ toast {
   margin-bottom: 0;
 }
 
-button.lyrics_go_back_overlay_button {
-  margin: 10px;
-}
-
 window.popout-window.big-mode button.lyrics_go_back_overlay_button {
   margin: 20px;
   margin-bottom: 162px;
@@ -196,4 +192,11 @@ window.popout-window.big-mode button.lyrics_go_back_overlay_button {
 window.popout-window.big-mode picture.card,
 window.popout-window.big-mode .fullscreen-bottom-bar {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.big-album-title {
+	font-size: 3rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	line-height: 1.1;
 }
