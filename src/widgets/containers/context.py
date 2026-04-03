@@ -13,7 +13,8 @@ def get_context_buttons_list(options:dict, model_id:str, cb_handler:callable=Non
                 label=data.get('name'),
                 icon_name=data.get('icon-name'),
                 halign=Gtk.Align.START
-            )
+            ),
+            tooltip_text=data.get('name')
         )
         if data.get('sensitive', True):
             btn.connect('clicked', cb_handler, data.get('connection'))
@@ -44,6 +45,7 @@ class ContextContainer(Gtk.Box):
         buttons = get_context_buttons_list(options, model_id, cb_handler=self.callback_handler)
         for btn in buttons:
             btn.add_css_class('flat')
+            btn.set_tooltip_text('')
             self.append(btn)
 
     def callback_handler(self, button, callback):
