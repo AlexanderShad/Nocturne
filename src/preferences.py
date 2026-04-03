@@ -10,6 +10,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
     __gtype_name__ = 'NocturnePreferencesDialog'
 
     context_button_el = Gtk.Template.Child()
+    show_playlists_sidebar_el = Gtk.Template.Child()
     dynamic_bg_el = Gtk.Template.Child()
     blur_bg_el = Gtk.Template.Child()
     restore_el = Gtk.Template.Child()
@@ -33,6 +34,12 @@ class NocturnePreferences(Adw.PreferencesDialog):
         settings.bind(
             "show-context-button",
             self.context_button_el,
+            "active",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        settings.bind(
+            "show-playlists-in-sidebar",
+            self.show_playlists_sidebar_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )

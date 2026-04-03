@@ -189,6 +189,16 @@ SIDEBAR_MENU = [
                 'title': _("Home"),
                 'icon-name': "user-home-symbolic",
                 'page-tag': 'home'
+            },
+            { # Item
+                'title': _("Artists"),
+                'icon-name': "music-artist-symbolic",
+                'page-tag': 'artists'
+            },
+            { # Item
+                'title': _("Playlists"),
+                'icon-name': "playlist-symbolic",
+                'page-tag': "playlists"
             }
         ]
     },
@@ -233,14 +243,10 @@ SIDEBAR_MENU = [
         ]
     },
     { # Section
+        'title': _("Songs"),
         'items': [
             { # Item
-                'title': _("Artists"),
-                'icon-name': "music-artist-symbolic",
-                'page-tag': 'artists'
-            },
-            { # Item
-                'title': _("Songs"),
+                'title': _("All"),
                 'icon-name': "music-note-symbolic",
                 'page-tag': 'songs'
             },

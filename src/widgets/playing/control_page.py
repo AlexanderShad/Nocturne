@@ -198,9 +198,6 @@ class PlayingControlPage(Adw.NavigationPage):
                 rgba({','.join([str(c) for c in palette[1]])},0.6)
             );
         }}
-        window.popout-window .fullscreen-bottom-bar {{
-            background-color: color-mix(in srgb, var(--window-bg-color) 25% rgba({','.join([str(c) for c in palette[1]])}, 0.25));
-        }}
         .dynamic-accent-bg {{
             transition: background-image 0.5s ease-in-out;
         }}
@@ -260,4 +257,5 @@ class PlayingControlPage(Adw.NavigationPage):
                 self.pause_next_change = False
             else:
                 self.player.gst.set_state(Gst.State.PLAYING)
+
 

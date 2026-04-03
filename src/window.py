@@ -48,7 +48,6 @@ class NocturneWindow(Adw.ApplicationWindow):
     footer = Gtk.Template.Child()
     toast_overlay = Gtk.Template.Child()
     login_page = Gtk.Template.Child()
-    sidebar_playlist_section = None
 
     @Gtk.Template.Callback()
     def close_request(self, window):
@@ -91,40 +90,62 @@ class NocturneWindow(Adw.ApplicationWindow):
         )
 
     def setup_sidebar(self):
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         for section in SIDEBAR_MENU:
             section_el = Adw.SidebarSection(
                 title=section.get('title')
             )
             self.main_sidebar.append(section_el)
             for item in section.get('items'):
-                section_el.append(SidebarItem(
+                row = SidebarItem(
                     title=item.get('title'),
                     icon_name=item.get('icon-name'),
                     page_tag=item.get('page-tag'),
                     page_type=item.get('page-type')
-                ))
+                )
+                if item.get('page-tag') == 'playlists':
+                    settings.bind(
+                        'show-playlists-in-sidebar',
+                        row,
+                        'visible',
+                        Gio.SettingsBindFlags.INVERT_BOOLEAN
+                    )
+                section_el.append(row)
 
     def update_playlist_section_of_sidebar(self):
         integration = get_current_integration()
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         playlist_section = self.main_sidebar.get_sections()[-1]
+
         GLib.idle_add(playlist_section.remove_all)
-        GLib.idle_add(playlist_section.append,
-            SidebarItem(
-                title=_("All"),
-                icon_name="playlist-symbolic",
-                page_tag="playlists"
-            )
+        item = SidebarItem(
+            title=_("All"),
+            icon_name="playlist-symbolic",
+            page_tag="playlists"
         )
+        settings.bind(
+            'show-playlists-in-sidebar',
+            item,
+            'visible',
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        GLib.idle_add(playlist_section.append, item)
+
         for playlistId in integration.getPlaylists()[:4]:
             if model := integration.loaded_models.get(playlistId):
                 item = SidebarItem(
                     page_tag="playlist",
                     page_type=playlistId
                 )
+                settings.bind(
+                    'show-playlists-in-sidebar',
+                    item,
+                    'visible',
+                    Gio.SettingsBindFlags.DEFAULT
+                )
                 GLib.idle_add(playlist_section.append, item)
-                integration.connect_to_model(playlistId, "name", item.set_title)
-                integration.connect_to_model(playlistId, "songCount", lambda n: item.set_subtitle(('{} Songs' if n > 1 else '{} Song').format(n)))
-                #integration.connect_to_model(playlistId, "gdkPaintable", item.set_icon_paintable)
+                integration.connect_to_model(playlistId, "name", lambda name, row=item: row.set_title(name))
+                integration.connect_to_model(playlistId, "songCount", lambda n, row=item: row.set_subtitle(('{} Songs' if n > 1 else '{} Song').format(n)))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

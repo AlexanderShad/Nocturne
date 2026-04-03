@@ -59,12 +59,11 @@ def __show_custom_toast(window, model_id:str, title_property:str, subtitle:str, 
 
 def replace_root_page(window, page_tag:str):
     try:
-        tags = [item.page_tag for item in list(window.main_sidebar.get_items())]
-        index = tags.index(page_tag)
+        index = [i for i, item in enumerate(list(window.main_sidebar.get_items())) if item.get_visible() and item.page_tag == page_tag][0]
         window.main_sidebar.set_selected(index)
-        window.replace_root_page(page_tag)
-    except Exception:
+    except Exception as e:
         pass
+    window.replace_root_page(page_tag)
 
 def visit_url(window, url:str):
     if url.startswith('file://'):
@@ -540,6 +539,8 @@ def update_playlist(window, model_id:str=None):
                     playlistId=id
                 )
                 if result:
+                    if not id:
+                        threading.Thread(target=window.update_playlist_section_of_sidebar).start()
                     toast = Adw.Toast(
                         title=_("Playlist updated successfully") if id else _("Playlist created successfully"),
                         timeout=2
@@ -633,6 +634,7 @@ def add_songs_to_playlist(window, data):
                 target=__show_custom_toast,
                 args=(window, response, "name", message)
             ).start()
+            threading.Thread(target=window.update_playlist_section_of_sidebar).start()
 
     elif data.get('playlist'):
         integration.verifyPlaylist(data.get('playlist'), force_update=True, use_threading=False)
@@ -677,6 +679,7 @@ def delete_playlist(window, model_id:str):
             result = integration.deletePlaylist(model.get_property('id'))
             if result:
                 threading.Thread(target=show_toast, args=(model,)).start()
+                threading.Thread(target=window.update_playlist_section_of_sidebar).start()
 
     dialog = Adw.AlertDialog(
         heading=_("Delete Playlist"),
