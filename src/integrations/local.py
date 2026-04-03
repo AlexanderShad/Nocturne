@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid, pwd, getpass, time
 from PIL import Image
 from mutagen import File
-from mutagen.id3 import ID3
 from ..constants import LOCAL_DATA_DIR, get_song_info_from_file
 
 class Local(Base):
@@ -354,8 +353,12 @@ class Local(Base):
 
     def getLyrics(self, songId:str) -> dict:
         if model := self.loaded_models.get(songId):
-            if audio_file := ID3(model.path):
-                if synced_lyrics := audio_file.getall("SYLT"):
+            audio = File(model.path)
+            if not audio:
+                return {'type': 'not-found'}
+
+            if model.path.split('.')[-1].lower == 'mp3':
+                if synced_lyrics := audio.get("SYLT"):
                     if len(synced_lyrics) > 0 and synced_lyrics[0].lyrics:
                         lines = []
                         for content, ms in synced_lyrics[0].lyrics:
@@ -368,12 +371,18 @@ class Local(Base):
                                 'type': 'lrc',
                                 'content': lines
                             }
-                if plain_lyrics := audio_file.getall("USLT"):
+                if plain_lyrics := audio_file.get("USLT"):
                     if content := plain_lyrics[0].text:
                         return {
                             'type': 'plain',
                             'content': content
                         }
+            else:
+                if lyrics := audio.get('LYRICS') or audio.get('UNSYNCEDLYRICS'):
+                    if lyrics.startwith('['):
+                        return {'type': 'lrc', 'content': lyrics}
+                    else:
+                        return {'type': 'plain', 'content': lyrics}
         return {'type': 'not-found'}
 
     def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
