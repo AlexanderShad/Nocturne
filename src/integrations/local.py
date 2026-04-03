@@ -25,6 +25,20 @@ class Local(Base):
     }
     library_dir = GObject.Property(type=str)
 
+    def open_json(self, filename:str, is_list:bool=False) -> dict | list:
+        try:
+            with open(os.path.join(LOCAL_DATA_DIR, filename), 'r') as f:
+                result = json.load(f)
+                if is_list:
+                    if not isinstance(result, list):
+                        return []
+                else:
+                    if not isinstance(result, dict):
+                        return {}
+                return result
+        except Exception:
+            return [] if is_list else {}
+
     def on_login(self):
         # Goes through the whole directory retrieving all the metadata
         audio_data_list = []
@@ -38,14 +52,7 @@ class Local(Base):
                 threading.Thread(target=self.verifySong, args=(song_id,)).start()
 
         # Load radios
-        RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
-        try:
-            with open(RADIOFILE, 'r') as f:
-                radio_dict = json.load(f)
-            if not isinstance(radio_dict, dict):
-                radio_dict = {}
-        except Exception:
-            radio_dict = {}
+        radio_dict = self.open_json('radios.json')
 
         for radio_id, radio in radio_dict.items():
             self.loaded_models[radio_id] = models.Song(
@@ -57,14 +64,7 @@ class Local(Base):
             )
 
         # Load playlists
-        PLAYLISTFILE = os.path.join(LOCAL_DATA_DIR, 'playlists.json')
-        try:
-            with open(PLAYLISTFILE, 'r') as f:
-                playlist_dict = json.load(f)
-            if not isinstance(playlist_dict, dict):
-                playlist_dict = {}
-        except Exception:
-            playlist_dict = {}
+        playlist_dict = self.open_json('playlists.json')
 
         for playlist_id, playlist in playlist_dict.items():
             path_str = ""
@@ -175,14 +175,7 @@ class Local(Base):
         return [model_id for model_id in list(self.loaded_models) if model_id.startswith('PLAYLIST:')]
 
     def getStarredSongs(self) -> list:
-        STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
-        try:
-            with open(STARFILE, 'r') as f:
-                star_dict = json.load(f)
-            if not isinstance(star_dict, dict):
-                star_dict = {}
-        except Exception:
-            star_dict = {}
+        star_dict = self.open_json('stars.json')
         return [song_id for song_id in star_dict if song_id.startswith("SONG:") and song_id in self.loaded_models]
 
     def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):
@@ -197,14 +190,7 @@ class Local(Base):
     def verifySong(self, id:str, force_update:bool=False, use_threading:bool=True):
         def run():
             # load star_dict
-            STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
-            try:
-                with open(STARFILE, 'r') as f:
-                    star_dict = json.load(f)
-                if not isinstance(star_dict, dict):
-                    star_dict = {}
-            except Exception:
-                star_dict = {}
+            star_dict = self.open_json('stars.json')
 
             # Updating Song Model
             song = get_song_info_from_file(self.loaded_models.get(id).get_property("path"), star_dict=star_dict)
@@ -259,53 +245,29 @@ class Local(Base):
         threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
     def star(self, id:str) -> bool:
-        STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
-
-        try:
-            with open(STARFILE, 'r') as f:
-                star_dict = json.load(f)
-            if not isinstance(star_dict, dict):
-                star_dict = {}
-        except Exception:
-            star_dict = {}
+        star_dict = self.open_json('stars.json')
 
         current_time = datetime.now(timezone.utc).isoformat(timespec='microseconds').replace("+00:00", "Z")
         star_dict[id] = current_time
 
-        with open(STARFILE, 'w') as f:
+        with open(os.path.join(LOCAL_DATA_DIR, 'stars.json'), 'w') as f:
             json.dump(star_dict, f, ensure_ascii=False)
 
         return True
 
     def unstar(self, id:str) -> bool:
-        STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
-
-        try:
-            with open(STARFILE, 'r') as f:
-                star_dict = json.load(f)
-            if not isinstance(star_dict, list):
-                star_dict = {}
-        except Exception:
-            star_dict = {}
+        star_dict = self.open_json('stars.json')
 
         if id in star_dict:
             del star_dict[id]
 
-        with open(STARFILE, 'w') as f:
+        with open(os.path.join(LOCAL_DATA_DIR, 'stars.json'), 'w') as f:
             json.dump(star_dict, f, ensure_ascii=False)
 
         return True
 
     def getPlayQueue(self) -> tuple:
-        QUEUEFILE = os.path.join(LOCAL_DATA_DIR, 'queue.json')
-
-        try:
-            with open(QUEUEFILE, 'r') as f:
-                queue_dict = json.load(f)
-            if not isinstance(queue_dict, dict):
-                queue_dict = {}
-        except Exception:
-            queue_dict = {}
+        queue_dict = self.open_json('queue.json')
 
         song_list = [id for id in queue_dict.get('id', []) if id in self.loaded_models]
         current = queue_dict.get('current', "")
@@ -318,8 +280,6 @@ class Local(Base):
         return current, song_list
 
     def savePlayQueue(self, id_list:list, current:str, position:int) -> bool:
-        QUEUEFILE = os.path.join(LOCAL_DATA_DIR, 'queue.json')
-
         final_id_list = []
         for id in id_list:
             if model := self.loaded_models.get(id):
@@ -338,7 +298,7 @@ class Local(Base):
             'position': position
         }
 
-        with open(QUEUEFILE, 'w') as f:
+        with open(os.path.join(LOCAL_DATA_DIR, 'queue.json'), 'w') as f:
             json.dump(queue_dict, f, ensure_ascii=False)
 
         return True
@@ -400,14 +360,7 @@ class Local(Base):
         return [model_id for model_id in list(self.loaded_models) if model_id.startswith('RADIO:')]
 
     def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
-        RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
-        try:
-            with open(RADIOFILE, 'r') as f:
-                radio_dict = json.load(f)
-            if not isinstance(radio_dict, dict):
-                radio_dict = {}
-        except Exception:
-            radio_dict = {}
+        radio_dict = self.open_json('radios.json')
 
         radio_id = str(uuid.uuid4())
         radio_dict[radio_id] = {
@@ -423,20 +376,13 @@ class Local(Base):
             isRadio=True
         )
 
-        with open(RADIOFILE, 'w') as f:
+        with open(os.path.join(LOCAL_DATA_DIR, 'radios.json'), 'w') as f:
             json.dump(radio_dict, f, ensure_ascii=False)
 
         return True
 
     def updateInternetRadioStation(self, id:str, name:str, streamUrl:str) -> bool:
-        RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
-        try:
-            with open(RADIOFILE, 'r') as f:
-                radio_dict = json.load(f)
-            if not isinstance(radio_dict, dict):
-                radio_dict = {}
-        except Exception:
-            radio_dict = {}
+        radio_dict = self.open_json('radios.json')
 
         radio_dict[id] = {
             'name': name,
@@ -446,38 +392,24 @@ class Local(Base):
             model.set_property('title', name)
             model.set_property('streamUrl', streamUrl)
 
-        with open(RADIOFILE, 'w') as f:
+        with open(os.path.join(LOCAL_DATA_DIR, 'radios.json'), 'w') as f:
             json.dump(radio_dict, f, ensure_ascii=False)
 
         return True
 
     def deleteInternetRadioStation(self, id:str) -> bool:
-        RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
-        try:
-            with open(RADIOFILE, 'r') as f:
-                radio_dict = json.load(f)
-            if not isinstance(radio_dict, dict):
-                radio_dict = {}
-        except Exception:
-            radio_dict = {}
+        radio_dict = self.open_json('radios.json')
 
         if id in radio_dict:
             del radio_dict[id]
 
-        with open(RADIOFILE, 'w') as f:
+        with open(os.path.join(LOCAL_DATA_DIR, 'radios.json'), 'w') as f:
             json.dump(radio_dict, f, ensure_ascii=False)
 
         return True
 
     def createPlaylist(self, name:str=None, playlistId:str=None, songId:list=[]) -> str:
-        PLAYLISTFILE = os.path.join(LOCAL_DATA_DIR, 'playlists.json')
-        try:
-            with open(PLAYLISTFILE, 'r') as f:
-                playlist_dict = json.load(f)
-            if not isinstance(playlist_dict, dict):
-                playlist_dict = {}
-        except Exception:
-            playlist_dict = {}
+        playlist_dict = self.open_json('playlists.json')
 
         playlistId = playlistId or str(uuid.uuid4())
 
@@ -499,20 +431,13 @@ class Local(Base):
             path = path_str
         )
 
-        with open(PLAYLISTFILE, 'w') as f:
+        with open(os.path.join(LOCAL_DATA_DIR, 'playlists.json'), 'w') as f:
             json.dump(playlist_dict, f, ensure_ascii=False)
 
         return playlistId
 
     def updatePlaylist(self, playlistId:str, songIdToAdd:list=[], songIndexToRemove:list=[]) -> bool:
-        PLAYLISTFILE = os.path.join(LOCAL_DATA_DIR, 'playlists.json')
-        try:
-            with open(PLAYLISTFILE, 'r') as f:
-                playlist_dict = json.load(f)
-            if not isinstance(playlist_dict, dict):
-                playlist_dict = {}
-        except Exception:
-            playlist_dict = {}
+        playlist_dict = self.open_json('playlists.json')
 
         if playlistId in playlist_dict:
             songs = playlist_dict.get(playlistId).get('songId')
@@ -531,22 +456,16 @@ class Local(Base):
                         path_str = model.path
                 model.set_property('path', path_str)
 
-        with open(PLAYLISTFILE, 'w') as f:
+        with open(os.path.join(LOCAL_DATA_DIR, 'playlists.json'), 'w') as f:
             json.dump(playlist_dict, f, ensure_ascii=False)
 
         return True
 
     def deletePlaylist(self, id:str) -> bool:
-        PLAYLISTFILE = os.path.join(LOCAL_DATA_DIR, 'playlists.json')
-        try:
-            with open(PLAYLISTFILE, 'r') as f:
-                playlist_dict = json.load(f)
-            if not isinstance(playlist_dict, dict):
-                playlist_dict = {}
-        except Exception:
-            playlist_dict = {}
-
-        with open(PLAYLISTFILE, 'w') as f:
+        playlist_dict = self.open_json('playlists.json')
+        if id in playlist_dict:
+            del playlist_dict[id]
+        with open(os.path.join(LOCAL_DATA_DIR, 'playlists.json'), 'w') as f:
             json.dump(playlist_dict, f, ensure_ascii=False)
 
         return True
@@ -557,14 +476,7 @@ class Local(Base):
         if model := self.loaded_models.get(id):
             if model.get_property('isExternalFile') or model.get_property('isRadio'):
                 return
-            SCROBBLEFILE = os.path.join(LOCAL_DATA_DIR, 'scrobble.json')
-            try:
-                with open(SCROBBLEFILE, 'r') as f:
-                    scrobble_dict = json.load(f)
-                if not isinstance(scrobble_dict, dict):
-                    scrobble_dict = {}
-            except Exception:
-                scrobble_dict = {}
+            scrobble_dict = self.open_json('scrobble.json')
 
             if id in scrobble_dict:
                 scrobble_dict[id]['plays'] += 1
@@ -577,7 +489,7 @@ class Local(Base):
                     'album': model.get_property('albumId')
                 }
 
-            with open(SCROBBLEFILE, 'w') as f:
+            with open(os.path.join(LOCAL_DATA_DIR, 'scrobble.json'), 'w') as f:
                 json.dump(scrobble_dict, f, ensure_ascii=False)
 
     def getServerInformation(self) -> dict:
