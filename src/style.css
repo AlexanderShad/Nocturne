@@ -198,3 +198,10 @@ window.popout-window.big-mode picture.card,
 window.popout-window.big-mode .fullscreen-bottom-bar {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
+
+.big-album-title {
+	font-size: 3rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	line-height: 1.1;
+}
