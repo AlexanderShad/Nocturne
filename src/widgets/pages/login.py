@@ -131,16 +131,21 @@ class LoginPage(Adw.NavigationPage):
 
     def login_success(self):
         root = self.get_root()
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+
         root.main_stack.set_visible_child_name('content')
 
         root.playing_page.setup()
         root.footer.setup()
         root.lyrics_page.setup()
 
-        default_page = self.integration.login_page_metadata.get('default-page', 'home')
+        default_page = self.integration.login_page_metadata.get('default-page')
+        if not default_page:
+            default_page = settings.get_value('default-page-tag').unpack() or 'home'
+
         root.activate_action("app.replace_root_page", GLib.Variant('s', default_page))
         threading.Thread(target=root.main_navigationview.find_page(default_page).reload).start()
         threading.Thread(target=root.update_playlist_section_of_sidebar).start()
-        if Gio.Settings(schema_id="com.jeffser.Nocturne").get_value("restore-session").unpack():
+        if settings.get_value("restore-session").unpack():
             threading.Thread(target=root.playing_page.player.restore_play_queue).start()
 

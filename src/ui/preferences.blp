@@ -27,6 +27,12 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
         subtitle: _("Make background of player slightly transparent and blur the backdrop");
         notify::active => $on_blur_bg_toggled();
       }
+      Adw.ComboRow default_page_el {
+        title: _("Default Page on Login");
+        subtitle: _("Which page is shown by default");
+        model: Gtk.StringList {};
+        notify::selected => $default_page_changed();
+      }
     }
     Adw.PreferencesGroup {
       title: _("Behavior");
