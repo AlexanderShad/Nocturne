@@ -269,7 +269,7 @@ class Player(EventAdapter):
 
     def set_dynamic_title(self, title:str):
         # called by on_player_message (useful for radios)
-        if title == self.control_page.title_el.get_label():
+        if not title or title == "null" or title == self.control_page.title_el.get_label():
             return
         integration = get_current_integration()
         current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
