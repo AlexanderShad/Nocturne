@@ -137,7 +137,6 @@ class Local(Base):
         return True
 
     def getAlbumList(self, list_type:str="recent", size:int=10, offset:int=0) -> list:
-        # list_type is not implemented yet
         album_list = []
         if list_type == "random":
             album_list = [model_id for model_id in list(self.loaded_models) if model_id.startswith('ALBUM:')]
@@ -166,6 +165,7 @@ class Local(Base):
                         'plays': data.get('plays'),
                         'last_play': data.get('last_play')
                     }
+
             if list_type == "frequent":
                 album_list = sorted(album_views, key=lambda x: album_views.get(x).get('plays'), reverse=True)
             elif list_type == "recent":
@@ -174,7 +174,7 @@ class Local(Base):
             album_list = [model_id for model_id, model in self.loaded_models.items() if model_id.startswith('ALBUM:') and model.starred]
         else:
             album_list = [model_id for model_id in list(self.loaded_models) if model_id.startswith('ALBUM:')]
-        return [model_id for model_id in album_list if id in self.loaded_models][offset:size]
+        return [model_id for model_id in album_list if model_id in self.loaded_models][offset:size]
 
     def getArtists(self, size:int=10) -> list:
         return [model_id for model_id in list(self.loaded_models) if model_id.startswith('ARTIST:')][:size]
@@ -223,6 +223,7 @@ class Local(Base):
                         'starred': song.get('albumId') in star_dict
                     }
                     self.loaded_models[album.get('id')] = models.Album(**album)
+                    print(self.loaded_models[album.get('id')])
 
             # Making Artist Model
             for a_dict in song.get('artists', []):
