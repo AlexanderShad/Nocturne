@@ -21,6 +21,9 @@ class Base(GObject.Object):
     # Always have a currentSong inside loaded_models
     loaded_models = {'currentSong': models.CurrentSong()}
 
+    # Show spinner in sidebar with message as tooltip text if set
+    loadingMessage = GObject.Property(type=str)
+
     def check_if_ready(self, row) -> bool:
         # gets called to see if it is ready to show login page
         return True

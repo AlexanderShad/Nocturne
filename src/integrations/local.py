@@ -44,12 +44,20 @@ class Local(Base):
         audio_data_list = []
         path_obj = pathlib.Path(self.get_property('library_dir'))
 
-        # load songs, albums, artists
-        for file_path in path_obj.rglob("*"):
-            if file_path.suffix.lower() in ('.mp3', '.flac', '.m4a', '.ogg', '.wav'):
-                song_id = 'SONG:{}'.format(file_path)
-                self.loaded_models[song_id] = models.Song(id=song_id, path=file_path)
-                threading.Thread(target=self.verifySong, args=(song_id,)).start()
+        def load_songs():
+            # load songs, albums, artists
+            threads = []
+            self.set_property('loadingMessage', _("Loading Songs"))
+            for file_path in path_obj.rglob("*"):
+                if file_path.suffix.lower() in ('.mp3', '.flac', '.m4a', '.ogg', '.wav'):
+                    song_id = 'SONG:{}'.format(file_path)
+                    self.loaded_models[song_id] = models.Song(id=song_id, path=file_path)
+                    threads.append(threading.Thread(target=self.verifySong, args=(song_id,)))
+                    threads[-1].start()
+            for t in threads:
+                t.join()
+            self.set_property('loadingMessage', "")
+        threading.Thread(target=load_songs).start()
 
         # Load radios
         radio_dict = self.open_json('radios.json')

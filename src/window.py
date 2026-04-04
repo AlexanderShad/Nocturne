@@ -34,6 +34,7 @@ class NocturneWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'NocturneWindow'
 
     sidebar_headerbar = Gtk.Template.Child()
+    loading_el = Gtk.Template.Child()
     breakpoint_el = Gtk.Template.Child()
     main_navigationview = Gtk.Template.Child()
     main_bottom_sheet = Gtk.Template.Child()
@@ -112,8 +113,16 @@ class NocturneWindow(Adw.ApplicationWindow):
                     )
                 section_el.append(row)
 
+    def update_loading_message(self, integration):
+        message = integration.get_property("loadingMessage")
+        self.loading_el.set_visible(message)
+        self.loading_el.set_tooltip_text(message)
+
     def update_playlist_section_of_sidebar(self):
         integration = get_current_integration()
+        integration.connect('notify::loadingMessage', lambda integration, ud: self.update_loading_message(integration))
+        self.update_loading_message(integration)
+
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         playlist_section = self.main_sidebar.get_sections()[-1]
 

@@ -67,6 +67,11 @@ template $NocturneWindow: Adw.ApplicationWindow {
                     action-name: "app.play_random_queue";
                   }
 
+                  [start]
+                  Adw.Spinner loading_el {
+                    visible: false;
+                  }
+
                   [end]
                   Gtk.MenuButton {
                     primary: true;
