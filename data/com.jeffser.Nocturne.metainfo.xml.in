@@ -89,6 +89,32 @@
   </keywords>
 
   <releases>
+    <release version="0.7.0" date="2026-04-03">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.7.0</url>
+      <description translate="no">
+        <p>New</p>
+        <ul>
+          <li>UI tweaks to fullscreen mode</li>
+          <li>Added German translation</li>
+          <li>Added plain text auth as fallback</li>
+          <li>Added tooltip to context buttons in album / artist pages</li>
+          <li>Improved auto loading of search results</li>
+          <li>Added option to have playlists in the sidebar</li>
+          <li>Preload metada in local instance</li>
+          <li>Added "Favorite Songs" page</li>
+          <li>Added lyric fetcher for local Flac files</li>
+          <li>Added rating system to songs, albums and artists</li>
+          <li>Added context shortcuts for artists and albums in songs</li>
+          <li>Added additional metadata for mpris clients</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Fixed errors with lyric loader</li>
+          <li>Fixed mpris clients not being able to change volume</li>
+          <li>Fixed Nocturne appearing as "python3" in volume mixers</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.6.0" date="2026-04-01">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.6.0</url>
       <description translate="no">
