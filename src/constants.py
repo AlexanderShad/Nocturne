@@ -372,21 +372,10 @@ CONTEXT_SONG = {
         "icon-name": "text-justify-center-symbolic",
         "action-name": "app.edit_lyrics"
     },
-    "delete": {
-        "name": _("Delete"),
-        "css": ["error"],
-        "icon-name": "user-trash-symbolic",
-        "action-name": "app.delete_radio"
-    },
     "add-to-playlist": {
         "name": _("Add To Playlist"),
         "icon-name": "playlist-symbolic",
         "action-name": "app.prompt_add_song_to_playlist"
-    },
-    "remove": {
-        "name": _("Remove"),
-        "css": ["error"],
-        "icon-name": "user-trash-symbolic"
     },
     "show-album": {
         "name": _("Show Album"),
@@ -397,6 +386,17 @@ CONTEXT_SONG = {
         "name": _("Show Artist"),
         "icon-name": "music-artist-symbolic",
         "action-name": "app.show_artist_from_song"
+    },
+    "delete": {
+        "name": _("Delete"),
+        "css": ["error"],
+        "icon-name": "user-trash-symbolic",
+        "action-name": "app.delete_radio"
+    },
+    "remove": {
+        "name": _("Remove"),
+        "css": ["error"],
+        "icon-name": "user-trash-symbolic"
     }
 }
 
