@@ -24,6 +24,9 @@ class PlayerAdapter(MprisAdapter):
 
     # -- RootAdapter --
 
+    def get_desktop_entry(self) -> str:
+        return "com.jeffser.Nocturne"
+
     def can_fullscreen(self) -> bool:
         return False
 
