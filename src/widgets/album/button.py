@@ -80,7 +80,7 @@ class AlbumButton(Gtk.Box):
             pointing_to=rect,
             has_arrow=False
         )
-        popover.set_parent(self.play_el)
+        popover.set_parent(self.cover_button_el)
         popover.popup()
 
     @Gtk.Template.Callback()

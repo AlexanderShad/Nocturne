@@ -183,6 +183,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.play_random_queue, parameter_type=None)
 
         self.create_action(actions.show_album)
+        self.create_action(actions.show_album_from_song)
         self.create_action(actions.play_album)
         self.create_action(actions.play_album_next)
         self.create_action(actions.play_album_later)
@@ -203,6 +204,8 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.delete_playlist)
 
         self.create_action(actions.show_artist)
+        self.create_action(actions.show_artist_from_song)
+        self.create_action(actions.show_artist_from_album)
         self.create_action(actions.play_shuffle_artist)
         self.create_action(actions.play_radio_artist)
 

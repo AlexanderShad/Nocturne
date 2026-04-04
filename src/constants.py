@@ -292,6 +292,11 @@ CONTEXT_ALBUM = {
         "name": _("Add To Playlist"),
         "icon-name": "playlist-symbolic",
         "action-name": "app.prompt_add_album_to_playlist"
+    },
+    "show-artist": {
+        "name": _("Show Artist"),
+        "icon-name": "music-artist-symbolic",
+        "action-name": "app.show_artist_from_album"
     }
 }
 
@@ -382,6 +387,16 @@ CONTEXT_SONG = {
         "name": _("Remove"),
         "css": ["error"],
         "icon-name": "user-trash-symbolic"
+    },
+    "show-album": {
+        "name": _("Show Album"),
+        "icon-name": "music-queue-symbolic",
+        "action-name": "app.show_album_from_song"
+    },
+    "show-artist": {
+        "name": _("Show Artist"),
+        "icon-name": "music-artist-symbolic",
+        "action-name": "app.show_artist_from_song"
     }
 }
 

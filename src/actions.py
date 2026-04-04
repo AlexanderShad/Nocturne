@@ -413,6 +413,12 @@ def play_random_queue(window):
 def show_album(window, model_id:str):
     __show_page(window, Widgets.AlbumPage(model_id))
 
+def show_album_from_song(window, model_id:str):
+    integration = get_current_integration()
+    if model := integration.loaded_models.get(model_id):
+        if album_id := model.get_property('albumId'):
+            __show_page(window, Widgets.AlbumPage(album_id))
+
 def play_album(window, model_id:str):
     integration = get_current_integration()
     album = integration.loaded_models.get(model_id)
@@ -694,6 +700,18 @@ def delete_playlist(window, model_id:str):
 
 def show_artist(window, model_id:str):
     __show_page(window, Widgets.ArtistPage(model_id))
+
+def show_artist_from_song(window, model_id:str):
+    integration = get_current_integration()
+    if model := integration.loaded_models.get(model_id):
+        if artist_id := model.get_property('artistId'):
+            __show_page(window, Widgets.ArtistPage(artist_id))
+
+def show_artist_from_album(window, model_id:str):
+    integration = get_current_integration()
+    if model := integration.loaded_models.get(model_id):
+        if artist_id := model.get_property('artistId'):
+            __show_page(window, Widgets.ArtistPage(artist_id))
 
 def play_shuffle_artist(window, model_id:str):
     integration = get_current_integration()
