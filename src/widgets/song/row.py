@@ -76,6 +76,8 @@ class SongRow(Adw.ActionRow):
             del context_dict["edit-lyrics"]
             del context_dict["show-album"]
             del context_dict["show-artist"]
+            if not self.draggable:
+                del context_dict["select"]
         if self.removable:
             context_dict["remove"]["connection"] = self.remove_selected
         else:
