@@ -203,8 +203,10 @@ def update_radio(window, id:str=""):
 
     def response(dialog, task, name_el, stream_el, id:str):
         if dialog.choose_finish(task) == 'save':
-            name = name_el.get_text()
-            stream = stream_el.get_text()
+            name = name_el.get_text().strip() or _("No Name")
+            stream = stream_el.get_text().strip()
+            if not stream.startswith('http'):
+                stream = 'http://' + stream
             if name and (stream or not stream_el.get_visible()):
                 integration = get_current_integration()
                 if id:
