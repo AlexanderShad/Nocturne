@@ -92,7 +92,6 @@ class Spectrum(Gtk.DrawingArea):
 
             cr.line_to(width, height)
             cr.close_path()
-
             cr.fill_preserve()
         elif visualizer_type in ("bars", "particles"):
             gap = 2

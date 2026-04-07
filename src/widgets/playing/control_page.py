@@ -176,7 +176,7 @@ class PlayingControlPage(Adw.NavigationPage):
         GLib.idle_add(self.rating_container.set_visible, not model.get_property('isRadio'))
 
         # Star
-        GLib.idle_add(self.star_el.set_visible, not model.get_property('isRadio'))
+        GLib.idle_add(self.star_el.set_visible, not model.get_property('isRadio') and not model.get_property('isExternalFile'))
 
         # Star Connection
         if self.last_song_id and self.starred_connection:

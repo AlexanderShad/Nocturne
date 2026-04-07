@@ -59,7 +59,9 @@ class NocturneApplication(Adw.Application):
         self.external_songs = []
         integration = get_current_integration()
         for file in files:
-            audio_info = get_song_info_from_file(pathlib.Path(file.get_path()), is_external_file=True)
+            result_path = file.get_path()
+            audio_info = get_song_info_from_file(result_path, is_external_file=True)
+            audio_info['id'] = 'EXTERNAL_SONG:{}'.format(result_path)
             if audio_info:
                 self.external_songs.append(models.Song(**audio_info))
                 if integration:

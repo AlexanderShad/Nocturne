@@ -64,15 +64,6 @@ template $NocturneSongRow: Adw.ActionRow {
         child-spacing: 2;
         wrap-policy: minimum;
 
-        Gtk.Label duration_el {
-          styles [
-            "subtitle",
-            "numeric"
-          ]
-          visible: false;
-          ellipsize: end;
-        }
-
         Gtk.Button external_file_el {
           action-name: "app.show_external_file_warning";
           tooltip-text: _("External File");
@@ -83,6 +74,15 @@ template $NocturneSongRow: Adw.ActionRow {
             "flat",
             "dimmed"
           ]
+        }
+
+        Gtk.Label duration_el {
+          styles [
+            "subtitle",
+            "numeric"
+          ]
+          visible: false;
+          ellipsize: end;
         }
 
         Adw.Bin artist_container_el {}

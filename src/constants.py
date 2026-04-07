@@ -99,7 +99,8 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
             'name': art.strip(),
             'starred': star_dict.get("ARTIST:{}".format(art.strip()))
         } for art in tag.artist.split(';')],
-        'track': tag.track or 0
+        'track': tag.track or 0,
+        'isExternalFile': is_external_file
     }
 
     if not is_external_file:
