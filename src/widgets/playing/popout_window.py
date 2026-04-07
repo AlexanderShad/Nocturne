@@ -18,6 +18,7 @@ class PopoutWindow(Adw.ApplicationWindow):
     queue_page = Gtk.Template.Child()
     footer = Gtk.Template.Child()
     split_view = Gtk.Template.Child()
+    footer_spectrum_el = Gtk.Template.Child()
 
     bottom_bar = Gtk.Template.Child()
     fs_spectrum_el = Gtk.Template.Child()
@@ -78,6 +79,7 @@ class PopoutWindow(Adw.ApplicationWindow):
         )
         fullscreen_btn.connect('clicked', self.toggle_fullscreen)
         self.playing_page.header_bar.pack_start(fullscreen_btn)
+        self.footer_spectrum_el.setup()
         self.fs_spectrum_el.setup()
 
     @Gtk.Template.Callback()

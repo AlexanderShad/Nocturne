@@ -330,7 +330,13 @@ template $NocturnePopoutWindow: Adw.ApplicationWindow {
       Gtk.StackPage {
         name: "footer";
         child: Gtk.WindowHandle {
-          child: $NocturnePlayingFooter footer {};
+          child: Gtk.Overlay {
+            child: $NocturneSpectrum footer_spectrum_el {
+              opacity: 0.25;
+            };
+            [overlay]
+            $NocturnePlayingFooter footer {}
+          };
         };
       }
     }
