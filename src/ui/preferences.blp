@@ -173,6 +173,30 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
           }
         }
       }
+
+      Adw.ActionRow {
+        title: _("Fill Mode");
+
+        [suffix]
+        Adw.ToggleGroup visualizer_fill_el {
+          valign: center;
+          Adw.Toggle {
+            tooltip: _("Solid");
+            label: _("Solid");
+            name: "solid";
+          }
+          Adw.Toggle {
+            tooltip: _("Translucent");
+            label: _("Translucent");
+            name: "translucent";
+          }
+          Adw.Toggle {
+            tooltip: _("Border");
+            label: _("Border");
+            name: "border";
+          }
+        }
+      }
     }
 
     Adw.PreferencesGroup {

@@ -62,21 +62,26 @@ class Spectrum(Gtk.DrawingArea):
 
         n = len(self.current_magnitudes)
         dx = width / (n - 1)
-        cr.move_to(0, height)
 
+        fill_mode = self.settings.get_value("visualizer-fill-mode").unpack()
+        visualizer_type = self.settings.get_value('visualizer-type').unpack()
+
+        if visualizer_type == "wave" and not fill_mode == "border":
+            cr.move_to(0, height)
+
+        opacity = 0.75 if fill_mode == "translucent" else 1
         if self.settings.get_value("visualizer-auto-color").unpack():
             if self.settings.get_value("visualizer-auto-color-invert").unpack():
-                cr.set_source_rgba(*[1-c for c in self.accent_color], 0.75)
+                cr.set_source_rgba(*[1-c for c in self.accent_color], opacity)
             else:
-                cr.set_source_rgba(*self.accent_color, 0.75)
+                cr.set_source_rgba(*self.accent_color, opacity)
         else:
             try:
                 rgb_str = self.settings.get_value("visualizer-manual-color").unpack()
-                cr.set_source_rgba(*[float(c) for c in rgb_str.split(',')], 0.75)
+                cr.set_source_rgba(*[float(c) for c in rgb_str.split(',')], opacity)
             except:
-                cr.set_source_rgba(*self.accent_color, 0.75)
+                cr.set_source_rgba(*self.accent_color, opacity)
 
-        visualizer_type = self.settings.get_value('visualizer-type').unpack()
         if visualizer_type == "wave":
             cr.line_to(0, height * (1 - self.current_magnitudes[0]))
 
@@ -90,9 +95,13 @@ class Spectrum(Gtk.DrawingArea):
                 xc = (x1 + x2) / 2
                 cr.curve_to(xc, y1, xc, y2, x2, y2)
 
-            cr.line_to(width, height)
-            cr.close_path()
-            cr.fill_preserve()
+            if fill_mode == "border":
+                cr.set_line_width(3.0)
+                cr.stroke()
+            else:
+                cr.line_to(width, height)
+                cr.close_path()
+                cr.fill_preserve()
         elif visualizer_type in ("bars", "particles"):
             gap = 2
             bar_w = dx - gap
@@ -112,8 +121,12 @@ class Spectrum(Gtk.DrawingArea):
                     cr.arc(bar_x + bar_w - r, bar_y + bar_h - r, r, 0, math.pi/2)
                     cr.arc(bar_x + r, bar_y + bar_h - r, r, math.pi/2, math.pi)
                     cr.arc(bar_x + r, bar_y + r, r, math.pi, 3*math.pi/2)
-                    cr.close_path()
-                    cr.fill()
+                    if fill_mode == "border":
+                        cr.set_line_width(3.0)
+                        cr.stroke()
+                    else:
+                        cr.close_path()
+                        cr.fill()
 
     def song_changed(self, songId:str):
         def set_color(model):

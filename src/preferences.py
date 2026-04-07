@@ -32,6 +32,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
     visualizer_el = Gtk.Template.Child()
     visualizer_bar_n_el = Gtk.Template.Child()
     visualizer_type_el = Gtk.Template.Child()
+    visualizer_fill_el = Gtk.Template.Child()
 
     visualizer_auto_color_el = Gtk.Template.Child()
     visualizer_invert_auto_color_el = Gtk.Template.Child()
@@ -154,6 +155,12 @@ class NocturnePreferences(Adw.PreferencesDialog):
         settings.bind(
             "visualizer-type",
             self.visualizer_type_el,
+            "active-name",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        settings.bind(
+            "visualizer-fill-mode",
+            self.visualizer_fill_el,
             "active-name",
             Gio.SettingsBindFlags.DEFAULT
         )
