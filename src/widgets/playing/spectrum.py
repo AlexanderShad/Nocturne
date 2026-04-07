@@ -21,7 +21,7 @@ class Spectrum(Gtk.DrawingArea):
         self.current_magnitudes = [0] * SPECTRUM_BARS
 
         self.color = [0.2, 0.6, 0.9]
-        self.speed = 0.01
+        self.speed = 0.02
 
         self.set_draw_func(self.on_draw)
 
@@ -37,16 +37,16 @@ class Spectrum(Gtk.DrawingArea):
             self.target_magnitudes = self.loaded_magnitudes[next_timestamp]
 
     def on_update_magnitudes(self, magnitudes:list):
-        m_left = magnitudes[0][:int(SPECTRUM_BARS/2)]
-        m_right = magnitudes[1][:int(SPECTRUM_BARS/2)]
-        self.loaded_magnitudes[magnitudes[2]] = [(60-abs(m)) / 60 * self.settings.get_value("volume").unpack() for m in m_left + list(reversed(m_right))]
+        self.loaded_magnitudes[magnitudes[1]] = magnitudes[0]
 
     def on_tick(self):
         for i in range(len(self.target_magnitudes)):
+            speed_modifier = self.speed * max(0.25, min(1, 10*abs(self.target_magnitudes[i] - self.current_magnitudes[i])))
+
             if self.target_magnitudes[i] >= self.current_magnitudes[i]:
-                self.current_magnitudes[i] = min(self.target_magnitudes[i], self.current_magnitudes[i] + self.speed * 1.25)
+                self.current_magnitudes[i] = min(self.target_magnitudes[i], self.current_magnitudes[i] + speed_modifier)
             else:
-                self.current_magnitudes[i] = max(0, self.current_magnitudes[i] - self.speed)
+                self.current_magnitudes[i] = max(0, self.current_magnitudes[i] - speed_modifier)
         self.queue_draw()
         return True
 
