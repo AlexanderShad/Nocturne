@@ -2,7 +2,7 @@
 
 from gi.repository import Gtk, GLib, GObject, Gdk
 from . import models, secret
-from ..constants import NOCTURNE_VERSION
+from ..constants import get_nocturne_version
 import requests, favicon, io, urllib3, time
 from PIL import Image
 from urllib.parse import urlparse
@@ -233,7 +233,7 @@ class Base(GObject.Object):
                             "release_name": model.get_property("album"),
                             "additional_info": {
                                 "submission_client": "com.jeffser.Nocturne",
-                                "submission_client_version": NOCTURNE_VERSION,
+                                "submission_client_version": get_nocturne_version(),
                                 "media_player": "Nocturne"
                             }
                         }

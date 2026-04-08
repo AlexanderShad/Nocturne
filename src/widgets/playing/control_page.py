@@ -190,13 +190,13 @@ class PlayingControlPage(Adw.NavigationPage):
         integration = get_current_integration()
         if not song_id:
             self.player.gst.set_state(Gst.State.NULL)
-        threading.Thread(target=integration.scrobble, args=(song_id,)).start()
         model = integration.loaded_models.get(song_id)
         GLib.idle_add(self.change_bottom_sheet_state, bool(model))
         threading.Thread(target=self.update_interface, args=(model,)).start()
         threading.Thread(target=self.update_cover_art).start()
         if song_id != self.last_song_id:
             self.start_current_song()
+            threading.Thread(target=integration.scrobble, args=(song_id,)).start()
 
     def update_palette(self, raw_bytes:bytes):
         img_io = io.BytesIO(raw_bytes)

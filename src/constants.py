@@ -68,6 +68,9 @@ def check_if_navidrome_ready() -> bool:
     return False
 
 NOCTURNE_VERSION = ""
+def get_nocturne_version() -> str:
+    global NOCTURNE_VERSION
+    return NOCTURNE_VERSION
 def set_version(version_str:str):
     global NOCTURNE_VERSION
     NOCTURNE_VERSION = version_str
