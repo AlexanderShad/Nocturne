@@ -800,10 +800,6 @@ class Jellyfin(Base):
             json.dump(ratings, f, ensure_ascii=False)
         return True
 
-    def scrobble(self, id:str):
-        # not needed in jellyfin
-        pass
-
     def getServerInformation(self) -> dict:
         server_information = {
             'link': self.get_property('url').strip('/'),

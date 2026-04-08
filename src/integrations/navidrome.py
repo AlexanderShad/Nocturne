@@ -452,6 +452,7 @@ class Navidrome(Base):
                 self.make_request('scrobble', {
                     'id': id
                 })
+        super().scrobble(id)
 
     def getServerInformation(self) -> dict:
         server_information = {

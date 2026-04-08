@@ -2,7 +2,7 @@
 
 from gi.repository import Gtk, Adw, GLib, Gst, Gio, GObject, Gdk
 
-from .integrations import get_current_integration
+from .integrations import get_current_integration, secret
 from .constants import SIDEBAR_MENU
 import threading
 
@@ -20,6 +20,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
     hide_on_close_el = Gtk.Template.Child()
 
     session_group_el = Gtk.Template.Child()
+    listenbrainz_stack_el = Gtk.Template.Child()
     instance_avatar_el = Gtk.Template.Child()
     instance_icon_el = Gtk.Template.Child()
     instance_el = Gtk.Template.Child()
@@ -119,6 +120,8 @@ class NocturnePreferences(Adw.PreferencesDialog):
             "value",
             Gio.SettingsBindFlags.DEFAULT
         )
+
+        self.listenbrainz_stack_el.set_visible_child_name("unlink" if secret.get_plain_password(schema_type="listenbrainz") else "link")
 
         if integration := get_current_integration():
             data = integration.getServerInformation()
@@ -223,3 +226,48 @@ class NocturnePreferences(Adw.PreferencesDialog):
         rgb = ','.join([str(round(c, 3)) for c in list(btn.get_rgba())[:-1]])
         Gio.Settings(schema_id="com.jeffser.Nocturne").set_string('visualizer-manual-color', rgb)
 
+    @Gtk.Template.Callback()
+    def listenbrainz_link_requested(self, button):
+        def on_response(dialog, result, token_entry_el):
+            response = dialog.choose_finish(result)
+            if response == "save":
+                if token := token_entry_el.get_text():
+                    secret.store_password(
+                        token,
+                        schema_type="listenbrainz"
+                    )
+                    self.listenbrainz_stack_el.set_visible_child_name("unlink")
+
+        container = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL,
+            spacing=10
+        )
+        container.append(Gtk.LinkButton(
+            label=_("Settings Page"),
+            uri="https://listenbrainz.org/settings/"
+        ))
+        token_el = Gtk.Entry(placeholder_text=_("User Token"))
+        container.append(token_el)
+
+        dialog = Adw.AlertDialog(
+            heading=_("Link ListenBrainz"),
+            body=_("Connect your ListenBrainz account with a user token"),
+            extra_child=container
+        )
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("save", _("Save"))
+        dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
+
+        dialog.choose(
+            self.get_root(),
+            None,
+            on_response,
+            token_el
+        )
+
+    @Gtk.Template.Callback()
+    def listenbrainz_unlink_requested(self, button):
+        secret.remove_password(
+            schema_type="listenbrainz",
+            callback=lambda: self.listenbrainz_stack_el.set_visible_child_name("link")
+        )

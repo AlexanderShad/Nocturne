@@ -67,6 +67,11 @@ def check_if_navidrome_ready() -> bool:
             pass
     return False
 
+NOCTURNE_VERSION = ""
+def set_version(version_str:str):
+    global NOCTURNE_VERSION
+    NOCTURNE_VERSION = version_str
+
 def get_display_time(seconds:float, show_ms:bool=False) -> str:
     total_seconds = max(0, seconds)
     hours, remainder = divmod(total_seconds, 3600)

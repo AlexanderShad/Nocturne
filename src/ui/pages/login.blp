@@ -37,6 +37,7 @@ template $NocturneLoginPage: Adw.NavigationPage {
 
         Adw.ActionRow server_status_el {
           title: _("Server Status");
+          subtitle: _("Not Running");
           activatable: true;
           activated => $server_restart_requested();
           [suffix]

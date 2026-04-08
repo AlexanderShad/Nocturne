@@ -12,9 +12,9 @@ BASE_SCHEMA = Secret.Schema.new(
     }
 )
 
-def store_password(password:str):
+def store_password(password:str, schema_type:str="password"):
     try:
-        attributes = {"type": "password"}
+        attributes = {"type": schema_type}
 
         Secret.password_store_sync(
             BASE_SCHEMA,
@@ -28,10 +28,10 @@ def store_password(password:str):
         with open(FALLBACK_PASSWORD_PATH, 'w') as f:
             f.write(password)
 
-def get_plain_password() -> str:
+def get_plain_password(schema_type:str="password") -> str:
     # returns plain password
     try:
-        attributes = {"type": "password"}
+        attributes = {"type": schema_type}
 
         return Secret.password_lookup_sync(
             BASE_SCHEMA,
@@ -43,12 +43,20 @@ def get_plain_password() -> str:
             return f.read()
     return ""
 
-def get_hashed_password() -> tuple:
+def get_hashed_password(schema_type:str="password") -> tuple:
     # returns salt, hashed password
     salt = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(8))
-    salted_password = get_plain_password() + salt
+    salted_password = get_plain_password(schema_type) + salt
 
     hashed_password = hashlib.md5(salted_password.encode('utf-8')).hexdigest()
 
     return salt, hashed_password
 
+def remove_password(schema_type:str="password", callback:callable=lambda:None):
+    Secret.password_clear(
+        BASE_SCHEMA,
+        {"type": schema_type},
+        None,
+        callback,
+        None
+    )

@@ -1,8 +1,9 @@
 # base.py
 
 from gi.repository import Gtk, GLib, GObject, Gdk
-from . import models
-import requests, favicon, io, urllib3
+from . import models, secret
+from ..constants import NOCTURNE_VERSION
+import requests, favicon, io, urllib3, time
 from PIL import Image
 from urllib.parse import urlparse
 
@@ -218,7 +219,34 @@ class Base(GObject.Object):
     def scrobble(self, id:str):
         # the id is for a Song, this is how views are stored
         # called when a song is played
-        print('WARNING', 'scrobble', 'not implemented')
+        # if you need to inherit this, also call super().scrobble(id) so that listenbrainz can also get the scrobble
+
+        if model := self.loaded_models.get(id):
+            if token := secret.get_plain_password("listenbrainz"):
+                payload = {
+                    "listen_type": "single",
+                    "payload": [{
+                        "listened_at": int(time.time()),
+                        "track_metadata": {
+                            "artist_name": model.get_property("artist"),
+                            "track_name": model.get_property("title"),
+                            "release_name": model.get_property("album"),
+                            "additional_info": {
+                                "submission_client": "com.jeffser.Nocturne",
+                                "submission_client_version": NOCTURNE_VERSION,
+                                "media_player": "Nocturne"
+                            }
+                        }
+                    }]
+                }
+                headers = {
+                    "Authorization": f"Token {token}",
+                    "Content-Type": "application/json"
+                }
+                try:
+                    response = requests.post("https://api.listenbrainz.org/1/submit-listens", json=payload, headers=headers)
+                except:
+                    pass
     
     def getServerInformation(self) -> dict:
         # should return these keys:

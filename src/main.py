@@ -28,7 +28,7 @@ gi.require_version('Gst', '1.0')
 from gi.repository import Gtk, Gio, Adw, GLib
 from .window import NocturneWindow
 from .preferences import NocturnePreferences
-from .constants import get_song_info_from_file, TRANSLATORS
+from .constants import get_song_info_from_file, TRANSLATORS, set_version
 from .integrations import get_current_integration, models
 
 GLib.set_prgname('com.jeffser.Nocturne')
@@ -106,4 +106,5 @@ class NocturneApplication(Adw.Application):
 def main(version):
     """The application's entry point."""
     print("Nocturne version:", version)
+    set_version(version)
     return NocturneApplication(version).run(sys.argv)

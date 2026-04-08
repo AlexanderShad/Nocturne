@@ -479,6 +479,7 @@ class Local(Base):
 
             with open(os.path.join(LOCAL_DATA_DIR, 'scrobble.json'), 'w') as f:
                 json.dump(scrobble_dict, f, ensure_ascii=False)
+        super().scrobble(id)
 
     def setRating(self, id:str, rating:int=0) -> bool:
         ratings = self.open_json('ratings.json')

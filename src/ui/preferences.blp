@@ -48,6 +48,35 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
     Adw.PreferencesGroup session_group_el {
       title: _("Session");
 
+      Adw.ActionRow {
+        title: _("ListenBrainz Link");
+        subtitle: _("Keep track of your playback history");
+        [suffix]
+        Gtk.Stack listenbrainz_stack_el {
+          Gtk.StackPage {
+            name: "link";
+            child: Gtk.Button {
+              label: _("Link");
+              tooltip-text: _("Link");
+              valign: center;
+              clicked => $listenbrainz_link_requested();
+            };
+          }
+          Gtk.StackPage {
+            name: "unlink";
+            child: Gtk.Button {
+              label: _("Unlink");
+              tooltip-text: _("Unlink");
+              valign: center;
+              clicked => $listenbrainz_unlink_requested();
+              styles [
+                "destructive-action"
+              ]
+            };
+          }
+        }
+      }
+
       Adw.ActionRow instance_el {
         title: _("User");
         visible: false;
