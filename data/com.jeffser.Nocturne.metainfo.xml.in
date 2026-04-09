@@ -89,6 +89,25 @@
   </keywords>
 
   <releases>
+    <release version="0.9.0" date="2026-04-09">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.9.0</url>
+      <description translate="no">
+        <p>New</p>
+        <ul>
+          <li>Rewrote labels in welcome and login pages</li>
+          <li>Added key-capture widgets to searchable pages</li>
+          <li>Added audio equalizer</li>
+          <li>Added Simplified Chinese translation</li>
+          <li>Tweaked the opacity of dynamic backgrounds</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Pages are now reset when login out</li>
+          <li>Better performance and stability</li>
+          <li>Song switcher is now faster</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.8.5" date="2026-04-07">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.8.5</url>
       <description translate="no">
