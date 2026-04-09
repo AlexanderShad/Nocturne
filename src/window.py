@@ -83,7 +83,7 @@ class NocturneWindow(Adw.ApplicationWindow):
     def create_action(self, callback:callable, shortcuts:list=[], parameter_type:str="s"):
         self.get_application().create_action(
             name=callback.__name__,
-            callback=lambda at, va, cb=callback, win=self: cb(win, va.unpack()) if va else cb(win),
+            callback=lambda at, va, cb=callback, win=self: cb(win, va.unpack()) if va is not None else cb(win),
             shortcuts=shortcuts,
             parameter_type=GLib.VariantType.new(parameter_type) if parameter_type else None
         )

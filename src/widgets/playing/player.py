@@ -423,10 +423,9 @@ class Player(EventAdapter):
         if len(song_list) > 0:
             if len(self.application.external_songs) == 0:
                self.pause_next_change = True
-            generated_queue = integration.loaded_models.get('currentSong').get_property('generatedQueue')
             self.application.get_active_window().activate_action(
                 "app.play_songs",
-                GLib.Variant("as", [so.get_string() for so in list(generated_queue)])
+                GLib.Variant("as", song_list)
             )
         self.application.external_songs = []
 
