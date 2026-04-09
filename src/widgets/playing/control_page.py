@@ -38,7 +38,7 @@ class PlayingControlPage(Adw.NavigationPage):
         integration = get_current_integration()
         integration.connect_to_model('currentSong', 'positionSeconds', self.update_position)
         integration.connect_to_model('currentSong', 'buttonState', self.state_stack_el.set_visible_child_name)
-        integration.connect_to_model('currentSong', 'songId', lambda id: threading.Thread(target=self.song_changed, args=(id,)).start())
+        integration.connect_to_model('currentSong', 'songId', self.song_changed)
         self.spectrum_el.setup()
         GLib.idle_add(self.setup_sidebar_button_connection)
 
@@ -124,68 +124,68 @@ class PlayingControlPage(Adw.NavigationPage):
         integration = get_current_integration()
 
         # Title
-        GLib.idle_add(self.title_el.set_label, model.get_property('title'))
-        GLib.idle_add(self.title_el.set_tooltip_text, model.get_property('title'))
+        self.title_el.set_label(model.get_property('title'))
+        self.title_el.set_tooltip_text(model.get_property('title'))
 
         # HomePage (radio)
         if model.get_property('isRadio') and model.get_property('streamUrl'):
             stream_url = urlparse(model.get_property('streamUrl'))
             homepage_url = '{}://{}'.format(stream_url.scheme, stream_url.netloc)
-            GLib.idle_add(self.radio_homepage_el.get_child().set_label, stream_url.netloc.capitalize())
-            GLib.idle_add(self.radio_homepage_el.set_action_target_value, GLib.Variant.new_string(homepage_url))
-            GLib.idle_add(self.radio_homepage_el.set_tooltip_text, homepage_url)
-        GLib.idle_add(self.radio_homepage_el.set_visible, model.get_property('isRadio') and model.get_property('streamUrl'))
+            self.radio_homepage_el.get_child().set_label(stream_url.netloc.capitalize())
+            self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(homepage_url))
+            self.radio_homepage_el.set_tooltip_text(homepage_url)
+        self.radio_homepage_el.set_visible(model.get_property('isRadio') and model.get_property('streamUrl'))
 
         # Timestamp (radio)
-        GLib.idle_add(self.positive_progress_el.set_visible, not model.get_property('isRadio'))
-        GLib.idle_add(self.negative_progress_el.set_visible, not model.get_property('isRadio'))
+        self.positive_progress_el.set_visible(not model.get_property('isRadio'))
+        self.negative_progress_el.set_visible(not model.get_property('isRadio'))
 
         # Artist
         artists = model.get_property('artists')
         if len(artists) > 0:
-            GLib.idle_add(self.artist_el.get_child().set_label, artists[0].get('name'))
-            GLib.idle_add(self.artist_el.set_tooltip_text, artists[0].get('name'))
-            GLib.idle_add(self.artist_el.set_action_target_value, GLib.Variant.new_string(artists[0].get('id')))
+            self.artist_el.get_child().set_label(artists[0].get('name'))
+            self.artist_el.set_tooltip_text(artists[0].get('name'))
+            self.artist_el.set_action_target_value(GLib.Variant.new_string(artists[0].get('id')))
         else:
-            GLib.idle_add(self.artist_el.get_child().set_label, "")
-        GLib.idle_add(self.artist_el.set_visible, self.artist_el.get_child().get_label())
+            self.artist_el.get_child().set_label("")
+        self.artist_el.set_visible(self.artist_el.get_child().get_label())
 
         # Album
-        GLib.idle_add(self.album_el.get_child().set_label, model.get_property('album'))
-        GLib.idle_add(self.album_el.set_tooltip_text, model.get_property('album'))
-        GLib.idle_add(self.album_el.set_action_target_value, GLib.Variant.new_string(model.get_property('albumId')))
-        GLib.idle_add(self.album_el.set_visible, self.album_el.get_child().get_label())
+        self.album_el.get_child().set_label(model.get_property('album'))
+        self.album_el.set_tooltip_text(model.get_property('album'))
+        self.album_el.set_action_target_value(GLib.Variant.new_string(model.get_property('albumId')))
+        self.album_el.set_visible(self.album_el.get_child().get_label())
 
         # External File
-        GLib.idle_add(self.album_el.get_ancestor(Adw.WrapBox).set_sensitive, not model.get_property('isExternalFile'))
+        self.album_el.get_ancestor(Adw.WrapBox).set_sensitive(not model.get_property('isExternalFile'))
 
         # Progressbar
-        GLib.idle_add(self.progress_el.get_adjustment().set_upper, model.get_property('duration'))
-        GLib.idle_add(self.progress_el.set_visible, not model.get_property('isRadio'))
+        self.progress_el.get_adjustment().set_upper(model.get_property('duration'))
+        self.progress_el.set_visible(not model.get_property('isRadio'))
 
         # Rating
         rating = model.get_property("userRating")
         for i, el in enumerate(list(self.rating_container)):
-            GLib.idle_add(el.set_icon_name, "starred-symbolic" if rating >= i+1 else "non-starred-symbolic")
-        GLib.idle_add(self.rating_container.set_visible, not model.get_property('isRadio'))
+            el.set_icon_name("starred-symbolic" if rating >= i+1 else "non-starred-symbolic")
+        self.rating_container.set_visible(not model.get_property('isRadio'))
 
         # Star
-        GLib.idle_add(self.star_el.set_visible, not model.get_property('isRadio') and not model.get_property('isExternalFile'))
+        self.star_el.set_visible(not model.get_property('isRadio') and not model.get_property('isExternalFile'))
 
         # Star Connection
         global_player = self.get_root().get_application().player
         if global_player.last_song_id and self.starred_connection:
             integration.loaded_models.get(global_player.last_song_id).disconnect(self.starred_connection)
 
-        GLib.idle_add(self.star_el.set_action_target_value, GLib.Variant.new_string(model.id))
+        self.star_el.set_action_target_value(GLib.Variant.new_string(model.id))
         self.starred_connection = integration.connect_to_model(model.id, 'starred', self.update_starred)
 
     def song_changed(self, song_id:str):
         integration = get_current_integration()
         model = integration.loaded_models.get(song_id)
-        GLib.idle_add(self.change_bottom_sheet_state, bool(model))
-        threading.Thread(target=self.update_interface, args=(model,)).start()
-        threading.Thread(target=self.update_cover_art).start()
+        self.change_bottom_sheet_state(model)
+        self.update_interface(model)
+        self.update_cover_art()
 
     def update_palette(self, raw_bytes:bytes):
         img_io = io.BytesIO(raw_bytes)
@@ -235,14 +235,14 @@ class PlayingControlPage(Adw.NavigationPage):
             if gbytes and Gio.Settings(schema_id="com.jeffser.Nocturne").get_value("use-dynamic-background").unpack():
                 threading.Thread(target=self.update_palette, args=(bytes(gbytes.get_data()),)).start()
             else:
-                GLib.idle_add(self.get_root().remove_css_class, 'dynamic-accent-bg')
+                self.get_root().remove_css_class('dynamic-accent-bg')
             if paintable:
-                GLib.idle_add(self.cover_el.set_paintable, paintable)
-                GLib.idle_add(self.cover_el.set_visible, True)
+                self.cover_el.set_paintable(paintable)
+                self.cover_el.set_visible(True)
                 paintable.save_to_png(MPRIS_COVER_PATH)
             else:
-                GLib.idle_add(self.cover_el.set_paintable, None)
-                GLib.idle_add(self.cover_el.set_visible, False)
+                self.cover_el.set_paintable(None)
+                self.cover_el.set_visible(False)
                 if os.path.isfile(MPRIS_COVER_PATH):
                     os.remove(MPRIS_COVER_PATH)
 
