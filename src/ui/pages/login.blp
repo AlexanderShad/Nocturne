@@ -15,96 +15,100 @@ template $NocturneLoginPage: Adw.NavigationPage {
         clicked => $go_back_clicked();
       }
 
-      [start]
-      Gtk.MenuButton extra_menu_el {
-        icon-name: "preferences-system-symbolic";
-        tooltip-text: _("Manage Navidrome Server");
-        popover: Gtk.Popover {};
-      }
-
       show-title: false;
     }
 
     content: Adw.StatusPage status_page {
       title: _("Login");
-      child: Gtk.ListBox {
-        styles [
-          "boxed-list"
-        ]
-        valign: center;
+      child: Gtk.Box {
+        spacing: 10;
+        orientation: vertical;
         halign: center;
-        selection-mode: none;
+        width-request: 320;
 
-        Adw.ActionRow server_status_el {
-          title: _("Server Status");
-          subtitle: _("Not Running");
-          activatable: true;
-          activated => $server_restart_requested();
-          [suffix]
-          Gtk.Image {
-            icon-name: "update-symbolic";
-          }
-        }
-
-        Adw.EntryRow url_el {
-          title: _("Url");
-          [prefix]
-          Gtk.MenuButton url_options_el {
-            styles [
-              "flat"
-            ]
-            icon-name: "view-more-symbolic";
-            tooltip-text: _("More Options");
-            valign: center;
-            popover: Gtk.Popover {
-              child: Gtk.ListBox {
-                styles [
-                  "boxed-list"
-                ]
-                selection-mode: none;
-                Adw.SwitchRow trust_server_el {
-                  title: _("Trust Server Certificates");
-                }
-              };
-            };
-          }
-        }
-
-        Adw.EntryRow user_el {
-          title: _("Username");
-        }
-
-        Adw.PasswordEntryRow password_el {
-          title: _("Password");
-        }
-
-        Adw.ActionRow directory_el {
-          title: _("Library Directory");
-          notify::subtitle => $library_changed();
-          activated => $open_local_directory();
-          activatable: true;
-          [prefix]
-          Gtk.Image {
-            icon-name: "folder-open-symbolic";
-            valign: center;
-          }
-        }
-
-        Adw.ButtonRow login_button_el {
+        Gtk.ListBox {
           styles [
-            "suggested-action"
+            "boxed-list"
           ]
-          title: _("Login");
+          hexpand: true;
+          selection-mode: none;
 
-          activated => $login_button_clicked();
-          activatable: true;
+          Adw.ActionRow server_status_el {
+            title: _("Server Status");
+            subtitle: _("Not Running");
+            tooltip-text: _("Restart Instance");
+            activatable: true;
+            activated => $server_restart_requested();
+            [prefix]
+            Gtk.MenuButton extra_menu_el {
+              icon-name: "preferences-system-symbolic";
+              tooltip-text: _("Manage Navidrome Server");
+              popover: Gtk.Popover {};
+              valign: center;
+              styles [
+                "flat"
+              ]
+            }
+
+            [suffix]
+            Gtk.Image {
+              icon-name: "update-symbolic";
+            }
+          }
+
+          Adw.EntryRow url_el {
+            title: _("Url");
+            [prefix]
+            Gtk.MenuButton url_options_el {
+              styles [
+                "flat"
+              ]
+              icon-name: "view-more-symbolic";
+              tooltip-text: _("More Options");
+              valign: center;
+              popover: Gtk.Popover {
+                child: Gtk.ListBox {
+                  styles [
+                    "boxed-list"
+                  ]
+                  selection-mode: none;
+                  Adw.SwitchRow trust_server_el {
+                    title: _("Trust Server Certificates");
+                  }
+                };
+              };
+            }
+          }
+
+          Adw.EntryRow user_el {
+            title: _("Username");
+          }
+
+          Adw.PasswordEntryRow password_el {
+            title: _("Password");
+          }
+
+          Adw.ActionRow directory_el {
+            title: _("Library Directory");
+            notify::subtitle => $library_changed();
+            activated => $open_local_directory();
+            activatable: true;
+            [prefix]
+            Gtk.Image {
+              icon-name: "folder-open-symbolic";
+              valign: center;
+            }
+          }
         }
 
-        Adw.ActionRow link_el {
-          child: Gtk.LinkButton {
-            label: _("Instance Webpage");
-            uri: "http://127.0.0.1:4534";
-          };
+        Gtk.Button login_button_el {
+          styles [
+            "suggested-action",
+            "pill"
+          ]
+          label: _("Login");
+          clicked => $login_button_clicked();
+          halign: center;
         }
       };
     };

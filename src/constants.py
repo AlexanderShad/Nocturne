@@ -353,7 +353,13 @@ CONTEXT_SONG = {
     }
 }
 
-CONTEXT_SERVER = {
+CONTEXT_MANAGED_NAVIDROME_SERVER = {
+    "visit": {
+        "name": _("Visit Webpage"),
+        "icon-name": "globe-symbolic",
+        "action-name": "app.visit_url",
+        "action-target": "http://127.0.0.1:4534"
+    },
     "update": {
         "name": _("Update Server"),
         "icon-name": "update-symbolic",

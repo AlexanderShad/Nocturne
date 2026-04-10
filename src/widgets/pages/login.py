@@ -21,8 +21,6 @@ class LoginPage(Adw.NavigationPage):
     password_el = Gtk.Template.Child()
     directory_el = Gtk.Template.Child()
 
-    link_el = Gtk.Template.Child()
-
     login_button_el = Gtk.Template.Child()
 
     def setup_page(self, integration):
@@ -75,13 +73,8 @@ class LoginPage(Adw.NavigationPage):
         else:
             self.directory_el.set_subtitle("")
 
-        # Link
-        self.link_el.set_visible('link' in metadata)
-        self.link_el.get_child().set_uri(metadata.get('link', ''))
-        self.link_el.get_child().set_label(metadata.get('link-label', '') or metadata.get('link', ''))
-
         # Login Button
-        self.login_button_el.set_title(metadata.get('login-label') or _("Login"))
+        self.login_button_el.set_label(metadata.get('login-label') or _("Login"))
 
         # Extra Menu
         self.extra_menu_el.set_visible('extra-menu' in metadata)

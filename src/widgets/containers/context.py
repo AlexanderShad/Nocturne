@@ -20,7 +20,9 @@ def get_context_buttons_list(options:dict, model_id:str, cb_handler:callable=Non
             btn.connect('clicked', cb_handler, data.get('connection'))
         if data.get('action-name') and data.get('sensitive', True):
             btn.set_action_name(data.get('action-name'))
-            if model_id:
+            if data.get('action-target'):
+                btn.set_action_target_value(GLib.Variant.new_string(data.get('action-target')))
+            elif model_id:
                 btn.set_action_target_value(GLib.Variant.new_string(model_id))
         btn.set_sensitive(data.get('sensitive', True))
         buttons.append(btn)
@@ -36,6 +38,7 @@ class ContextContainer(Gtk.Box):
         #   css:list
         #   connection:callable
         #   action-name:str
+        #   action-target:str
         #   sensitive:bool
         #}
 

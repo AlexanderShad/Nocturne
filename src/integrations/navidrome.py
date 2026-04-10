@@ -2,7 +2,7 @@
 
 from gi.repository import Gtk, Adw, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models, local
-from ..constants import get_navidrome_path, check_if_navidrome_ready, get_navidrome_env, CONTEXT_SERVER
+from ..constants import get_navidrome_path, check_if_navidrome_ready, get_navidrome_env, CONTEXT_MANAGED_NAVIDROME_SERVER
 from .base import Base
 import requests, random, threading, favicon, io, subprocess, shutil, os
 from PIL import Image
@@ -499,11 +499,9 @@ class NavidromeIntegrated(Navidrome):
         'title': _("Managed Server"),
         'description': _("Connect to a Navidrome instance directly managed by Nocturne."),
         'entries': ['status', 'library-dir', 'user', 'password'],
-        'link': 'http://127.0.0.1:4534',
-        'link-label': _("Instance Website"),
         'extra-menu': {
             'title': _("Manage Server"),
-            'context': CONTEXT_SERVER
+            'context': CONTEXT_MANAGED_NAVIDROME_SERVER
         }
     }
     button_metadata = {
