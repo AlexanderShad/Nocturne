@@ -118,7 +118,7 @@ overlay.album-button:hover image.card {
 
 window.popout-window,
 window:not(.popout-window) bottom-sheet#main-bottom-sheet sheet > stack {
-  transition: background-image 0.2s ease-in-out;
+  transition: background-image 0.5s ease-in-out;
 }
 
 window.popout-window .sidebar-pane {
@@ -144,8 +144,8 @@ window.popout-window.big-mode .fullscreen-bottom-bar button.color {
 }
 
 window:not(.popout-window) bottom-sheet#main-bottom-sheet sheet.background {
-  transition: background 0.2s ease-in-out,
-  backdrop-filter 0.2s ease-in-out;
+  transition: background 0.5s ease-in-out,
+  backdrop-filter 0.5s ease-in-out;
 }
 
 window.player-blur:not(.popout-window) bottom-sheet#main-bottom-sheet sheet.background {
