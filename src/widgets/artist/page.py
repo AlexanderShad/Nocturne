@@ -74,7 +74,7 @@ class ArtistPage(Adw.NavigationPage):
         top_songs = integration.getTopSongs(self.id)
         self.top_songs_wrapbox.set_visible(len(top_songs) > 5)
         if len(top_songs) > 5:
-            song_widgets = [SongSmallRow(song_id) for song_id in top_songs]
+            song_widgets = [SongSmallRow(song_id, show_album_name=True) for song_id in top_songs]
             self.top_songs_wrapbox.set_widgets(song_widgets)
 
     def update_rating(self, rating:int):

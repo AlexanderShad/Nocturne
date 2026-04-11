@@ -14,8 +14,9 @@ class SongSmallRow(Gtk.Button):
     title_el = Gtk.Template.Child()
     subtitle_el = Gtk.Template.Child()
 
-    def __init__(self, id:str):
+    def __init__(self, id:str, show_album_name:bool=False):
         self.id = id
+        self.show_album_name = show_album_name
         integration = get_current_integration()
         integration.verifySong(self.id)
         super().__init__(
@@ -23,6 +24,7 @@ class SongSmallRow(Gtk.Button):
         )
         integration.connect_to_model(self.id, 'title', self.update_title)
         integration.connect_to_model(self.id, 'artists', self.update_artists)
+        integration.connect_to_model(self.id, 'album', self.update_album)
         integration.connect_to_model(self.id, 'gdkPaintable', self.update_cover)
 
     def update_cover(self, paintable:Gdk.Paintable=None):
@@ -39,10 +41,15 @@ class SongSmallRow(Gtk.Button):
         self.set_name(title)
 
     def update_artists(self, artists:list):
-        if len(artists) > 0:
-            self.subtitle_el.set_label(artists[0].get('name'))
-        else:
-            self.subtitle_el.set_label("")
+        if not self.show_album_name:
+            if len(artists) > 0:
+                self.subtitle_el.set_label(artists[0].get('name'))
+            else:
+                self.subtitle_el.set_label("")
+
+    def update_album(self, album:str):
+        if self.show_album_name:
+            self.subtitle_el.set_label(album)
 
     def generate_context_menu(self) -> ContextContainer:
         context_dict = CONTEXT_SONG.copy()
