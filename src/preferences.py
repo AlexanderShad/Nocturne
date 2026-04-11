@@ -10,73 +10,68 @@ import threading
 class NocturnePreferences(Adw.PreferencesDialog):
     __gtype_name__ = 'NocturnePreferencesDialog'
 
-    context_button_el = Gtk.Template.Child()
-    show_playlists_sidebar_el = Gtk.Template.Child()
-    dynamic_bg_el = Gtk.Template.Child()
-    blur_bg_el = Gtk.Template.Child()
-    footer_big_mode_el = Gtk.Template.Child()
-    default_page_el = Gtk.Template.Child()
-
+    # General
+    ## Behavior
     restore_el = Gtk.Template.Child()
     hide_on_close_el = Gtk.Template.Child()
+    default_page_el = Gtk.Template.Child()
 
+    ## Session
     session_group_el = Gtk.Template.Child()
     listenbrainz_stack_el = Gtk.Template.Child()
     instance_avatar_el = Gtk.Template.Child()
     instance_icon_el = Gtk.Template.Child()
     instance_el = Gtk.Template.Child()
 
+    # Customization
+    ## Interface
+    context_button_el = Gtk.Template.Child()
+    show_playlists_sidebar_el = Gtk.Template.Child()
+    footer_big_mode_el = Gtk.Template.Child()
+    blur_bg_el = Gtk.Template.Child()
+
+    ## Dynamic Background
+    dynamic_bg_el = Gtk.Template.Child()
+    popout_dynamic_bg_el = Gtk.Template.Child()
+
+    ## Homepage
     hp_songs_el = Gtk.Template.Child()
     hp_albums_el = Gtk.Template.Child()
     hp_artists_el = Gtk.Template.Child()
     hp_playlists_el = Gtk.Template.Child()
 
+    # Visualizer
+    ## Preferences
     visualizer_el = Gtk.Template.Child()
+
+    ## Appearance
     visualizer_bar_n_el = Gtk.Template.Child()
     visualizer_type_el = Gtk.Template.Child()
     visualizer_fill_el = Gtk.Template.Child()
 
+    ## Color
     visualizer_auto_color_el = Gtk.Template.Child()
     visualizer_invert_auto_color_el = Gtk.Template.Child()
     visualizer_manual_color_el = Gtk.Template.Child()
 
     def __init__(self):
         super().__init__()
-
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
 
+        # General
+        ## Behavior
         settings.bind(
-            "show-context-button",
-            self.context_button_el,
+            "restore-session",
+            self.restore_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )
         settings.bind(
-            "show-playlists-in-sidebar",
-            self.show_playlists_sidebar_el,
+            "hide-on-close",
+            self.hide_on_close_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )
-        settings.bind(
-            "use-dynamic-background",
-            self.dynamic_bg_el,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT
-        )
-        settings.bind(
-            "player-blur-bg",
-            self.blur_bg_el,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT
-        )
-        settings.bind(
-            "use-big-footer",
-            self.footer_big_mode_el,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT
-        )
-
-        # Default Page
         self.default_page_dict = {}
         selected_page = settings.get_value('default-page-tag').unpack()
         for section in SIDEBAR_MENU:
@@ -90,19 +85,68 @@ class NocturnePreferences(Adw.PreferencesDialog):
                 if item.get('page-tag') == selected_page:
                     self.default_page_el.set_selected(len(self.default_page_dict) - 1)
 
+        ## Session
+        self.listenbrainz_stack_el.set_visible_child_name("unlink" if secret.get_plain_password(schema_type="listenbrainz") else "link")
+        if integration := get_current_integration():
+            data = integration.getServerInformation()
+            self.instance_el.set_title(data.get('username', ""))
+
+            self.instance_el.set_subtitle(data.get('title', ""))
+
+            self.instance_el.set_tooltip_text(data.get('link'))
+            self.instance_el.set_action_target_value(GLib.Variant('s', data.get('link', '')))
+            self.instance_icon_el.set_visible(data.get('link'))
+            self.instance_el.set_activatable(data.get('link'))
+
+            self.instance_avatar_el.set_custom_image(data.get('picture'))
+            self.instance_avatar_el.set_text(data.get('username', ''))
+            self.instance_el.set_visible(len(data) > 0)
+            self.session_group_el.set_visible(True)
+        else:
+            self.session_group_el.set_visible(False)
+
+        # Customization
+        ## Interface
         settings.bind(
-            "restore-session",
-            self.restore_el,
+            "show-context-button",
+            self.context_button_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )
         settings.bind(
-            "hide-on-close",
-            self.hide_on_close_el,
+            "show-playlists-in-sidebar",
+            self.show_playlists_sidebar_el,
+            "active",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        settings.bind(
+            "use-big-footer",
+            self.footer_big_mode_el,
+            "active",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        settings.bind(
+            "player-blur-bg",
+            self.blur_bg_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )
 
+        ## Dynamic Background
+        settings.bind(
+            "use-dynamic-background",
+            self.dynamic_bg_el,
+            "active",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        settings.bind(
+            "popout-use-dynamic-background",
+            self.popout_dynamic_bg_el,
+            "active",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+
+        ## Homepage
         settings.bind(
             "n-songs-home",
             self.hp_songs_el,
@@ -128,34 +172,16 @@ class NocturnePreferences(Adw.PreferencesDialog):
             Gio.SettingsBindFlags.DEFAULT
         )
 
-        self.listenbrainz_stack_el.set_visible_child_name("unlink" if secret.get_plain_password(schema_type="listenbrainz") else "link")
-
-        if integration := get_current_integration():
-            data = integration.getServerInformation()
-            self.instance_el.set_title(data.get('username', ""))
-
-            self.instance_el.set_subtitle(data.get('title', ""))
-
-            self.instance_el.set_tooltip_text(data.get('link'))
-            self.instance_el.set_action_target_value(GLib.Variant('s', data.get('link', '')))
-            self.instance_icon_el.set_visible(data.get('link'))
-            self.instance_el.set_activatable(data.get('link'))
-
-            self.instance_avatar_el.set_custom_image(data.get('picture'))
-            self.instance_avatar_el.set_text(data.get('username', ''))
-            self.instance_el.set_visible(len(data) > 0)
-            self.session_group_el.set_visible(True)
-        else:
-            self.session_group_el.set_visible(False)
-
         # Visualizer
-
+        ## Preferences
         settings.bind(
             "show-visualizer",
             self.visualizer_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )
+
+        ## Appearance
         settings.bind(
             "visualizer-bar-n",
             self.visualizer_bar_n_el,
@@ -174,6 +200,8 @@ class NocturnePreferences(Adw.PreferencesDialog):
             "active-name",
             Gio.SettingsBindFlags.DEFAULT
         )
+
+        ## Color
         settings.bind(
             "visualizer-auto-color",
             self.visualizer_auto_color_el,
@@ -186,7 +214,6 @@ class NocturnePreferences(Adw.PreferencesDialog):
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )
-
         try:
             rgb_str = settings.get_value('visualizer-manual-color').unpack()
             rgb_list = [float(c) for c in rgb_str.split(',')]

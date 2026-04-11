@@ -6,45 +6,18 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
   Adw.PreferencesPage {
     title: _("General");
     icon-name: "preferences-system-symbolic";
-
-    Adw.PreferencesGroup {
-      title: _("Interface");
-      Adw.SwitchRow context_button_el {
-        title: _("Show Context Button in Rows");
-        subtitle: _("The menu can also be shown by right clicking / long pressing");
-      }
-      Adw.SwitchRow show_playlists_sidebar_el {
-        title: _("Show Playlists in Sidebar");
-        subtitle: _("Whether to show some playlists in the main sidebar");
-      }
-      Adw.SwitchRow dynamic_bg_el {
-        title: _("Use Dynamic Background in Player");
-        subtitle: _("Generate a gradient background based on the current song cover art");
-      }
-      Adw.SwitchRow blur_bg_el {
-        title: _("Blur Background in Player (Experimental)");
-        subtitle: _("Make background of player slightly transparent and blur the backdrop");
-      }
-      Adw.SwitchRow footer_big_mode_el {
-        title: _("Show Progressbar in Player Footer");
-        subtitle: _("Makes the footer bigger");
-      }
-      Adw.ComboRow default_page_el {
-        title: _("Default Page on Login");
-        subtitle: _("Which page is shown by default");
-        model: Gtk.StringList {};
-        notify::selected => $default_page_changed();
-      }
-    }
     Adw.PreferencesGroup {
       title: _("Behavior");
       Adw.SwitchRow restore_el {
-        title: _("Restore Session");
-        subtitle: _("Retrieve previous queue");
+        title: _("Restore Queue on Launch");
       }
       Adw.SwitchRow hide_on_close_el {
         title: _("Hide on Close");
-        subtitle: _("Hide Nocturne when closing");
+      }
+      Adw.ComboRow default_page_el {
+        title: _("Default Page on Login");
+        model: Gtk.StringList {};
+        notify::selected => $default_page_changed();
       }
     }
     Adw.PreferencesGroup session_group_el {
@@ -110,15 +83,41 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
   }
 
   Adw.PreferencesPage {
-    title: _("Homepage");
-    icon-name: "user-home-symbolic";
+    title: _("Customization");
+    icon-name: "paintbrush-symbolic";
+    Adw.PreferencesGroup {
+      title: _("Interface");
+      Adw.SwitchRow context_button_el {
+        title: _("Show Context Button in Rows");
+        subtitle: _("The menu can also be shown by right clicking / long pressing");
+      }
+      Adw.SwitchRow show_playlists_sidebar_el {
+        title: _("Show Playlists in Sidebar");
+      }
+      Adw.SwitchRow footer_big_mode_el {
+        title: _("Show Progressbar in Player Footer");
+      }
+      Adw.SwitchRow blur_bg_el {
+        title: _("Blur Background in Player (Experimental)");
+      }
+    }
 
     Adw.PreferencesGroup {
-      title: _("Sections");
+      title: _("Dynamic Background");
+      description: _("Gradient generated based on the album art of the current song");
+      Adw.SwitchRow dynamic_bg_el {
+        title: _("Use in Player");
+      }
+      Adw.SwitchRow popout_dynamic_bg_el {
+        title: _("Use in Popout Window");
+      }
+    }
+
+    Adw.PreferencesGroup {
+      title: _("Homepage");
       description: _("Reload homepage to see changes");
       Adw.SpinRow hp_songs_el {
         title: _("Songs");
-        subtitle: _("Max amount of songs to be shown");
         adjustment: Gtk.Adjustment {
           lower: 0;
           upper: 25;
@@ -127,7 +126,6 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
       }
       Adw.SpinRow hp_albums_el {
         title: _("Albums");
-        subtitle: _("Max amount of albums to be shown");
         adjustment: Gtk.Adjustment {
           lower: 0;
           upper: 25;
@@ -136,7 +134,6 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
       }
       Adw.SpinRow hp_artists_el {
         title: _("Artists");
-        subtitle: _("Max amount of artists to be shown");
         adjustment: Gtk.Adjustment {
           lower: 0;
           upper: 25;
@@ -145,7 +142,6 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
       }
       Adw.SpinRow hp_playlists_el {
         title: _("Playlists");
-        subtitle: _("Max amount of playlists to be shown");
         adjustment: Gtk.Adjustment {
           lower: 0;
           upper: 25;
