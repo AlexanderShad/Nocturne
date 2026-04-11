@@ -95,7 +95,7 @@ class NocturneApplication(Adw.Application):
             settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
             default_page = settings.get_value('default-page-tag').unpack() or 'home'
             main_win.activate_action("app.replace_root_page", GLib.Variant('s', default_page))
-            threading.Thread(target=main_win.update_playlist_section_of_sidebar).start()
+            GLib.idle_add(threading.Thread(target=main_win.update_playlist_section_of_sidebar).start)
             if settings.get_value("restore-session").unpack():
                 threading.Thread(target=self.player.restore_play_queue).start()
             if dialog := main_win.get_visible_dialog():
