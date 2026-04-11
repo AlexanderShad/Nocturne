@@ -355,7 +355,12 @@ class Player(EventAdapter):
                         integration.loaded_models.get('currentSong').set_property('songId', id_list[0])
 
             elif mode == 'repeat-one':
-                integration.loaded_models.get('currentSong').set_property('songId', current_song_id)
+                self.gst.seek_simple(
+                    Gst.Format.TIME,
+                    Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
+                    0
+                )
+                self.gst.set_state(Gst.State.PLAYING)
         else:
             integration.loaded_models.get('currentSong').set_property('songId', None)
 
