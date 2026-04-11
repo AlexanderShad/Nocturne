@@ -458,6 +458,18 @@ class Local(Base):
 
         return True
 
+    def getTopSongs(self, artist_id:str, count:int=10) -> list:
+        artist_scrobbles = {}
+        for song_id, data in self.open_json('scrobble.json').items():
+            found_artist = data.get('artist')
+            if not found_artist:
+                if model := self.loaded_models.get(song_id):
+                    found_artist = model.get_property('artistId')
+
+            if found_artist == artist_id:
+                artist_scrobbles[song_id] = data.get('plays', 1)
+        return sorted(artist_scrobbles, key=artist_scrobbles.get, reverse=True)[:count]
+
     def scrobble(self, id:str):
         if not id:
             return
@@ -469,12 +481,14 @@ class Local(Base):
             if id in scrobble_dict:
                 scrobble_dict[id]['plays'] += 1
                 scrobble_dict[id]['last_play'] = int(time.time())
-                scrobble_dict[id]['album'] = model.albumId
+                scrobble_dict[id]['album'] = model.get_property('albumId')
+                scrobble_dict[id]['artist'] = model.get_property('artistId')
             else:
                 scrobble_dict[id] = {
                     'plays': 1,
                     'last_play': int(time.time()),
-                    'album': model.get_property('albumId')
+                    'album': model.get_property('albumId'),
+                    'artist': model.get_property('artistId')
                 }
 
             with open(os.path.join(LOCAL_DATA_DIR, 'scrobble.json'), 'w') as f:

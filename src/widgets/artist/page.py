@@ -4,6 +4,7 @@ from gi.repository import Gtk, Adw, Gdk, GLib, Pango
 from ...integrations import get_current_integration
 from ...constants import CONTEXT_ARTIST
 from ..containers import get_context_buttons_list
+from ..song import SongSmallRow
 from ..album import AlbumButton
 from .button import ArtistButton
 import threading, uuid, io
@@ -18,6 +19,7 @@ class ArtistPage(Adw.NavigationPage):
     name_el = Gtk.Template.Child()
     biography_el = Gtk.Template.Child()
     star_el = Gtk.Template.Child()
+    top_songs_wrapbox = Gtk.Template.Child()
     album_wrapbox = Gtk.Template.Child()
     artist_carousel = Gtk.Template.Child()
     rating_container = Gtk.Template.Child()
@@ -45,15 +47,35 @@ class ArtistPage(Adw.NavigationPage):
         integration.connect_to_model(self.id, 'gdkPaintableBytes', self.update_background)
         integration.connect_to_model(self.id, 'userRating', self.update_rating)
 
-        self.artist_carousel.set_header(
-            label=_("Related Artists"),
-            icon_name="music-artist-symbolic"
+        self.top_songs_wrapbox.set_header(
+            label=_("Top Songs"),
+            icon_name="music-note-symbolic"
         )
 
         self.album_wrapbox.set_header(
             label=_("Albums"),
             icon_name="music-queue-symbolic"
         )
+
+        self.artist_carousel.set_header(
+            label=_("Related Artists"),
+            icon_name="music-artist-symbolic"
+        )
+
+        self.top_songs_wrapbox.list_el.set_justify(Adw.JustifyMode.FILL)
+        self.top_songs_wrapbox.list_el.set_justify_last_line(True)
+        self.top_songs_wrapbox.list_el.set_child_spacing(5)
+        self.top_songs_wrapbox.list_el.set_line_spacing(5)
+        threading.Thread(target=self.update_top_songs).start()
+
+    def update_top_songs(self):
+        # call in different thread
+        integration = get_current_integration()
+        top_songs = integration.getTopSongs(self.id)
+        self.top_songs_wrapbox.set_visible(len(top_songs) > 5)
+        if len(top_songs) > 5:
+            song_widgets = [SongSmallRow(song_id) for song_id in top_songs]
+            self.top_songs_wrapbox.set_widgets(song_widgets)
 
     def update_rating(self, rating:int):
         for i, el in enumerate(list(self.rating_container)):

@@ -221,6 +221,11 @@ class Base(GObject.Object):
         print('WARNING', 'setRating', 'not implemented')
         return False
 
+    def getTopSongs(self, artist_id:str, count:int=10) -> list:
+        # returns list of ids
+        print('WARNING', 'getTopSongs', 'not implemented')
+        return []
+
     def scrobble(self, id:str):
         # the id is for a Song, this is how views are stored
         # called when a song is played

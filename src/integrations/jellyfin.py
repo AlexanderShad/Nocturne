@@ -799,6 +799,21 @@ class Jellyfin(Base):
             json.dump(ratings, f, ensure_ascii=False)
         return True
 
+    def getTopSongs(self, artist_id:str, count:int=10) -> list:
+        songs = self.make_request(
+            action='Users/{userId}/Items',
+            mode='GET',
+            params={
+                'ArtistIds': artist_id,
+                'IncludeItemTypes': 'Audio',
+                'SortBy': 'PlayCount',
+                'SortOrder': 'Descending',
+                'Limit': count,
+                'Recursive': 'true'
+            }
+        ).get('Items', [])
+        return [song.get('Id') for song in songs if song.get('Id')]
+
     def getServerInformation(self) -> dict:
         server_information = {
             'link': self.get_property('url').strip('/'),

@@ -444,6 +444,16 @@ class Navidrome(Base):
             return True
         return False
 
+    def getTopSongs(self, artist_id:str, count:int=10) -> list:
+        model = self.loaded_models.get(artist_id)
+        if not model or not model.get_property('name'):
+            self.verifyArtist(artist_id, force_update=True, use_threading=False)
+        top_songs = self.make_request('getTopSongs', {
+            'artist': model.get_property('name'),
+            'count': count
+        }).get('topSongs', {}).get('song', [])
+        return [song.get('id') for song in top_songs if song.get('id')]
+
     def scrobble(self, id:str):
         # Registers the song as played, useful for keeping track of "most played" albums and the sorts
         if model := self.loaded_models.get(id) :
