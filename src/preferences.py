@@ -28,10 +28,10 @@ class NocturnePreferences(Adw.PreferencesDialog):
     context_button_el = Gtk.Template.Child()
     show_playlists_sidebar_el = Gtk.Template.Child()
     footer_big_mode_el = Gtk.Template.Child()
-    blur_bg_el = Gtk.Template.Child()
+    translucent_player_el = Gtk.Template.Child()
 
     ## Dynamic Background
-    dynamic_bg_el = Gtk.Template.Child()
+    player_dynamic_bg_el = Gtk.Template.Child()
     popout_dynamic_bg_el = Gtk.Template.Child()
     dynamic_accent_el = Gtk.Template.Child()
 
@@ -128,22 +128,22 @@ class NocturnePreferences(Adw.PreferencesDialog):
         )
         settings.bind(
             "player-blur-bg",
-            self.blur_bg_el,
+            self.translucent_player_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )
 
         ## Dynamic Background
         settings.bind(
-            "use-dynamic-background",
-            self.dynamic_bg_el,
-            "active",
+            "player-dynamic-bg-mode",
+            self.player_dynamic_bg_el,
+            "active-name",
             Gio.SettingsBindFlags.DEFAULT
         )
         settings.bind(
-            "popout-use-dynamic-background",
+            "popout-dynamic-bg-mode",
             self.popout_dynamic_bg_el,
-            "active",
+            "active-name",
             Gio.SettingsBindFlags.DEFAULT
         )
         settings.bind(

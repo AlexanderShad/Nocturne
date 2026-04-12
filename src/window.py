@@ -230,22 +230,32 @@ class NocturneWindow(Adw.ApplicationWindow):
             Gio.SettingsBindFlags.DEFAULT
         )
 
+        GLib.idle_add(self.setup_sidebar)
+        list(list(self.sidebar_headerbar)[0])[0].get_center_widget().get_child().set_ellipsize(Pango.EllipsizeMode.NONE)
+
         css_settings = {
-            'use-dynamic-background': 'dynamic-accent-bg',
             'use-dynamic-accent': 'dynamic-accent',
             'player-blur-bg': 'player-blur'
         }
         for key, class_name in css_settings.items():
             self.settings.connect('changed::{}'.format(key), self.css_toggled, class_name)
             self.css_toggled(self.settings, key, class_name)
-        GLib.idle_add(self.setup_sidebar)
-        list(list(self.sidebar_headerbar)[0])[0].get_center_widget().get_child().set_ellipsize(Pango.EllipsizeMode.NONE)
+
+        self.settings.connect('changed::player-dynamic-bg-mode', self.dynamic_bg_mode_changed)
+        self.dynamic_bg_mode_changed(self.settings, 'player-dynamic-bg-mode')
 
     def css_toggled(self, settings, key, css_class):
         if settings.get_value(key).unpack():
             self.add_css_class(css_class)
         else:
             self.remove_css_class(css_class)
+
+    def dynamic_bg_mode_changed(self, settings, key):
+        value = settings.get_value(key).unpack()
+        self.remove_css_class('dynamic-bg-gradient')
+        self.remove_css_class('dynamic-bg-blur')
+        if value:
+            self.add_css_class('dynamic-bg-{}'.format(value))
 
     @Gtk.Template.Callback()
     def on_drop(self, drop_target, file, x, y):

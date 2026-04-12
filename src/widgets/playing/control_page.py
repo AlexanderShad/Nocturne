@@ -190,7 +190,7 @@ class PlayingControlPage(Adw.NavigationPage):
         img_io = io.BytesIO(raw_bytes)
 
         # Generate Palette
-        accent = ColorThief(img_io).get_color(quality=10)
+        palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
 
         # Blur Image
         with Image.open(img_io) as img:
@@ -207,14 +207,21 @@ class PlayingControlPage(Adw.NavigationPage):
         # Make and Load CSS
         css = f"""
         window.dynamic-accent {{
-            --accent-color: oklab(from rgb({','.join([str(c) for c in accent])}) var(--standalone-color-oklab));
+            --accent-color: oklab(from rgb({','.join([str(c) for c in palette[0]])}) var(--standalone-color-oklab));
         }}
 
-        window.popout-window.dynamic-accent-bg,
-        window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
+        window.popout-window.dynamic-bg-blur,
+        window.dynamic-bg-blur bottom-sheet#main-bottom-sheet sheet > stack {{
             background-image: url("{blur_str}");
-            background-repeat: no-repeat;
-            background-size: cover;
+        }}
+
+        window.popout-window.dynamic-bg-gradient,
+        window.dynamic-bg-gradient bottom-sheet#main-bottom-sheet sheet > stack {{
+            background-image: linear-gradient(
+                to bottom,
+                rgba({','.join([str(c) for c in palette[0]])},0.4),
+                rgba({','.join([str(c) for c in palette[1]])},0.4)
+            );
         }}
         """
 

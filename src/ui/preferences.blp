@@ -97,20 +97,63 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
       Adw.SwitchRow footer_big_mode_el {
         title: _("Show Progressbar in Player Footer");
       }
-      Adw.SwitchRow blur_bg_el {
-        title: _("Blur Background in Player (Experimental)");
+      Adw.SwitchRow translucent_player_el {
+        title: _("Make Background Translucent in Player");
       }
     }
 
     Adw.PreferencesGroup {
       title: _("Dynamic Background");
-      description: _("Gradient generated based on the album art of the current song");
-      Adw.SwitchRow dynamic_bg_el {
+      description: _("Background generated based on the album art of the current song");
+
+      Adw.ActionRow {
         title: _("Use in Player");
+
+        [suffix]
+        Adw.ToggleGroup player_dynamic_bg_el {
+          valign: center;
+          Adw.Toggle {
+            tooltip: _("Off");
+            label: _("Off");
+            name: "";
+          }
+          Adw.Toggle {
+            tooltip: _("Gradient");
+            label: _("Gradient");
+            name: "gradient";
+          }
+          Adw.Toggle {
+            tooltip: _("Blur");
+            label: _("Blur");
+            name: "blur";
+          }
+        }
       }
-      Adw.SwitchRow popout_dynamic_bg_el {
-        title: _("Use in Popout Window");
+
+      Adw.ActionRow {
+        title: _("Use in Pop-out Window");
+
+        [suffix]
+        Adw.ToggleGroup popout_dynamic_bg_el {
+          valign: center;
+          Adw.Toggle {
+            tooltip: _("Off");
+            label: _("Off");
+            name: "";
+          }
+          Adw.Toggle {
+            tooltip: _("Gradient");
+            label: _("Gradient");
+            name: "gradient";
+          }
+          Adw.Toggle {
+            tooltip: _("Blur");
+            label: _("Blur");
+            name: "blur";
+          }
+        }
       }
+
       Adw.SwitchRow dynamic_accent_el {
         title: _("Use as Accent Color");
       }
