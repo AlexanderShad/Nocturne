@@ -2,9 +2,9 @@
 
 from gi.repository import Gtk, Adw, Gdk, GLib, GObject, Gst, Gio
 from ...integrations import get_current_integration
-from ...constants import MPRIS_COVER_PATH, get_display_time
-import threading, random, io, colorsys, os
-from PIL import Image
+from ...constants import MPRIS_COVER_PATH, BLUR_COVER_PATH, get_display_time
+import threading, random, io, colorsys, os, base64
+from PIL import Image, ImageFilter
 from colorthief import ColorThief
 from urllib.parse import urlparse
 from .player import Player
@@ -186,20 +186,35 @@ class PlayingControlPage(Adw.NavigationPage):
         threading.Thread(target=self.update_cover_art).start()
 
     def update_palette(self, raw_bytes:bytes):
+        # Load Image
         img_io = io.BytesIO(raw_bytes)
-        palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
+
+        # Generate Palette
+        accent = ColorThief(img_io).get_color(quality=10)
+
+        # Blur Image
+        with Image.open(img_io) as img:
+            original_size = img.size
+            small_img = img.resize((24, 24))
+            blurred_img = small_img.filter(ImageFilter.GaussianBlur(radius=8 / 4))
+            if blurred_img.mode != "RGBA":
+                blurred_img = blurred_img.convert("RGBA")
+            blurred_img.putalpha(int(255 * 0.5))
+            buffer = io.BytesIO()
+            blurred_img.save(buffer, format="PNG")
+            blur_str = "data:image/png;base64,{}".format(base64.b64encode(buffer.getvalue()).decode("utf-8"))
+
+        # Make and Load CSS
         css = f"""
         window.dynamic-accent {{
-            --accent-color: oklab(from rgb({','.join([str(c) for c in palette[0]])}) var(--standalone-color-oklab));
+            --accent-color: oklab(from rgb({','.join([str(c) for c in accent])}) var(--standalone-color-oklab));
         }}
 
         window.popout-window.dynamic-accent-bg,
         window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
-            background-image: linear-gradient(
-                to bottom,
-                rgba({','.join([str(c) for c in palette[0]])},0.4),
-                rgba({','.join([str(c) for c in palette[1]])},0.4)
-            );
+            background-image: url("{blur_str}");
+            background-repeat: no-repeat;
+            background-size: cover;
         }}
         """
 
