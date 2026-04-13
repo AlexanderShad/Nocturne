@@ -861,7 +861,7 @@ def __request_song_download(model_id:str) -> bool:
     if song_model := integration.loaded_models.get(model_id):
         download_queue = integration.loaded_models.get('currentSong').get_property('downloadQueueModel')
         download_model = models.SongDownload(songId=model_id)
-        file_title = '{} - {}'.format(song_model.get_property('title'), song_model.get_property('id'))
+        file_title = '{} - {} - {}'.format(song_model.get_property('title'), song_model.get_property('album'), song_model.get_property('artist'))
         if any(pathlib.Path(DOWNLOADS_DIR).glob('{}.*'.format(file_title))):
             return False
         found, position = download_queue.find_with_equal_func(
@@ -1050,3 +1050,4 @@ def delete_downloads(window, model_list:list):
             _("Deleted")
         )
     threading.Thread(target=run).start()
+

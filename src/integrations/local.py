@@ -473,7 +473,8 @@ class Local(Base):
     def downloadSong(self, model_id:str, file_title:str, progress_callback:callable):
         if model := self.loaded_models.get(model_id):
             source_path = model.get_property('path')
-            shutil.copy2(source_path, DOWNLOADS_DIR)
+            extension = pathlib.Path(source_path).suffix
+            shutil.copy2(source_path, os.path.join(DOWNLOADS_DIR, '{}{}'.format(file_title, extension)))
             progress_callback(1)
 
     def scrobble(self, model_id:str):
