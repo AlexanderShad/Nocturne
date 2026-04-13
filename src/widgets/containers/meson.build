@@ -6,6 +6,7 @@ widgets = [
   'wrapbox.py',
   'context.py',
   'page_dialog.py',
+  'downloads_queue_button.py',
 ]
 
 install_data(widgets, install_dir: moduledir)

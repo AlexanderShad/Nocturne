@@ -74,6 +74,9 @@ template $NocturneWindow: Adw.ApplicationWindow {
                     tooltip-text: _("Menu");
                     menu-model: primary_menu;
                   }
+
+                  [end]
+                  $NocturneDownloadsQueueButton {}
                 }
                 content: Adw.Sidebar main_sidebar {
                   activated => $on_sidebar_activated();

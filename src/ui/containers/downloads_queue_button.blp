@@ -1,0 +1,18 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $NocturneDownloadsQueueButton: Gtk.MenuButton {
+  icon-name: "folder-download-symbolic";
+  popover: Gtk.Popover {
+    child: Adw.PreferencesGroup {
+      title: _("Downloads Queue");
+      description: _("Downloaded songs are available in offline mode");
+      Gtk.ListBox {
+        styles [
+          "boxed-list"
+        ]
+        selection-mode: none;
+      }
+    };
+  };
+}
