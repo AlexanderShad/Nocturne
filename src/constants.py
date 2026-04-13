@@ -314,6 +314,11 @@ CONTEXT_PLAYLIST = {
         "icon-name": "list-low-priority-symbolic",
         "action-name": "app.play_playlist_later"
     },
+    "download": {
+        "name": _("Download"),
+        "icon-name": "folder-download-symbolic",
+        "action-name": "app.download_playlist"
+    },
     "edit": {
         "name": _("Edit"),
         "icon-name": "document-edit-symbolic",

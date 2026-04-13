@@ -222,6 +222,7 @@ class NocturneWindow(Adw.ApplicationWindow):
 
         self.create_action(actions.download_song)
         self.create_action(actions.download_album)
+        self.create_action(actions.download_playlist)
 
         self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         self.set_property('default-width', self.settings.get_value('default-width').unpack())
