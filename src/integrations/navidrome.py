@@ -84,14 +84,14 @@ class Navidrome(Base):
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         return '{}/rest/stream?{}'.format(self.get_property('url').strip('/'), query_string)
 
-    def getCoverArt(self, id:str=None) -> tuple:
+    def getCoverArt(self, model_id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
-        if id:
-            if model:= self.loaded_models.get(id):
+        if model_id:
+            if model:= self.loaded_models.get(model_id):
                 if isinstance(model, models.Song) and model.isRadio:
-                    return self.getRadioCoverArt(id)
+                    return self.getRadioCoverArt(model_id)
                 if isinstance(model, models.Song) and model.isExternalFile:
-                    return local.Local.getCoverArt(self, id)
+                    return local.Local.getCoverArt(self, model_id)
                 if model.get_property('gdkPaintable'):
                     return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
 
@@ -192,17 +192,17 @@ class Navidrome(Base):
         songs = self.make_request('getStarred2').get('starred2', {}).get('song', [])
         return [song.get('id') for song in songs]
 
-    def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifyArtist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def update():
-            base_response = self.make_request('getArtist', {'id': id})
+            base_response = self.make_request('getArtist', {'id': model_id})
             base_artist = base_response.get('artist', {})
-            detail_response = self.make_request('getArtistInfo2', {'id': id})
+            detail_response = self.make_request('getArtistInfo2', {'id': model_id})
             detail_artist = detail_response.get('artistInfo2', {})
             artist_dict = {**base_artist, **detail_artist}
-            self.loaded_models[id].update_data(**artist_dict)
+            self.loaded_models[model_id].update_data(**artist_dict)
 
-        if id not in self.loaded_models:
-            self.loaded_models[id] = models.Artist(id=id)
+        if model_id not in self.loaded_models:
+            self.loaded_models[model_id] = models.Artist(id=model_id)
             force_update = True
 
         if force_update:
@@ -213,14 +213,14 @@ class Navidrome(Base):
 
         threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
-    def verifyAlbum(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifyAlbum(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def update():
-            response = self.make_request('getAlbum', {'id': id})
+            response = self.make_request('getAlbum', {'id': model_id})
             album_dict = response.get('album', {})
-            self.loaded_models[id].update_data(**album_dict)
+            self.loaded_models[model_id].update_data(**album_dict)
 
-        if id not in self.loaded_models:
-            self.loaded_models[id] = models.Album(id=id)
+        if model_id not in self.loaded_models:
+            self.loaded_models[model_id] = models.Album(id=model_id)
             force_update = True
 
         if force_update:
@@ -231,14 +231,14 @@ class Navidrome(Base):
 
         threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
-    def verifyPlaylist(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifyPlaylist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def update():
-            response = self.make_request('getPlaylist', {'id': id})
+            response = self.make_request('getPlaylist', {'id': model_id})
             playlist_dict = response.get('playlist', {})
-            self.loaded_models[id].update_data(**playlist_dict)
+            self.loaded_models[model_id].update_data(**playlist_dict)
 
-        if id not in self.loaded_models:
-            self.loaded_models[id] = models.Playlist(id=id)
+        if model_id not in self.loaded_models:
+            self.loaded_models[model_id] = models.Playlist(id=model_id)
             force_update = True
 
         if force_update:
@@ -249,15 +249,15 @@ class Navidrome(Base):
 
         threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
-    def verifySong(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifySong(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def update():
-            response = self.make_request('getSong', {'id': id})
+            response = self.make_request('getSong', {'id': model_id})
             song_dict = response.get('song', {})
-            self.loaded_models[id].update_data(**song_dict)
-            threading.Thread(target=self.getCoverArt, args=(id,)).start()
+            self.loaded_models[model_id].update_data(**song_dict)
+            threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
-        if id not in self.loaded_models:
-            self.loaded_models[id] = models.Song(id=id)
+        if model_id not in self.loaded_models:
+            self.loaded_models[model_id] = models.Song(id=model_id)
             force_update = True
 
         if force_update:
@@ -266,14 +266,14 @@ class Navidrome(Base):
             else:
                 update()
         else:
-            threading.Thread(target=self.getCoverArt, args=(id,)).start()
+            threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
-    def star(self, id:str) -> bool:
-        response = self.make_request('star', {'id': id})
+    def star(self, model_id:str) -> bool:
+        response = self.make_request('star', {'id': model_id})
         return response.get('status') == 'ok'
 
-    def unstar(self, id:str) -> bool:
-        response = self.make_request('unstar', {'id': id})
+    def unstar(self, model_id:str) -> bool:
+        response = self.make_request('unstar', {'id': model_id})
         return response.get('status') == 'ok'
 
     def getPlayQueue(self) -> tuple:
@@ -284,7 +284,7 @@ class Navidrome(Base):
         song_list = play_queue.get('entry', [])
         for song_dict in song_list:
             if song_dict.get('id') not in self.loaded_models:
-                self.loaded_models[id] = models.Song(**song_dict)
+                self.loaded_models[song_dict.get('id')] = models.Song(**song_dict)
             else:
                 self.verifySong(song_dict.get('id'), force_update=True)
 
@@ -301,10 +301,10 @@ class Navidrome(Base):
         })
         return response.get('status') == 'ok'
 
-    def getSimilarSongs(self, id:str, count:int=20) -> list:
+    def getSimilarSongs(self, model_id:str, count:int=20) -> list:
         # Receives an artist id
         response = self.make_request('getSimilarSongs', {
-            'id': id,
+            'id': model_id,
             'count': count
         })
         songs = response.get('similarSongs', {}).get('song', [])
@@ -390,21 +390,21 @@ class Navidrome(Base):
         })
         return response.get('status') == 'ok'
 
-    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str) -> bool:
+    def updateInternetRadioStation(self, model_id:str, name:str, streamUrl:str) -> bool:
         # returns true if ok
         parsedStreamUrl = urlparse(streamUrl)
         response = self.make_request('updateInternetRadioStation', {
-            'id': id,
+            'id': model_id,
             'name': name,
             'streamUrl': streamUrl,
             'homepageUrl': '{}://{}'.format(parsedStreamUrl.scheme, parsedStreamUrl.netloc)
         })
         return response.get('status') == 'ok'
 
-    def deleteInternetRadioStation(self, id:str) -> bool:
+    def deleteInternetRadioStation(self, model_id:str) -> bool:
         # returns true if ok
         response = self.make_request('deleteInternetRadioStation', {
-            'id': id
+            'id': model_id
         })
         return response.get('status') == 'ok'
 
@@ -427,16 +427,16 @@ class Navidrome(Base):
         })
         return response.get('status') == 'ok'
 
-    def deletePlaylist(self, id:str) -> bool:
+    def deletePlaylist(self, model_id:str) -> bool:
         # returns true if ok
         response = self.make_request('deletePlaylist', {
-            'id': id
+            'id': model_id
         })
         return response.get('status') == 'ok'
 
-    def setRating(self, id:str, rating:int=0) -> bool:
+    def setRating(self, model_id:str, rating:int=0) -> bool:
         response = self.make_request('setRating', {
-            'id': id,
+            'id': model_id,
             'rating': rating
         })
         if response.get('status') == 'ok':
@@ -454,10 +454,10 @@ class Navidrome(Base):
         }).get('topSongs', {}).get('song', [])
         return [song.get('id') for song in top_songs if song.get('id')]
 
-    def downloadSong(self, id:str, file_title:str, progress_callback:callable):
+    def downloadSong(self, model_id:str, file_title:str, progress_callback:callable):
         params = {
             **self.get_base_params(),
-            'id': id
+            'id': model_id
         }
         try:
             with requests.get(self.get_url('download'), params=params, stream=True) as r:
@@ -479,14 +479,14 @@ class Navidrome(Base):
         except:
             pass
 
-    def scrobble(self, id:str):
+    def scrobble(self, model_id:str):
         # Registers the song as played, useful for keeping track of "most played" albums and the sorts
-        if model := self.loaded_models.get(id) :
+        if model := self.loaded_models.get(model_id) :
             if not model.isExternalFile:
                 self.make_request('scrobble', {
-                    'id': id
+                    'id': model_id
                 })
-        super().scrobble(id)
+        super().scrobble(model_id)
 
     def getServerInformation(self) -> dict:
         server_information = {

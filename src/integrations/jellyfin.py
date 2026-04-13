@@ -100,11 +100,11 @@ class Jellyfin(Base):
         url = '{}?static=true&api_key={}'.format(base_url, self.get_property('accessToken'))
         return url
 
-    def getCoverArt(self, id:str=None) -> tuple:
-        if id:
-            if model := self.loaded_models.get(id):
+    def getCoverArt(self, model_id:str=None) -> tuple:
+        if model_id:
+            if model := self.loaded_models.get(model_id):
                 if isinstance(model, models.Song) and model.isExternalFile:
-                    return local.Local.getCoverArt(self, id)
+                    return local.Local.getCoverArt(self, model_id)
                 if model.get_property('gdkPaintable') is not None:
                     return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
 
@@ -114,7 +114,7 @@ class Jellyfin(Base):
                 }
                 try:
                     response = requests.get(
-                        self.get_url('Items/{id}/Images/Primary', id=id),
+                        self.get_url('Items/{id}/Images/Primary', id=model_id),
                         headers=self.get_base_header(),
                         params=params,
                         verify=not self.get_property('trustServer'),
@@ -299,11 +299,11 @@ class Jellyfin(Base):
 
         return [song.get("Id") for song in songs]
 
-    def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifyArtist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def run():
             artist = self.make_request(
                 action='Users/{userId}/Items/{id}',
-                action_keys={"id": id},
+                action_keys={"id": model_id},
                 mode="GET"
             )
 
@@ -311,14 +311,14 @@ class Jellyfin(Base):
                 action='Users/{userId}/Items',
                 mode="GET",
                 params={
-                    "ParentId": id,
+                    "ParentId": model_id,
                     "IncludeItemTypes": "MusicAlbum",
                     "Recursive": "true",
                     "Fields": "ItemCounts"
                 }
             ).get("Items", [])
 
-            self.loaded_models.get(id).update_data(
+            self.loaded_models.get(model_id).update_data(
                 id=artist.get("Id"),
                 name=artist.get("Name"),
                 albumCount=len(albums),
@@ -338,11 +338,11 @@ class Jellyfin(Base):
 
         threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
-    def verifyAlbum(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifyAlbum(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def run():
             album = self.make_request(
                 action='Users/{userId}/Items/{id}',
-                action_keys={"id": id},
+                action_keys={"id": model_id},
                 mode="GET"
             )
 
@@ -350,7 +350,7 @@ class Jellyfin(Base):
                 action='Users/{userId}/Items',
                 mode="GET",
                 params={
-                    "ParentId": id,
+                    "ParentId": model_id,
                     "IncludeItemTypes": "Audio",
                     "Recursive": "true",
                     "Fields": "RunTimeTicks,IndexNumber,ParentIndexNumber",
@@ -365,7 +365,7 @@ class Jellyfin(Base):
                 if model := self.loaded_models.get(song.get("Id")):
                     model.update_data(track=song.get("IndexNumber") or i)
 
-            self.loaded_models.get(id).update_data(
+            self.loaded_models.get(model_id).update_data(
                 id=album.get("Id"),
                 name=album.get("Name"),
                 artist=album.get("AlbumArtist"),
@@ -377,21 +377,21 @@ class Jellyfin(Base):
                 starred=album.get("UserData", {}).get("IsFavorite", False)
             )
 
-        if id not in self.loaded_models or force_update:
-            if id not in self.loaded_models:
-                self.loaded_models[id] = models.Album(id=id)
+        if model_id not in self.loaded_models or force_update:
+            if model_id not in self.loaded_models:
+                self.loaded_models[model_id] = models.Album(id=model_id)
             if use_threading:
                 threading.Thread(target=run).start()
             else:
                 run()
 
-        threading.Thread(target=self.getCoverArt, args=(id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
-    def verifyPlaylist(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifyPlaylist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def run():
             playlist = self.make_request(
                 action='Users/{userId}/Items/{id}',
-                action_keys={"id": id},
+                action_keys={"id": model_id},
                 mode="GET"
             )
 
@@ -399,7 +399,7 @@ class Jellyfin(Base):
                 action='Users/{userId}/Items',
                 mode="GET",
                 params={
-                    "ParentId": id,
+                    "ParentId": model_id,
                     "IncludeItemTypes": "Audio",
                     "Recursive": "true",
                     "Fields": "RunTimeTicks"
@@ -408,7 +408,7 @@ class Jellyfin(Base):
 
             duration = int(sum(song.get("RunTimeTicks", 0) for song in songs) / 10000000)
 
-            self.loaded_models.get(id).update_data(
+            self.loaded_models.get(model_id).update_data(
                 id=playlist.get("Id"),
                 name=playlist.get("Name"),
                 songCount=len(songs),
@@ -416,31 +416,31 @@ class Jellyfin(Base):
                 entry=[{"id": song.get("Id"), "name": song.get("Name")} for song in songs]
             )
 
-        if id not in self.loaded_models or force_update:
-            if id not in self.loaded_models:
-                self.loaded_models[id] = models.Playlist(id=id)
+        if model_id not in self.loaded_models or force_update:
+            if model_id not in self.loaded_models:
+                self.loaded_models[model_id] = models.Playlist(id=model_id)
             if use_threading:
                 threading.Thread(target=run).start()
             else:
                 run()
 
-        threading.Thread(target=self.getCoverArt, args=(id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
-    def verifySong(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifySong(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def run():
             params = {
                 "Fields": "ArtistItems,AlbumId,RunTimeTicks,UserData,IndexNumber,ParentIndexNumber"
             }
             song = self.make_request(
                 action='Users/{userId}/Items/{id}',
-                action_keys={"id": id},
+                action_keys={"id": model_id},
                 mode='GET',
                 params=params
             )
 
             duration = int(song.get("RunTimeTicks", 0) / 10000000)
 
-            self.loaded_models.get(id).update_data(
+            self.loaded_models.get(model_id).update_data(
                 id=song.get("Id"),
                 title=song.get("Name"),
                 album=song.get("Album"),
@@ -453,28 +453,28 @@ class Jellyfin(Base):
                 track=song.get("IndexNumber") or 0
             )
 
-        if id not in self.loaded_models or force_update:
-            if id not in self.loaded_models:
-                self.loaded_models[id] = models.Song(id=id)
+        if model_id not in self.loaded_models or force_update:
+            if model_id not in self.loaded_models:
+                self.loaded_models[model_id] = models.Song(id=model_id)
             if use_threading:
                 threading.Thread(target=run).start()
             else:
                 run()
 
-        threading.Thread(target=self.getCoverArt, args=(id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
-    def star(self, id:str) -> bool:
+    def star(self, model_id:str) -> bool:
         response = self.make_request(
             action='Users/{userId}/FavoriteItems/{id}',
-            action_keys={"id": id},
+            action_keys={"id": model_id},
             mode='POST'
         )
         return response.get('IsFavorite', False)
 
-    def unstar(self, id:str) -> bool:
+    def unstar(self, model_id:str) -> bool:
         response = self.make_request(
             action='Users/{userId}/FavoriteItems/{id}',
-            action_keys={"id": id},
+            action_keys={"id": model_id},
             mode='DELETE'
         )
         return not response.get('IsFavorite', False)
@@ -526,12 +526,12 @@ class Jellyfin(Base):
 
         return True
 
-    def getSimilarSongs(self, id:str, count:int=20) -> list:
+    def getSimilarSongs(self, model_id:str, count:int=20) -> list:
         artist_songs = self.make_request(
             action='Users/{userId}/Items',
             mode="GET",
             params={
-                "ArtistIds": id,
+                "ArtistIds": model_id,
                 "IncludeItemTypes": "Audio",
                 "Recursive": "true",
                 "Limit": 1,
@@ -700,16 +700,16 @@ class Jellyfin(Base):
             return True
         return False
 
-    def deleteInternetRadioStation(self, id:str) -> bool:
+    def deleteInternetRadioStation(self, model_id:str) -> bool:
         response = self.make_request(
             action='LiveTv/TunerHosts',
             mode='DELETE',
             params={
-                "id": id
+                "id": model_id
             }
         )
         if response.get('state') == 'ok':
-            self.cache_actions['deleted-radios'].append(id)
+            self.cache_actions['deleted-radios'].append(model_id)
             return True
         return False
 
@@ -773,15 +773,15 @@ class Jellyfin(Base):
 
         return True
 
-    def deletePlaylist(self, id:str) -> bool:
+    def deletePlaylist(self, model_id:str) -> bool:
         response = self.make_request(
             action='Items/{id}',
-            action_keys={'id': id},
+            action_keys={'id': model_id},
             mode="DELETE"
         )
         return response.get("state") == "ok"
 
-    def setRating(self, id:str, rating:int=0) -> bool:
+    def setRating(self, model_id:str, rating:int=0) -> bool:
         RATINGSFILE = os.path.join(self.getIntegrationDir(), 'ratings.json')
 
         try:

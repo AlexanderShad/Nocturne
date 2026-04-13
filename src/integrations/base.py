@@ -34,15 +34,15 @@ class Base(GObject.Object):
         # gets called to see if it is ready to show login page
         return True
 
-    def connect_to_model(self, id:str, parameter:str, callback:callable) -> str:
+    def connect_to_model(self, model_id:str, parameter:str, callback:callable) -> str:
         # do not modify this function, it works as is in any instance
         connection_id = ""
-        if id in self.loaded_models:
-            connection_id = self.loaded_models.get(id).connect(
+        if model_id in self.loaded_models:
+            connection_id = self.loaded_models.get(model_id).connect(
                 'notify::{}'.format(parameter),
-                lambda *_, parameter=parameter, id=id: GLib.idle_add(callback, self.loaded_models.get(id).get_property(parameter))
+                lambda *_, parameter=parameter, model_id=model_id: GLib.idle_add(callback, self.loaded_models.get(model_id).get_property(parameter))
             )
-            GLib.idle_add(callback, self.loaded_models.get(id).get_property(parameter))
+            GLib.idle_add(callback, self.loaded_models.get(model_id).get_property(parameter))
         return connection_id
 
     def start_instance(self) -> bool:
@@ -69,10 +69,10 @@ class Base(GObject.Object):
         os.makedirs(directory, exist_ok=True)
         return directory
 
-    def getRadioCoverArt(self, id:str=None) -> tuple:
+    def getRadioCoverArt(self, model_id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
-        if id:
-            if model := self.loaded_models.get(id):
+        if model_id:
+            if model := self.loaded_models.get(model_id):
                 if model.gdkPaintable:
                     return model.gdkPaintableBytes, model.gdkPaintable
                 if streamUrl := urlparse(model.get_property('streamUrl')):
@@ -98,7 +98,7 @@ class Base(GObject.Object):
                             pass
         return None, None
 
-    def getCoverArt(self, id:str=None) -> tuple:
+    def getCoverArt(self, model_id:str=None) -> tuple:
         # should set GdkPaintable and gdkPaintableBytes from Model
         # should return GLib.Bytes, Gdk.Paintable (texture)
         print('WARNING', 'getCoverArt', 'not implemented')
@@ -130,28 +130,28 @@ class Base(GObject.Object):
         print('WARNING', 'getStarredSongs', 'not implemented')
         return []
 
-    def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifyArtist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         # verifies that element is fully loaded with all it's metadata, should also call for getCoverArt
         print('WARNING', 'verifyArtist', 'not implemented')
 
-    def verifyAlbum(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifyAlbum(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         # verifies that element is fully loaded with all it's metadata, should also call for getCoverArt
         print('WARNING', 'verifyAlbum', 'not implemented')
 
-    def verifyPlaylist(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifyPlaylist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         # verifies that element is fully loaded with all it's metadata, should also call for getCoverArt
         print('WARNING', 'verifyPlaylist', 'not implemented')
 
-    def verifySong(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifySong(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         # verifies that element is fully loaded with all it's metadata, should also call for getCoverArt or getRadioCoverArt
         print('WARNING', 'verifySong', 'not implemented')
 
-    def star(self, id:str) -> bool:
+    def star(self, model_id:str) -> bool:
         # stars an element, should return True if change is done
         print('WARNING', 'star', 'not implemented')
         return False
 
-    def unstar(self, id:str) -> bool:
+    def unstar(self, model_id:str) -> bool:
         # unstars an element, should return True if change is done
         print('WARNING', 'unstar', 'not implemented')
         return False
@@ -166,7 +166,7 @@ class Base(GObject.Object):
         print('WARNING', 'savePlayQueue', 'not implemented')
         return False
 
-    def getSimilarSongs(self, id:str, count:int=20) -> list:
+    def getSimilarSongs(self, model_id:str, count:int=20) -> list:
         # returns list of IDs of similar songs to id, if it can not be implemented just return the result of getRandomSongs
         print('WARNING', 'getSimilarSongs', 'not implemented')
         return []
@@ -197,12 +197,12 @@ class Base(GObject.Object):
         print('WARNING', 'createInternetRadioStation', 'not implemented')
         return False
 
-    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str) -> bool:
+    def updateInternetRadioStation(self, model_id:str, name:str, streamUrl:str) -> bool:
         # returns True if updated successfully
         print('WARNING', 'updateInternetRadioStation', 'not implemented')
         return False
 
-    def deleteInternetRadioStation(self, id:str) -> bool:
+    def deleteInternetRadioStation(self, model_id:str) -> bool:
         # returns True if deleted successfully
         print('WARNING', 'deleteInternetRadioStation', 'not implemented')
         return False
@@ -217,12 +217,12 @@ class Base(GObject.Object):
         print('WARNING', 'updatePlaylist', 'not implemented')
         return False
 
-    def deletePlaylist(self, id:str) -> bool:
+    def deletePlaylist(self, model_id:str) -> bool:
         # returns True if deleted successfully
         print('WARNING', 'deletePlaylist', 'not implemented')
         return False
 
-    def setRating(self, id:str, rating:int=0) -> bool:
+    def setRating(self, model_id:str, rating:int=0) -> bool:
         # returns True if rated successfully
         print('WARNING', 'setRating', 'not implemented')
         return False
@@ -232,7 +232,7 @@ class Base(GObject.Object):
         print('WARNING', 'getTopSongs', 'not implemented')
         return []
 
-    def downloadSong(self, id:str, file_title:str, progress_callback:callable):
+    def downloadSong(self, model_id:str, file_title:str, progress_callback:callable):
         # from constants.py
         # file_title does NOT include extension (.mp3, .flac, etc)
         # download into DOWNLOAD_QUEUE_DIR
@@ -240,7 +240,7 @@ class Base(GObject.Object):
         # see navidrome.py for example
         print('WARNING', 'downloadSong', 'not implemented')
 
-    def scrobble(self, id:str):
+    def scrobble(self, model_id:str):
         # the id is for a Song, this is how views are stored
         # called when a song is played
         # if you need to inherit this, also call super().scrobble(id) so that listenbrainz can also get the scrobble

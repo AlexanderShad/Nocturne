@@ -87,7 +87,7 @@ class Local(Base):
                     id=playlist_id,
                     name=playlist.get('name'),
                     songCount=len(playlist.get('songId', [])),
-                    entry=[{'id': id} for id in playlist.get('songId', [])],
+                    entry=[{'id': model_id} for model_id in playlist.get('songId', [])],
                     coverArt = path_str
                 )
 
@@ -99,12 +99,12 @@ class Local(Base):
             return model.get_property('streamUrl')
         return 'file://{}'.format(model.get_property('path'))
 
-    def getCoverArt(self, id:str=None) -> tuple:
+    def getCoverArt(self, model_id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
-        if id:
-            if model := self.loaded_models.get(id):
+        if model_id:
+            if model := self.loaded_models.get(model_id):
                 if isinstance(model, models.Song) and model.isRadio:
-                    return self.getRadioCoverArt(id)
+                    return self.getRadioCoverArt(model_id)
                 if not isinstance(model, models.Playlist) and model.gdkPaintable:
                     return model.gdkPaintableBytes, model.gdkPaintable
 
@@ -185,27 +185,27 @@ class Local(Base):
         star_dict = self.open_json('stars.json')
         return [song_id for song_id in star_dict if song_id.startswith("SONG:") and song_id in self.loaded_models]
 
-    def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):
-        threading.Thread(target=self.getCoverArt, args=(id,)).start()
+    def verifyArtist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
+        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
-    def verifyAlbum(self, id:str, force_update:bool=False, use_threading:bool=True):
-        threading.Thread(target=self.getCoverArt, args=(id,)).start()
+    def verifyAlbum(self, model_id:str, force_update:bool=False, use_threading:bool=True):
+        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
-    def verifyPlaylist(self, id:str, force_update:bool=False, use_threading:bool=True):
-        threading.Thread(target=self.getCoverArt, args=(id,)).start()
+    def verifyPlaylist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
+        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
-    def verifySong(self, id:str, force_update:bool=False, use_threading:bool=True):
+    def verifySong(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def run():
             # load star_dict
             star_dict = self.open_json('stars.json')
 
             # Updating Song Model
-            song = get_song_info_from_file(self.loaded_models.get(id).get_property("path"), star_dict=star_dict)
+            song = get_song_info_from_file(self.loaded_models.get(model_id).get_property("path"), star_dict=star_dict)
             if not song:
                 return
-            song["id"] = id
+            song["id"] = model_id
             song["starred"] = song.get("id") in star_dict
-            self.loaded_models.get(id).update_data(**song)
+            self.loaded_models.get(model_id).update_data(**song)
 
             # Making Album Model
             album_id = song.get('albumId')
@@ -214,8 +214,8 @@ class Local(Base):
 
             if album_id:
                 if album_id in self.loaded_models:
-                    if {'id': id} not in self.loaded_models.get(album_id).get_property('song'):
-                        self.loaded_models.get(album_id).song.append({'id': id})
+                    if {'id': model_id} not in self.loaded_models.get(album_id).get_property('song'):
+                        self.loaded_models.get(album_id).song.append({'id': model_id})
                 else:
                     album = {
                         'id': album_id,
@@ -223,7 +223,7 @@ class Local(Base):
                         'name': song.get('album') or _("No Album"),
                         'artist': song.get('artist'),
                         'artistId': song.get('artistId'),
-                        'song': [{'id': id}],
+                        'song': [{'id': model_id}],
                         'starred': album_id in star_dict
                     }
                     self.loaded_models[album.get('id')] = models.Album(**album)
@@ -248,30 +248,30 @@ class Local(Base):
                         self.loaded_models.get(a_dict.get('id')).album.append({'id': album_id})
                         self.loaded_models.get(a_dict.get('id')).albumCount += 1
 
-        if force_update or not self.loaded_models.get(id).get_property('title'):
+        if force_update or not self.loaded_models.get(model_id).get_property('title'):
             if use_threading:
                 threading.Thread(target=run).start()
             else:
                 run()
 
-        threading.Thread(target=self.getCoverArt, args=(id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
-    def star(self, id:str) -> bool:
+    def star(self, model_id:str) -> bool:
         star_dict = self.open_json('stars.json')
 
         current_time = datetime.now(timezone.utc).isoformat(timespec='microseconds').replace("+00:00", "Z")
-        star_dict[id] = current_time
+        star_dict[model_id] = current_time
 
         with open(os.path.join(self.getIntegrationDir(), 'stars.json'), 'w') as f:
             json.dump(star_dict, f, ensure_ascii=False)
 
         return True
 
-    def unstar(self, id:str) -> bool:
+    def unstar(self, model_id:str) -> bool:
         star_dict = self.open_json('stars.json')
 
-        if id in star_dict:
-            del star_dict[id]
+        if model_id in star_dict:
+            del star_dict[model_id]
 
         with open(os.path.join(self.getIntegrationDir(), 'stars.json'), 'w') as f:
             json.dump(star_dict, f, ensure_ascii=False)
@@ -281,7 +281,7 @@ class Local(Base):
     def getPlayQueue(self) -> tuple:
         queue_dict = self.open_json('queue.json')
 
-        song_list = [id for id in queue_dict.get('id', []) if id in self.loaded_models]
+        song_list = [model_id for model_id in queue_dict.get('id', []) if id in self.loaded_models]
         current = queue_dict.get('current', "")
         if current not in song_list:
             if len(song_list) > 0:
@@ -293,10 +293,10 @@ class Local(Base):
 
     def savePlayQueue(self, id_list:list, current:str, position:int) -> bool:
         final_id_list = []
-        for id in id_list:
-            if model := self.loaded_models.get(id):
+        for model_id in id_list:
+            if model := self.loaded_models.get(model_id):
                 if not model.get_property('isExternalFile'):
-                    final_id_list.append(id)
+                    final_id_list.append(model_id)
 
         if current not in final_id_list:
             if len(final_id_list) > 0:
@@ -315,7 +315,7 @@ class Local(Base):
 
         return True
 
-    def getSimilarSongs(self, id:str, count:int=20) -> list:
+    def getSimilarSongs(self, model_id:str, count:int=20) -> list:
         # out of the scope of Local
         return self.getRandomSongs(count)
 
@@ -369,14 +369,14 @@ class Local(Base):
 
         return True
 
-    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str) -> bool:
+    def updateInternetRadioStation(self, model_id:str, name:str, streamUrl:str) -> bool:
         radio_dict = self.open_json('radios.json')
 
-        radio_dict[id] = {
+        radio_dict[model_id] = {
             'name': name,
             'streamUrl': streamUrl
         }
-        if model := self.loaded_models.get(id):
+        if model := self.loaded_models.get(model_id):
             model.set_property('title', name)
             model.set_property('streamUrl', streamUrl)
 
@@ -385,11 +385,11 @@ class Local(Base):
 
         return True
 
-    def deleteInternetRadioStation(self, id:str) -> bool:
+    def deleteInternetRadioStation(self, model_id:str) -> bool:
         radio_dict = self.open_json('radios.json')
 
-        if id in radio_dict:
-            del radio_dict[id]
+        if model_id in radio_dict:
+            del radio_dict[model_id]
 
         with open(os.path.join(self.getIntegrationDir(), 'radios.json'), 'w') as f:
             json.dump(radio_dict, f, ensure_ascii=False)
@@ -415,7 +415,7 @@ class Local(Base):
             id=playlistId,
             name=name,
             songCount=len(songId),
-            entry=[{'id': id} for id in songId],
+            entry=[{'id': model_id} for model_id in songId],
             coverArt = path_str
         )
 
@@ -437,7 +437,7 @@ class Local(Base):
             if model := self.loaded_models.get(playlistId):
                 songId = playlist_dict.get(playlistId).get('songId')
                 model.set_property('songCount', len(songId))
-                model.set_property('entry', [{'id': id} for id in songId])
+                model.set_property('entry', [{'id': model_id} for model_id in songId])
                 path_str = ""
                 if len(songId) > 0:
                     if model := self.loaded_models.get(songId[0]):
@@ -449,10 +449,10 @@ class Local(Base):
 
         return True
 
-    def deletePlaylist(self, id:str) -> bool:
+    def deletePlaylist(self, model_id:str) -> bool:
         playlist_dict = self.open_json('playlists.json')
-        if id in playlist_dict:
-            del playlist_dict[id]
+        if model_id in playlist_dict:
+            del playlist_dict[model_id]
         with open(os.path.join(self.getIntegrationDir(), 'playlists.json'), 'w') as f:
             json.dump(playlist_dict, f, ensure_ascii=False)
 
@@ -470,21 +470,21 @@ class Local(Base):
                 artist_scrobbles[song_id] = data.get('plays', 1)
         return sorted(artist_scrobbles, key=artist_scrobbles.get, reverse=True)[:count]
 
-    def scrobble(self, id:str):
-        if not id:
+    def scrobble(self, model_id:str):
+        if not model_id:
             return
-        if model := self.loaded_models.get(id):
+        if model := self.loaded_models.get(model_id):
             if model.get_property('isExternalFile') or model.get_property('isRadio'):
                 return
             scrobble_dict = self.open_json('scrobble.json')
 
-            if id in scrobble_dict:
-                scrobble_dict[id]['plays'] += 1
-                scrobble_dict[id]['last_play'] = int(time.time())
-                scrobble_dict[id]['album'] = model.get_property('albumId')
-                scrobble_dict[id]['artist'] = model.get_property('artistId')
+            if model_id in scrobble_dict:
+                scrobble_dict[model_id]['plays'] += 1
+                scrobble_dict[model_id]['last_play'] = int(time.time())
+                scrobble_dict[model_id]['album'] = model.get_property('albumId')
+                scrobble_dict[model_id]['artist'] = model.get_property('artistId')
             else:
-                scrobble_dict[id] = {
+                scrobble_dict[model_id] = {
                     'plays': 1,
                     'last_play': int(time.time()),
                     'album': model.get_property('albumId'),
@@ -493,12 +493,12 @@ class Local(Base):
 
             with open(os.path.join(self.getIntegrationDir(), 'scrobble.json'), 'w') as f:
                 json.dump(scrobble_dict, f, ensure_ascii=False)
-        super().scrobble(id)
+        super().scrobble(model_id)
 
-    def setRating(self, id:str, rating:int=0) -> bool:
+    def setRating(self, model_id:str, rating:int=0) -> bool:
         ratings = self.open_json('ratings.json')
-        ratings[id] = rating
-        self.loaded_models.get(id).set_property('userRating', rating)
+        ratings[model_id] = rating
+        self.loaded_models.get(model_id).set_property('userRating', rating)
         with open(os.path.join(self.getIntegrationDir(), 'ratings.json'), 'w') as f:
             json.dump(ratings, f, ensure_ascii=False)
         return True
