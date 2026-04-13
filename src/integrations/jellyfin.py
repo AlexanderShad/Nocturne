@@ -3,6 +3,7 @@
 from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models, local
 from .base import Base
+from ..constants import DOWNLOAD_QUEUE_DIR, DOWNLOADS_DIR, DOWNLOAD_MIME_MAP
 import requests, subprocess, random, threading, base64, os, json, platform
 
 class Jellyfin(Base):
@@ -812,6 +813,30 @@ class Jellyfin(Base):
             }
         ).get('Items', [])
         return [song.get('Id') for song in songs if song.get('Id')]
+
+    def downloadSong(self, model_id:str, file_title:str, progress_callback:callable):
+        headers = {
+            **self.get_base_header(),
+            "Accept": "application/json"
+        }
+        try:
+            with requests.get(self.get_url('Items/{id}/Download', id=model_id), headers=headers, stream=True) as r:
+                r.raise_for_status()
+                total_size = int(r.headers.get('content-length', 0))
+                downloaded_size = 0
+                extension = DOWNLOAD_MIME_MAP.get(r.headers.get('Content-Type'), '.mp3')
+                file_name = '{}{}'.format(file_title, extension)
+                file_path = os.path.join(DOWNLOAD_QUEUE_DIR, file_name)
+                with open(file_path, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+                            downloaded_size += len(chunk)
+                            if total_size > 0:
+                                progress_callback(downloaded_size / total_size)
+                os.replace(file_path, os.path.join(DOWNLOADS_DIR, file_name))
+        except:
+            pass
 
     def getServerInformation(self) -> dict:
         server_information = {
