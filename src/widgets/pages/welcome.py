@@ -2,7 +2,8 @@
 
 from gi.repository import Gtk, Adw, Gio, GLib
 from . import LoginDialog
-from ...integrations import Local, Navidrome, NavidromeIntegrated, Jellyfin
+from ...integrations import Local, Navidrome, NavidromeIntegrated, Jellyfin, Offline
+import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/welcome.ui')
 class WelcomePage(Adw.NavigationPage):
@@ -12,7 +13,7 @@ class WelcomePage(Adw.NavigationPage):
 
     def __init__(self):
         super().__init__()
-        integrations = [Navidrome, NavidromeIntegrated, Jellyfin, Local]
+        integrations = [Navidrome, NavidromeIntegrated, Jellyfin, Local, Offline]
         for integration in integrations:
             metadata = integration.button_metadata
             row = Adw.ActionRow(
@@ -31,7 +32,10 @@ class WelcomePage(Adw.NavigationPage):
     def option_selected(self, row, integration):
         integration = integration()
         if integration.check_if_ready(row):
-            dialog = LoginDialog(integration)
-            dialog.present(self.get_root())
+            if integration.login_page_metadata.get('entries', []):
+                dialog = LoginDialog(integration)
+                dialog.present(self.get_root())
+            else:
+                threading.Thread(target=self.get_root().get_application().try_login, args=(integration,)).start()
 
 

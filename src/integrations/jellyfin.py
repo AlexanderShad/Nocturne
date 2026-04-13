@@ -2,7 +2,6 @@
 
 from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models, local
-from ..constants import JELLYFIN_DATA_DIR
 from .base import Base
 import requests, subprocess, random, threading, base64, os, json, platform
 
@@ -481,7 +480,7 @@ class Jellyfin(Base):
         return not response.get('IsFavorite', False)
 
     def getPlayQueue(self) -> tuple:
-        QUEUEFILE = os.path.join(JELLYFIN_DATA_DIR, 'queue.json')
+        QUEUEFILE = os.path.join(self.getIntegrationDir(), 'queue.json')
 
         try:
             with open(QUEUEFILE, 'r') as f:
@@ -502,7 +501,7 @@ class Jellyfin(Base):
         return current, song_list
 
     def savePlayQueue(self, id_list:list, current:str, position:int) -> bool:
-        QUEUEFILE = os.path.join(JELLYFIN_DATA_DIR, 'queue.json')
+        QUEUEFILE = os.path.join(self.getIntegrationDir(), 'queue.json')
 
         final_id_list = []
         for id in id_list:
@@ -783,7 +782,7 @@ class Jellyfin(Base):
         return response.get("state") == "ok"
 
     def setRating(self, id:str, rating:int=0) -> bool:
-        RATINGSFILE = os.path.join(JELLYFIN_DATA_DIR, 'ratings.json')
+        RATINGSFILE = os.path.join(self.getIntegrationDir(), 'ratings.json')
 
         try:
             with open(RATINGSFILE, 'r') as f:

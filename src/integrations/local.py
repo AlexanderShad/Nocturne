@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid, pwd, getpass, time
 from PIL import Image
 from tinytag import TinyTag
-from ..constants import LOCAL_DATA_DIR, get_song_info_from_file
+from ..constants import DOWNLOADS_DIR, get_song_info_from_file
 
 class Local(Base):
     __gtype_name__ = 'NocturneIntegrationLocal'
@@ -26,7 +26,7 @@ class Local(Base):
 
     def open_json(self, filename:str, is_list:bool=False) -> dict | list:
         try:
-            with open(os.path.join(LOCAL_DATA_DIR, filename), 'r') as f:
+            with open(os.path.join(self.getIntegrationDir(), filename), 'r') as f:
                 result = json.load(f)
                 if is_list:
                     if not isinstance(result, list):
@@ -146,7 +146,7 @@ class Local(Base):
             album_list = sorted(albums, key=lambda x: albums.get(x), reverse=True)
         elif list_type in ("frequent", "recent"):
             try:
-                with open(os.path.join(LOCAL_DATA_DIR, 'scrobble.json'), 'r') as f:
+                with open(os.path.join(self.getIntegrationDir(), 'scrobble.json'), 'r') as f:
                     scrobble_dict = json.load(f)
                 if not isinstance(scrobble_dict, dict):
                     return []
@@ -262,7 +262,7 @@ class Local(Base):
         current_time = datetime.now(timezone.utc).isoformat(timespec='microseconds').replace("+00:00", "Z")
         star_dict[id] = current_time
 
-        with open(os.path.join(LOCAL_DATA_DIR, 'stars.json'), 'w') as f:
+        with open(os.path.join(self.getIntegrationDir(), 'stars.json'), 'w') as f:
             json.dump(star_dict, f, ensure_ascii=False)
 
         return True
@@ -273,7 +273,7 @@ class Local(Base):
         if id in star_dict:
             del star_dict[id]
 
-        with open(os.path.join(LOCAL_DATA_DIR, 'stars.json'), 'w') as f:
+        with open(os.path.join(self.getIntegrationDir(), 'stars.json'), 'w') as f:
             json.dump(star_dict, f, ensure_ascii=False)
 
         return True
@@ -310,7 +310,7 @@ class Local(Base):
             'position': position
         }
 
-        with open(os.path.join(LOCAL_DATA_DIR, 'queue.json'), 'w') as f:
+        with open(os.path.join(self.getIntegrationDir(), 'queue.json'), 'w') as f:
             json.dump(queue_dict, f, ensure_ascii=False)
 
         return True
@@ -364,7 +364,7 @@ class Local(Base):
             isRadio=True
         )
 
-        with open(os.path.join(LOCAL_DATA_DIR, 'radios.json'), 'w') as f:
+        with open(os.path.join(self.getIntegrationDir(), 'radios.json'), 'w') as f:
             json.dump(radio_dict, f, ensure_ascii=False)
 
         return True
@@ -380,7 +380,7 @@ class Local(Base):
             model.set_property('title', name)
             model.set_property('streamUrl', streamUrl)
 
-        with open(os.path.join(LOCAL_DATA_DIR, 'radios.json'), 'w') as f:
+        with open(os.path.join(self.getIntegrationDir(), 'radios.json'), 'w') as f:
             json.dump(radio_dict, f, ensure_ascii=False)
 
         return True
@@ -391,7 +391,7 @@ class Local(Base):
         if id in radio_dict:
             del radio_dict[id]
 
-        with open(os.path.join(LOCAL_DATA_DIR, 'radios.json'), 'w') as f:
+        with open(os.path.join(self.getIntegrationDir(), 'radios.json'), 'w') as f:
             json.dump(radio_dict, f, ensure_ascii=False)
 
         return True
@@ -419,7 +419,7 @@ class Local(Base):
             coverArt = path_str
         )
 
-        with open(os.path.join(LOCAL_DATA_DIR, 'playlists.json'), 'w') as f:
+        with open(os.path.join(self.getIntegrationDir(), 'playlists.json'), 'w') as f:
             json.dump(playlist_dict, f, ensure_ascii=False)
 
         return playlistId
@@ -444,7 +444,7 @@ class Local(Base):
                         path_str = model.get_property('path')
                 model.set_property('coverArt', path_str)
 
-        with open(os.path.join(LOCAL_DATA_DIR, 'playlists.json'), 'w') as f:
+        with open(os.path.join(self.getIntegrationDir(), 'playlists.json'), 'w') as f:
             json.dump(playlist_dict, f, ensure_ascii=False)
 
         return True
@@ -453,7 +453,7 @@ class Local(Base):
         playlist_dict = self.open_json('playlists.json')
         if id in playlist_dict:
             del playlist_dict[id]
-        with open(os.path.join(LOCAL_DATA_DIR, 'playlists.json'), 'w') as f:
+        with open(os.path.join(self.getIntegrationDir(), 'playlists.json'), 'w') as f:
             json.dump(playlist_dict, f, ensure_ascii=False)
 
         return True
@@ -491,7 +491,7 @@ class Local(Base):
                     'artist': model.get_property('artistId')
                 }
 
-            with open(os.path.join(LOCAL_DATA_DIR, 'scrobble.json'), 'w') as f:
+            with open(os.path.join(self.getIntegrationDir(), 'scrobble.json'), 'w') as f:
                 json.dump(scrobble_dict, f, ensure_ascii=False)
         super().scrobble(id)
 
@@ -499,7 +499,7 @@ class Local(Base):
         ratings = self.open_json('ratings.json')
         ratings[id] = rating
         self.loaded_models.get(id).set_property('userRating', rating)
-        with open(os.path.join(LOCAL_DATA_DIR, 'ratings.json'), 'w') as f:
+        with open(os.path.join(self.getIntegrationDir(), 'ratings.json'), 'w') as f:
             json.dump(ratings, f, ensure_ascii=False)
         return True
 
@@ -517,3 +517,27 @@ class Local(Base):
 
         return server_information
 
+class Offline(Local):
+    __gtype_name__ = 'NocturneIntegrationOffline'
+
+    login_page_metadata = {}
+    button_metadata = {
+        'title': _("Offline Mode"),
+        'subtitle': _("Access your downloads")
+    }
+
+    libraryDir = GObject.Property(type=str, default=DOWNLOADS_DIR)
+
+    def getServerInformation(self) -> dict:
+        server_information = {
+            'link': 'file://{}'.format(self.get_property('libraryDir')),
+            'title': _("Offline Mode")
+        }
+        try:
+            gecos_temp = pwd.getpwnam(getpass.getuser()).pw_gecos.split(',')
+            if len(gecos_temp) > 0:
+                server_information["username"] = pwd.getpwnam(getpass.getuser()).pw_gecos.split(',')[0].title()
+        except Exception:
+            pass
+
+        return server_information

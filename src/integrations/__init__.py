@@ -2,7 +2,7 @@
 
 from .jellyfin import Jellyfin
 from .navidrome import Navidrome, NavidromeIntegrated
-from .local import Local
+from .local import Local, Offline
 from .base import Base
 from . import models, secret
 from ..constants import DATA_DIR
@@ -23,12 +23,6 @@ def get_available_integrations() -> dict:
     for cls in get_all_subclasses(Base):
         integrations[cls.__gtype_name__] = cls
     return integrations
-
-def ping_without_login(url:str) -> bool:
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json().get('subsonic-response') is not None
-    return False
 
 def get_current_integration():
     global integration

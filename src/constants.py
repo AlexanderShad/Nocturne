@@ -25,11 +25,21 @@ try:
 except Exception:
     DEFAULT_MUSIC_DIR = os.path.expanduser("~/Music")
 
-JELLYFIN_DATA_DIR = os.path.join(DATA_DIR, "jellyfin")
-os.makedirs(JELLYFIN_DATA_DIR, exist_ok=True)
-LOCAL_DATA_DIR = os.path.join(DATA_DIR, "local")
-os.makedirs(LOCAL_DATA_DIR, exist_ok=True)
+INTEGRATIONS_DIR = os.path.join(DATA_DIR, "integrations")
+os.makedirs(INTEGRATIONS_DIR, exist_ok=True)
+# DEPRECATED DONT USE THESE VARIABLES
+OLD_JELLYFIN_DATA_DIR = os.path.join(DATA_DIR, "jellyfin")
+if os.path.isdir(OLD_JELLYFIN_DATA_DIR) and not os.path.isdir(os.path.join(INTEGRATIONS_DIR, 'NocturneIntegrationJellyfin')):
+    os.rename(OLD_JELLYFIN_DATA_DIR, os.path.join(INTEGRATIONS_DIR, 'NocturneIntegrationJellyfin'))
+
+OLD_LOCAL_DATA_DIR = os.path.join(DATA_DIR, "local")
+if os.path.isdir(OLD_LOCAL_DATA_DIR) and not os.path.isdir(os.path.join(INTEGRATIONS_DIR, 'NocturneIntegrationLocal')):
+    os.rename(OLD_LOCAL_DATA_DIR, os.path.join(INTEGRATIONS_DIR, 'NocturneIntegrationLocal'))
+# ----------
+
 MPRIS_COVER_PATH = os.path.join(CACHE_DIR, 'cover.png')
+DOWNLOADS_DIR = os.path.join(DATA_DIR, 'downloads')
+os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 
 # Fallback only used if the system does not have a keyring
 FALLBACK_PASSWORD_PATH = os.path.join(CONFIG_DIR, 'pass.txt')

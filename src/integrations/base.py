@@ -2,8 +2,8 @@
 
 from gi.repository import Gtk, GLib, GObject, Gdk
 from . import models, secret
-from ..constants import get_nocturne_version, DEFAULT_MUSIC_DIR
-import requests, favicon, io, urllib3, time
+from ..constants import get_nocturne_version, DEFAULT_MUSIC_DIR, INTEGRATIONS_DIR
+import requests, favicon, io, urllib3, time, os
 from PIL import Image
 from urllib.parse import urlparse
 
@@ -62,6 +62,12 @@ class Base(GObject.Object):
         # should return a valid url for a gst stream
         print('WARNING', 'get_stream_url', 'not implemented')
         return ""
+
+    def getIntegrationDir(self) -> str:
+        # do not modify this function
+        directory = os.path.join(INTEGRATIONS_DIR, self.__gtype_name__)
+        os.makedirs(directory, exist_ok=True)
+        return directory
 
     def getRadioCoverArt(self, id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None

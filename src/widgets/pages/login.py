@@ -1,11 +1,10 @@
 # login.py
 
 from gi.repository import Gtk, Adw, Gio, GLib
-from ..playing import Player
-from ...integrations import secret, set_current_integration, Navidrome, Local
-from ...constants import get_navidrome_path, check_if_navidrome_ready, get_navidrome_env, DEFAULT_MUSIC_DIR
+from ...integrations import secret
+from ...constants import DEFAULT_MUSIC_DIR
 from ..containers import ContextContainer
-import threading, subprocess
+import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/login.ui')
 class LoginDialog(Adw.Dialog):
@@ -35,7 +34,7 @@ class LoginDialog(Adw.Dialog):
         self.status_page.set_description(metadata.get('description') or '')
 
         # Server Status
-        if 'status' in metadata.get('entries'):
+        if 'status' in metadata.get('entries', []):
             self.server_status_el.set_visible(True)
             self.integration.connect(
                 'notify::serverRunning',
@@ -45,23 +44,23 @@ class LoginDialog(Adw.Dialog):
             self.server_status_el.set_visible(False)
 
         # Url
-        self.url_el.set_visible('url' in metadata.get('entries'))
+        self.url_el.set_visible('url' in metadata.get('entries', []))
         self.url_el.set_text(self.integration.get_property('url'))
 
         # Url Extra Options
-        self.url_options_el.set_visible('trust-server' in metadata.get('entries')) # Change line if more options are added
-        self.trust_server_el.set_visible('trust-server' in metadata.get('entries'))
+        self.url_options_el.set_visible('trust-server' in metadata.get('entries', [])) # Change line if more options are added
+        self.trust_server_el.set_visible('trust-server' in metadata.get('entries', []))
 
         # User
-        self.user_el.set_visible('user' in metadata.get('entries'))
+        self.user_el.set_visible('user' in metadata.get('entries', []))
         self.user_el.set_text(self.integration.get_property('user'))
 
         # Password
-        self.password_el.set_visible('password' in metadata.get('entries'))
+        self.password_el.set_visible('password' in metadata.get('entries', []))
         self.password_el.set_text('')
 
         # Directory
-        self.directory_el.set_visible('library-dir' in metadata.get('entries'))
+        self.directory_el.set_visible('library-dir' in metadata.get('entries', []))
         self.directory_el.set_subtitle(self.integration.get_property('libraryDir'))
 
         # Login Button
