@@ -221,8 +221,11 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.play_radio_artist)
 
         self.create_action(actions.download_song)
+        self.create_action(actions.download_songs, parameter_type="as")
         self.create_action(actions.download_album)
         self.create_action(actions.download_playlist)
+        self.create_action(actions.delete_download)
+        self.create_action(actions.delete_downloads, parameter_type="as")
 
         self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         self.set_property('default-width', self.settings.get_value('default-width').unpack())
@@ -265,3 +268,4 @@ class NocturneWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback()
     def on_drop(self, drop_target, file, x, y):
         self.get_application().do_open([file])
+

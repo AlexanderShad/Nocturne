@@ -26,6 +26,12 @@ class SongSmallRow(Gtk.Button):
         integration.connect_to_model(self.id, 'artists', self.update_artists)
         integration.connect_to_model(self.id, 'album', self.update_album)
         integration.connect_to_model(self.id, 'gdkPaintable', self.update_cover)
+        integration.connect_to_model(self.id, 'deleted', self.delete_status_changed)
+
+    def delete_status_changed(self, status:bool):
+        if status:
+            if wrapbox := self.get_ancestor(Adw.WrapBox):
+                wrapbox.remove(self)
 
     def update_cover(self, paintable:Gdk.Paintable=None):
         if paintable:
@@ -52,12 +58,18 @@ class SongSmallRow(Gtk.Button):
             self.subtitle_el.set_label(album)
 
     def generate_context_menu(self) -> ContextContainer:
+        integration = get_current_integration()
         context_dict = CONTEXT_SONG.copy()
         del context_dict["edit-radio"]
         del context_dict["delete-radio"]
         del context_dict["remove"]
         del context_dict["select"]
-        if 'no-downloads' in get_current_integration().limitations:
+        if integration.__gtype_name__ == 'NocturneIntegrationOffline':
+            if integration.loaded_models.get('currentSong').get_property('songId') == self.id:
+                context_dict["delete-download"]["sensitive"] = False
+        else:
+            del context_dict["delete-download"]
+        if 'no-downloads' in integration.limitations:
             del context_dict["download"]
         return ContextContainer(context_dict, self.id)
 

@@ -73,6 +73,14 @@ template $NocturneSongQueue: Gtk.Box {
         tooltip-text: _("Add To Playlist");
         clicked => $add_to_playlist_selected();
       }
+      Gtk.Button download_el {
+        child: Adw.ButtonContent {
+          icon-name: "folder-download-symbolic";
+          label: _("Download");
+        };
+        tooltip-text: _("Download");
+        clicked => $download_selected();
+      }
       Gtk.Button remove_el {
         styles [
           "error"
@@ -83,6 +91,17 @@ template $NocturneSongQueue: Gtk.Box {
         };
         tooltip-text: _("Remove");
         clicked => $remove_selected();
+      }
+      Gtk.Button delete_download_el {
+        styles [
+          "error"
+        ]
+        child: Adw.ButtonContent {
+          icon-name: "user-trash-symbolic";
+          label: _("Delete Download");
+        };
+        tooltip-text: _("Delete Download");
+        clicked => $delete_download_selected();
       }
     };
   }

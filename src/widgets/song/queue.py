@@ -16,6 +16,8 @@ class SongQueue(Gtk.Box):
     play_el = Gtk.Template.Child()
     play_next_el = Gtk.Template.Child()
     play_later_el = Gtk.Template.Child()
+    download_el = Gtk.Template.Child()
+    delete_download_el = Gtk.Template.Child()
     playlist_id:str = ""
 
     def set_header(self, label:str, icon_name:str, page_tag:str=None):
@@ -39,6 +41,8 @@ class SongQueue(Gtk.Box):
             self.play_el.set_visible(not selected_row.draggable)
             self.play_next_el.set_visible(not selected_row.draggable)
             self.play_later_el.set_visible(not selected_row.draggable)
+            self.delete_download_el.set_visible(integration.__gtype_name__ == 'NocturneIntegrationOffline')
+            self.download_el.set_visible('no-downloads' not in integration.limitations)
         self.toolbar_revealer_el.set_reveal_child(select)
 
     def get_selected_rows(self) -> list:
@@ -53,6 +57,22 @@ class SongQueue(Gtk.Box):
     @Gtk.Template.Callback()
     def close_selector(self, button=None):
         self.set_selected_mode()
+
+    @Gtk.Template.Callback()
+    def delete_download_selected(self, button):
+        selected_rows = self.get_selected_rows()
+        selected_ids = [r.id for r in selected_rows]
+        target_value = GLib.Variant('as', selected_ids)
+        self.get_root().activate_action("app.delete_downloads", target_value)
+        self.close_selector()
+
+    @Gtk.Template.Callback()
+    def download_selected(self, button):
+        selected_rows = self.get_selected_rows()
+        selected_ids = [r.id for r in selected_rows]
+        target_value = GLib.Variant('as', selected_ids)
+        self.get_root().activate_action("app.download_songs", target_value)
+        self.close_selector()
 
     @Gtk.Template.Callback()
     def remove_selected(self, button):

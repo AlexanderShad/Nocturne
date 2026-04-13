@@ -40,6 +40,7 @@ class SongRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'starred', self.update_starred)
         integration.connect_to_model(self.id, 'streamUrl', self.update_streamUrl) # for radios
         integration.connect_to_model(self.id, 'isExternalFile', self.update_is_external)
+        integration.connect_to_model(self.id, 'deleted', self.delete_status_changed)
         integration.connect_to_model('currentSong', 'songId', self.current_song_changed)
 
         Gio.Settings(schema_id="com.jeffser.Nocturne").bind(
@@ -48,6 +49,11 @@ class SongRow(Adw.ActionRow):
             "visible",
             Gio.SettingsBindFlags.DEFAULT
         )
+
+    def delete_status_changed(self, status:bool):
+        if status:
+            if listbox := self.get_ancestor(Gtk.ListBox):
+                listbox.remove(self)
 
     def update_is_external(self, isExternalFile:bool):
         self.external_file_el.set_visible(isExternalFile)
@@ -71,9 +77,13 @@ class SongRow(Adw.ActionRow):
         if "edit" in context_dict and 'no-edit-radio' in integration.limitations:
             del context_dict["edit-radio"]
 
-        print(model, model.get_property('isRadio'), integration.limitations)
         if 'no-downloads' in integration.limitations or not model or model.get_property('isRadio'):
             del context_dict["download"]
+
+        if integration.__gtype_name__ == 'NocturneIntegrationOffline':
+            context_dict["delete-download"]["sensitive"] = integration.loaded_models.get('currentSong').get_property('songId') != self.id
+        else:
+            del context_dict["delete-download"]
 
         if not model or model.get_property('isRadio') or model.get_property('isExternalFile'):
             del context_dict["add-to-playlist"]

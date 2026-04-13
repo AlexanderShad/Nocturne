@@ -387,6 +387,12 @@ CONTEXT_SONG = {
         "name": _("Remove"),
         "css": ["error"],
         "icon-name": "user-trash-symbolic"
+    },
+    "delete-download": {
+        "name": _("Delete Download"),
+        "css": ["error"],
+        "icon-name": "user-trash-symbolic",
+        "action-name": "app.delete_download"
     }
 }
 

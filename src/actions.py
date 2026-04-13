@@ -896,6 +896,44 @@ def download_song(window, model_id:str):
             )
     threading.Thread(target=run, args=(model_id,)).start()
 
+def download_songs(window, model_list:str):
+    if len(model_list) == 1:
+        download_song(window, model_list[0])
+        return
+
+    def run(songIds):
+        integration = get_current_integration()
+        successful_starts = 0
+        for songId in songIds:
+            successful_starts += 1 if __request_song_download(songId) else 0
+
+        if len(songIds) == successful_starts:
+            __show_custom_toast(
+                window,
+                None,
+                _("{} Songs").format(len(songIds)),
+                _("Download Started")
+            )
+        elif successful_starts > 0:
+            skipped_songs = len(song_ids) - successful_starts
+            skip_message = _("{} Songs Skipped").format(skipped_songs) if skipped_songs > 1 else _("1 Song Skipped")
+            message = _("{} Songs ({})").format(successful_starts, skip_message) if successful_starts > 1 else _("1 Song ({})").format(skip_message)
+
+            __show_custom_toast(
+                window,
+                None,
+                message,
+                _("Already Downloaded")
+            )
+        else:
+            __show_custom_toast(
+                window,
+                None,
+                _("Download Skipped"),
+                _("Already Downloaded")
+            )
+    threading.Thread(target=run, args=(model_list,)).start()
+
 def download_album(window, model_id:str):
     def run(albumId):
         integration = get_current_integration()
@@ -915,7 +953,7 @@ def download_album(window, model_id:str):
                 )
             elif successful_starts > 0:
                 skipped_songs = len(song_ids) - successful_starts
-                message = _("Download Started ({} Songs Skipped)") if skipped_songs > 1 else _("Download Started (1 Song Skipped)")
+                message = _("Download Started ({} Songs Skipped)").format(skipped_songs) if skipped_songs > 1 else _("Download Started (1 Song Skipped)")
                 __show_custom_toast(
                     window,
                     albumId,
@@ -951,7 +989,7 @@ def download_playlist(window, model_id:str):
                 )
             elif successful_starts > 0:
                 skipped_songs = len(song_ids) - successful_starts
-                message = _("Download Started ({} Songs Skipped)") if skipped_songs > 1 else _("Download Started (1 Song Skipped)")
+                message = _("Download Started ({} Songs Skipped)").format(skipped_songs) if skipped_songs > 1 else _("Download Started (1 Song Skipped)")
                 __show_custom_toast(
                     window,
                     playlistId,
@@ -967,3 +1005,48 @@ def download_playlist(window, model_id:str):
                 )
 
     threading.Thread(target=run, args=(model_id,)).start()
+
+def __request_download_delete(model_id:str) -> bool:
+    # returns true if download is deleted
+    # should call del loaded_models[id] after toast is shown
+    integration = get_current_integration()
+    if model := integration.loaded_models.get(model_id):
+        try:
+            model.set_property('deleted', True)
+            os.remove(model.get_property('path'))
+            return True
+        except:
+            return False
+    return False
+
+def delete_download(window, model_id:str):
+    def run():
+        integration = get_current_integration()
+        deleted = __request_download_delete(model_id)
+        if deleted:
+            __show_custom_toast(
+                window,
+                model_id,
+                'title',
+                _("Deleted")
+            )
+            del integration.loaded_models[model_id]
+    threading.Thread(target=run).start()
+
+def delete_downloads(window, model_list:list):
+    def run():
+        integration = get_current_integration()
+        successful_deletes = 0
+        for songId in model_list:
+            deleted = __request_download_delete(songId)
+            successful_deletes += 1 if deleted else 0
+            if deleted:
+                del integration.loaded_models[songId]
+
+        __show_custom_toast(
+            window,
+            None,
+            _("{} Songs").format(successful_deletes),
+            _("Deleted")
+        )
+    threading.Thread(target=run).start()
