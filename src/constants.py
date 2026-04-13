@@ -123,7 +123,7 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
         'duration': tag.duration or 0,
         'title': tag.title or os.path.basename(file_path),
         'album': tag.album or "",
-        'artist': tag.artist or "",
+        'artist': tag.artist.split(';')[0] or "",
         'artists': [{
             'id': "ARTIST:{}".format(art.strip()),
             'name': art.strip(),
