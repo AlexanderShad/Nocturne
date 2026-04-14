@@ -109,9 +109,13 @@ class PlayingControlPage(Adw.NavigationPage):
             if not playing:
                 bottom_sheet.set_open(False)
             bottom_sheet.set_reveal_bottom_bar(playing)
-        if not playing:
-            if root := self.get_root():
-                if application := root.get_application():
+
+        if root := self.get_root():
+            if application := root.get_application():
+                if playing:
+                    application.inhibit_suspend()
+                else:
+                    application.uninhibit_suspend()
                     if popout_window := application.popout_window:
                         popout_window.close()
 

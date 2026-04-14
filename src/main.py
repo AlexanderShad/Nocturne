@@ -45,6 +45,7 @@ class NocturneApplication(Adw.Application):
         self.external_songs = []
         self.popout_window = None
         self.player = None
+        self.inhibit_cookie = None
         self.css_provider = Gtk.CssProvider()
         Gtk.StyleContext.add_provider_for_display(
             Gdk.Display.get_default(),
@@ -58,6 +59,19 @@ class NocturneApplication(Adw.Application):
         self.create_action('quit', lambda *_: self.quit(), ['<control>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action, ['<control>comma'])
+
+    def inhibit_suspend(self):
+        if self.inhibit_cookie is None:
+            self.inhibit_cookie = self.inhibit(
+                self.get_active_window(),
+                Gtk.ApplicationInhibitFlags.SUSPEND,
+                _("Music is Playing")
+            )
+
+    def uninhibit_suspend(self):
+        if self.inhibit_cookie is not None:
+            self.uninhibit(self.inhibit_cookie)
+            self.inhibit_cookie = None
 
     def load_default_integration(self):
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
