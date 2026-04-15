@@ -58,13 +58,15 @@ def __show_custom_toast(window, model_id:str, title_property:str, subtitle:str, 
 def __replace_queue(window, songs:list, current_id:str=None):
     integration = get_current_integration()
     queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
-    queue_model.remove_all()
+    GLib.idle_add(queue_model.remove_all)
     if len(songs) > 0:
         if current_id is None:
             current_id = songs[0]
-        for song_id in songs:
-            integration.verifySong(song_id, use_threading=False)
-            GLib.idle_add(queue_model.append, Gtk.StringObject.new(song_id))
+        GLib.idle_add(queue_model.splice,
+            0,
+            0,
+            [Gtk.StringObject.new(SongId) for SongId in songs]
+        )
     GLib.idle_add(integration.loaded_models.get('currentSong').set_property, 'songId', current_id)
     if Gio.Settings(schema_id="com.jeffser.Nocturne").get_value('auto-play').unpack():
         threading.Thread(target=generate_auto_play_queue, args=(window, False)).start()
@@ -84,12 +86,11 @@ def __play_next(window, songs:list):
             elif song_id == current_song_id:
                 current_song_index = i + 1
         songs.reverse()
-        for song_id in [s for s in songs if s != current_song_id]:
-            integration.verifySong(song_id, use_threading=False)
-            GLib.idle_add(queue_model.insert,
-                current_song_index,
-                Gtk.StringObject.new(song_id)
-            )
+        GLib.idle_add(queue.model.splice,
+            0,
+            0,
+            [Gtk.StringObject.new(SongId for SongId in songs if SongId != current_song_id)]
+        )
 
 def __play_later(window, songs:list):
     integration = get_current_integration()
@@ -102,9 +103,11 @@ def __play_later(window, songs:list):
             song_id = so.get_string()
             if song_id in songs and song_id != current_song_id:
                 queue_model.remove(i)
-        for song_id in [s for s in songs if s != current_song_id]:
-            integration.verifySong(song_id, use_threading=False)
-            GLib.idle_add(queue_model.append, Gtk.StringObject.new(song_id))
+        GLib.idle_add(queue.model.splice,
+            0,
+            0,
+            [Gtk.StringObject.new(SongId for SongId in songs if SongId != current_song_id)]
+        )
 
 # -- MISC --
 
