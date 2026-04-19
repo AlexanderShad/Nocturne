@@ -796,7 +796,7 @@ class Jellyfin(Base):
 
         self.loaded_models.get(model_id).set_property('userRating', rating)
         with open(RATINGSFILE, 'w') as f:
-            json.dump(ratings, f, ensure_ascii=False)
+            json.dump(rating_dict, f, ensure_ascii=False)
         return True
 
     def getTopSongs(self, artist_id:str, count:int=10) -> list:
