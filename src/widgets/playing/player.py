@@ -448,19 +448,16 @@ class Player(EventAdapter):
     def song_changed(self, song_id:str):
         integration = get_current_integration()
 
-        def async_load():
-            stream_url = integration.get_stream_url(song_id)
-            self.gst.set_state(Gst.State.READY)
-            self.gst.set_property('uri', stream_url)
-            if self.pause_next_change:
-                self.gst.set_state(Gst.State.PAUSED)
-                self.pause_next_change = False
-            else:
-                self.gst.set_state(Gst.State.PLAYING)
-
         if song_id:
             if song_id != self.last_song_id:
-                threading.Thread(target=async_load).start()
+                stream_url = integration.get_stream_url(song_id)
+                self.gst.set_state(Gst.State.READY)
+                self.gst.set_property('uri', stream_url)
+                if self.pause_next_change:
+                    self.gst.set_state(Gst.State.PAUSED)
+                    self.pause_next_change = False
+                else:
+                    self.gst.set_state(Gst.State.PLAYING)
                 threading.Thread(target=integration.scrobble, args=(song_id,)).start()
                 self.last_song_id = song_id
         else:
