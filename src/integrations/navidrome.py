@@ -4,7 +4,7 @@ from gi.repository import Gtk, Adw, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models, local
 from ..constants import get_navidrome_path, check_if_navidrome_ready, get_navidrome_env, CONTEXT_MANAGED_NAVIDROME_SERVER, DOWNLOAD_QUEUE_DIR, DOWNLOADS_DIR, DOWNLOAD_MIME_MAP
 from .base import Base
-import requests, random, threading, favicon, io, subprocess, shutil, os
+import requests, random, threading, io, subprocess, shutil, os
 from PIL import Image
 from urllib.parse import urlparse
 
@@ -92,7 +92,7 @@ class Navidrome(Base):
         if model_id:
             if model:= self.loaded_models.get(model_id):
                 if isinstance(model, models.Song) and model.isRadio:
-                    return self.getRadioCoverArt(model_id)
+                    return None, None
                 if isinstance(model, models.Song) and model.isExternalFile:
                     return local.Local.getCoverArt(self, model_id)
                 if model.get_property('gdkPaintable'):

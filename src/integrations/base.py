@@ -3,7 +3,7 @@
 from gi.repository import Gtk, GLib, GObject, Gdk
 from . import models, secret
 from ..constants import get_nocturne_version, DEFAULT_MUSIC_DIR, INTEGRATIONS_DIR
-import requests, favicon, io, urllib3, time, os
+import requests, io, urllib3, time, os
 from PIL import Image
 from urllib.parse import urlparse
 
@@ -69,35 +69,6 @@ class Base(GObject.Object):
         os.makedirs(directory, exist_ok=True)
         return directory
 
-    def getRadioCoverArt(self, model_id:str=None) -> tuple:
-        # returns bytes, Gdk.Paintable or None, None
-        if model_id:
-            if model := self.loaded_models.get(model_id):
-                if model.gdkPaintable:
-                    return model.gdkPaintableBytes, model.gdkPaintable
-                if streamUrl := urlparse(model.get_property('streamUrl')):
-                    icons = favicon.get('{}://{}'.format(streamUrl.scheme, streamUrl.netloc))
-                    if len(icons) > 0:
-                        try:
-                            response = requests.get(icons[0].url, timeout=5)
-                            response.raise_for_status()
-                            response_bytes = response.content
-                            stream = io.BytesIO(response_bytes)
-                            png_bytes = b''
-                            with Image.open(stream) as img:
-                                img = img.convert("RGBA")
-                                png_buffer = io.BytesIO()
-                                img.save(png_buffer, format="PNG")
-                                png_bytes = png_buffer.getvalue()
-                            gbytes = GLib.Bytes.new(png_bytes)
-                            texture = Gdk.Texture.new_from_bytes(gbytes)
-                            model.set_property('gdkPaintableBytes', gbytes)
-                            model.set_property('gdkPaintable', texture)
-                            return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
-                        except Exception as e:
-                            pass
-        return None, None
-
     def getCoverArt(self, model_id:str=None) -> tuple:
         # should set GdkPaintable and gdkPaintableBytes from Model
         # should return GLib.Bytes, Gdk.Paintable (texture)
@@ -143,7 +114,7 @@ class Base(GObject.Object):
         print('WARNING', 'verifyPlaylist', 'not implemented')
 
     def verifySong(self, model_id:str, force_update:bool=False, use_threading:bool=True):
-        # verifies that element is fully loaded with all it's metadata, should also call for getCoverArt or getRadioCoverArt
+        # verifies that element is fully loaded with all it's metadata, should also call for getCoverArt
         print('WARNING', 'verifySong', 'not implemented')
 
     def star(self, model_id:str) -> bool:

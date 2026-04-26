@@ -4,7 +4,7 @@ from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models
 from .base import Base
 from datetime import datetime, timezone
-import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid, pwd, getpass, time, shutil
+import requests, random, threading, io, pathlib, re, json, os, time, uuid, pwd, getpass, time, shutil
 from PIL import Image
 from tinytag import TinyTag
 from ..constants import DOWNLOADS_DIR, get_song_info_from_file
@@ -105,7 +105,7 @@ class Local(Base):
         if model_id:
             if model := self.loaded_models.get(model_id):
                 if isinstance(model, models.Song) and model.isRadio:
-                    return self.getRadioCoverArt(model_id)
+                    return None, None
                 if not isinstance(model, models.Playlist) and model.gdkPaintable:
                     return model.gdkPaintableBytes, model.gdkPaintable
 
