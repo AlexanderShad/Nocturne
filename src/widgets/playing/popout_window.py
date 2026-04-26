@@ -57,6 +57,7 @@ class PopoutWindow(Adw.ApplicationWindow):
         integration.connect_to_model('currentSong', 'positionSeconds', self.song_position_changed)
         integration.connect_to_model('currentSong', 'buttonState', self.state_stack_el.set_visible_child_name)
         integration.connect_to_model('currentSong', 'displaySongTitle', self.display_title_changed)
+        integration.connect_to_model('currentSong', 'displaySongArtist', self.display_artist_changed)
 
         fullscreen_btn = Gtk.Button(
             icon_name="view-fullscreen-symbolic",
@@ -116,8 +117,6 @@ class PopoutWindow(Adw.ApplicationWindow):
             self.fs_album_el.set_action_target_value(GLib.Variant.new_string(model.get_property('albumId')))
             self.fs_album_el.set_action_name("app.show_album")
             artist = model.get_property('artists')[0] if len(model.get_property('artists')) > 0 else {'name': model.get_property('artist'), 'id': model.get_property('artistId')}
-            self.fs_artist_el.get_child().set_label(artist.get('name'))
-            self.fs_artist_el.set_tooltip_text(artist.get('name'))
             self.fs_artist_el.set_action_target_value(GLib.Variant.new_string(artist.get('id')))
             self.fs_artist_el.set_action_name("app.show_artist")
 
@@ -146,6 +145,10 @@ class PopoutWindow(Adw.ApplicationWindow):
 
     def display_title_changed(self, display_title:str):
         self.fs_title_el.set_label(display_title)
+
+    def display_artist_changed(self, display_artist:str):
+        self.fs_artist_el.get_child().set_label(display_artist)
+        self.fs_artist_el.set_tooltip_text(display_artist)
 
     @Gtk.Template.Callback()
     def progress_bar_changed(self, scale_el, scroll_type, value):

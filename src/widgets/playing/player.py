@@ -417,6 +417,11 @@ class Player(EventAdapter):
                             current_title = model.get_property('displaySongTitle')
                             if current_title != title:
                                 model.set_property('displaySongTitle', title)
+                        success, artist = tag_list.get_string(Gst.TAG_ARTIST)
+                        if success and artist:
+                            current_artist = model.get_property('displaySongArtist')
+                            if current_artist != artist:
+                                model.set_property('displaySongArtist', artist)
 
             elif message.type == Gst.MessageType.ERROR:
                 err, debug = message.parse_error()
@@ -458,6 +463,16 @@ class Player(EventAdapter):
     def song_changed(self, song_id:str):
         integration = get_current_integration()
 
+        def update_default_metadata(songId):
+            if model := integration.loaded_models.get(songId):
+                integration.loaded_models.get('currentSong').set_property('displaySongTitle', model.get_property('title'))
+                if model.get_property('isRadio'):
+                    stream_url = urlparse(model.get_property('streamUrl'))
+                    integration.loaded_models.get('currentSong').set_property('displaySongArtist', stream_url.netloc.capitalize())
+                else:
+                    artists = model.get_property('artists')
+                    if len(artists) > 0:
+                        integration.loaded_models.get('currentSong').set_property('displaySongArtist', artists[0].get('name'))
         if song_id:
             if song_id != self.last_song_id:
                 stream_url = integration.get_stream_url(song_id)
@@ -470,6 +485,7 @@ class Player(EventAdapter):
                 else:
                     self.gst.set_state(Gst.State.PLAYING)
                 threading.Thread(target=integration.scrobble, args=(song_id,)).start()
+                threading.Thread(target=update_default_metadata, args=(song_id,)).start()
                 self.last_song_id = song_id
         else:
             self.gst.set_state(Gst.State.NULL)
