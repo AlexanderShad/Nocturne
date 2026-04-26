@@ -218,21 +218,25 @@ class Base(GObject.Object):
 
         if model := self.loaded_models.get(model_id):
             if token := secret.get_plain_password("listenbrainz"):
+                listen_payload = {
+                    "track_metadata": {
+                        "artist_name": model.get_property("artist"),
+                        "track_name": model.get_property("title"),
+                        "release_name": model.get_property("album"),
+                        "additional_info": {
+                            "submission_client": "com.jeffser.Nocturne",
+                            "submission_client_version": get_nocturne_version(),
+                            "media_player": "Nocturne"
+                        }
+                    }
+                }
+                
+                if submission:
+                    listen_payload["listened_at"] = int(time.time() - (self.loaded_models.get('currentSong').get_property('positionSeconds') or 0))
+
                 payload = {
                     "listen_type": "single" if submission else "playing_now",
-                    "payload": [{
-                        "listened_at": int(time.time() - (self.loaded_models.get('currentSong').get_property('positionSeconds') or 0)),
-                        "track_metadata": {
-                            "artist_name": model.get_property("artist"),
-                            "track_name": model.get_property("title"),
-                            "release_name": model.get_property("album"),
-                            "additional_info": {
-                                "submission_client": "com.jeffser.Nocturne",
-                                "submission_client_version": get_nocturne_version(),
-                                "media_player": "Nocturne"
-                            }
-                        }
-                    }]
+                    "payload": [listen_payload]
                 }
                 headers = {
                     "Authorization": f"Token {token}",
