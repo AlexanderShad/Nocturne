@@ -216,12 +216,12 @@ class Base(GObject.Object):
         # called when a song is played
         # if you need to inherit this, also call super().scrobble(id) so that listenbrainz can also get the scrobble
 
-        if submission and (model := self.loaded_models.get(model_id)):
+        if model := self.loaded_models.get(model_id):
             if token := secret.get_plain_password("listenbrainz"):
                 payload = {
-                    "listen_type": "single",
+                    "listen_type": "single" if submission else "playing_now",
                     "payload": [{
-                        "listened_at": int(time.time()),
+                        "listened_at": int(time.time() - (self.loaded_models.get('currentSong').get_property('positionSeconds') or 0)),
                         "track_metadata": {
                             "artist_name": model.get_property("artist"),
                             "track_name": model.get_property("title"),
