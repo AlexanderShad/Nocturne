@@ -98,7 +98,9 @@ class Jellyfin(Base):
 
     def get_stream_url(self, song_id:str) -> str:
         model = self.loaded_models.get(song_id)
-        if model.get_property('isExternalFile'):
+        if model.get_property('isRadio') and model.get_property('streamUrl'):
+            return model.get_property('streamUrl')
+        elif model.get_property('isExternalFile'):
             return 'file://{}'.format(model.get_property('path'))
         base_url = self.get_url('Audio/{}/stream'.format(song_id))
         max_bitrate = Gio.Settings(schema_id="com.jeffser.Nocturne").get_value('max-bitrate').unpack()
@@ -691,6 +693,22 @@ class Jellyfin(Base):
                     isRadio=True
                 )
                 self.loaded_models[radio.get("Id")] = radio_model
+
+                raw_url = None
+                radio_metadata = test_radio = self.make_request(
+                    action='Items/{id}/PlaybackInfo',
+                    action_keys={'id': radio.get('Id')},
+                    params={
+                        "fields": "Path",
+                        "userId": self.get_property("userId")
+                    }
+                ).get('MediaSources', [])
+                if len(radio_metadata) > 0:
+                    raw_url = radio_metadata[0].get('Path')
+                if not raw_url:
+                    raw_url = self.get_stream_url(radio.get("Id"))
+                self.loaded_models.get(radio.get("Id")).set_property("streamUrl", raw_url)
+
                 id_list.append(radio.get("Id"))
         return id_list
 

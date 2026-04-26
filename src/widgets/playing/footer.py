@@ -24,6 +24,7 @@ class PlayingFooter(Gtk.Overlay):
         integration.connect_to_model('currentSong', 'songId', self.song_changed)
         integration.connect_to_model('currentSong', 'positionSeconds', self.position_changed)
         integration.connect_to_model('currentSong', 'buttonState', self.state_stack_el.set_visible_child_name)
+        integration.connect_to_model('currentSong', 'displaySongTitle', self.display_title_changed)
         self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         self.settings.connect("changed::use-big-footer", self.big_mode_toggled)
         self.big_mode_toggled(self.settings, 'use-big-footer')
@@ -46,12 +47,20 @@ class PlayingFooter(Gtk.Overlay):
             self.title_el.set_lines(1)
             self.detail_container.set_spacing(5)
         self.ro_progress_el.set_visible(not big_mode)
-        self.progress_el.set_visible(big_mode)
+        self.update_progress_el_visibility()
+
+    def update_progress_el_visibility(self):
+        mode_status = self.settings.get_value('use-big-footer').unpack()
+        force_status = self.get_property('forceHugeMode')
+        integration = get_current_integration()
+        songId = integration.loaded_models.get('currentSong').get_property('songId')
+        isRadio = integration.loaded_models.get(songId).get_property('isRadio')
+        self.progress_el.set_visible(not isRadio and (mode_status or force_status))
 
     def song_changed(self, song_id:str):
+        self.update_progress_el_visibility()
         integration = get_current_integration()
         if song := integration.loaded_models.get(song_id):
-            self.title_el.set_label(song.get_property('title'))
             artists = song.get_property('artists')
             if len(artists) > 0:
                 self.artist_el.set_label(artists[0].get('name'))
@@ -65,6 +74,9 @@ class PlayingFooter(Gtk.Overlay):
             self.artist_el.set_visible(self.artist_el.get_label())
             self.progress_el.get_adjustment().set_upper(song.get_property('duration'))
             threading.Thread(target=self.update_cover_art).start()
+
+    def display_title_changed(self, display_title:str):
+        self.title_el.set_label(display_title)
 
     def position_changed(self, positionSeconds:float):
         integration = get_current_integration()

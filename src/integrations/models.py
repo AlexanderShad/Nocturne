@@ -152,4 +152,4 @@ class CurrentSong(GObject.Object):
     generatedQueue = GObject.Property(type=Gio.ListStore, default=Gio.ListStore.new(item_type=Gtk.StringObject))
     generatingQueue = GObject.Property(type=bool, default=False)
     downloadQueueModel = GObject.Property(type=Gio.ListStore, default=Gio.ListStore.new(item_type=SongDownload))
-
+    displaySongTitle = GObject.Property(type=str)

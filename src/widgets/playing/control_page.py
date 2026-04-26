@@ -37,6 +37,7 @@ class PlayingControlPage(Adw.NavigationPage):
         integration.connect_to_model('currentSong', 'positionSeconds', self.update_position)
         integration.connect_to_model('currentSong', 'buttonState', self.state_stack_el.set_visible_child_name)
         integration.connect_to_model('currentSong', 'songId', self.song_changed)
+        integration.connect_to_model('currentSong', 'displaySongTitle', self.display_title_changed)
         self.spectrum_el.setup()
         self.setup_sidebar_button_connection()
 
@@ -125,10 +126,6 @@ class PlayingControlPage(Adw.NavigationPage):
 
         integration = get_current_integration()
 
-        # Title
-        self.title_el.set_label(model.get_property('title'))
-        self.title_el.set_tooltip_text(model.get_property('title'))
-
         # HomePage (radio)
         if model.get_property('isRadio') and model.get_property('streamUrl'):
             stream_url = urlparse(model.get_property('streamUrl'))
@@ -183,6 +180,10 @@ class PlayingControlPage(Adw.NavigationPage):
 
         self.star_el.set_action_target_value(GLib.Variant.new_string(model.id))
         self.starred_connection = integration.connect_to_model(model.id, 'starred', self.update_starred)
+
+    def display_title_changed(self, display_title:str):
+        self.title_el.set_label(display_title)
+        self.title_el.set_tooltip_text(display_title)
 
     def song_changed(self, song_id:str):
         integration = get_current_integration()

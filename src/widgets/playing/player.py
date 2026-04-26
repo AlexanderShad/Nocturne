@@ -408,6 +408,16 @@ class Player(EventAdapter):
                 if new_state != self.last_gst_state_type:
                     self.handle_new_state(new_state)
                     self.last_gst_state_type = new_state
+            elif message.type == Gst.MessageType.TAG:
+                integration = get_current_integration()
+                if model := integration.loaded_models.get('currentSong'):
+                    if tag_list := message.parse_tag():
+                        success, title = tag_list.get_string(Gst.TAG_TITLE)
+                        if success and title:
+                            current_title = model.get_property('displaySongTitle')
+                            if current_title != title:
+                                model.set_property('displaySongTitle', title)
+
             elif message.type == Gst.MessageType.ERROR:
                 err, debug = message.parse_error()
                 print("Error: {}".format(err.message))
@@ -451,6 +461,7 @@ class Player(EventAdapter):
         if song_id:
             if song_id != self.last_song_id:
                 stream_url = integration.get_stream_url(song_id)
+                print(stream_url)
                 self.gst.set_state(Gst.State.READY)
                 self.gst.set_property('uri', stream_url)
                 if self.pause_next_change:
