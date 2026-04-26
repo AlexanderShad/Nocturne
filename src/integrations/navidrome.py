@@ -259,7 +259,7 @@ class Navidrome(Base):
         def update():
             response = self.make_request('getSong', {'id': model_id})
             song_dict = response.get('song', {})
-            gains = song_dict.get('replayGain')
+            gains = song_dict.get('replayGain') or {}
             self.loaded_models[model_id].update_data(**song_dict, albumGain=gains.get('albumGain', 0.0), trackGain=gains.get('trackGain', 0.0))
             threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
@@ -331,7 +331,8 @@ class Navidrome(Base):
         return [s.get('id') for s in songs if s.get('id')]
 
     def getLyrics(self, songId:str) -> dict:
-        lyrics = self.make_request('getLyricsBySongId', {'id': songId}).get('lyricsList', {}).get('structuredLyrics', [{}])[0]
+        lyrics_data = self.make_request('getLyricsBySongId', {'id': songId}).get('lyricsList') or {}
+        lyrics = (lyrics_data.get('structuredLyrics') or [{}])[0]
 
         if lyrics.get('synced', False):
             lrc_lines = []
