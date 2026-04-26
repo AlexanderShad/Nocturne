@@ -56,6 +56,7 @@ class PopoutWindow(Adw.ApplicationWindow):
         integration.connect_to_model('currentSong', 'songId', self.song_changed)
         integration.connect_to_model('currentSong', 'positionSeconds', self.song_position_changed)
         integration.connect_to_model('currentSong', 'buttonState', self.state_stack_el.set_visible_child_name)
+        integration.connect_to_model('currentSong', 'displaySongTitle', self.display_title_changed)
 
         fullscreen_btn = Gtk.Button(
             icon_name="view-fullscreen-symbolic",
@@ -110,7 +111,6 @@ class PopoutWindow(Adw.ApplicationWindow):
         if model := integration.loaded_models.get(id):
             self.fs_progress_el.get_adjustment().set_upper(model.get_property('duration'))
             self.set_title(model.get_property('title'))
-            self.fs_title_el.set_label(model.get_property('title'))
             self.fs_album_el.get_child().set_label(model.get_property('album'))
             self.fs_album_el.set_tooltip_text(model.get_property('album'))
             self.fs_album_el.set_action_target_value(GLib.Variant.new_string(model.get_property('albumId')))
@@ -143,6 +143,9 @@ class PopoutWindow(Adw.ApplicationWindow):
             self.fs_album_el.set_visible(not model.get_property('isRadio'))
             self.fs_timestamp_el.set_visible(not model.get_property('isRadio'))
             self.fs_progress_el.set_visible(not model.get_property('isRadio'))
+
+    def display_title_changed(self, display_title:str):
+        self.fs_title_el.set_label(display_title)
 
     @Gtk.Template.Callback()
     def progress_bar_changed(self, scale_el, scroll_type, value):
