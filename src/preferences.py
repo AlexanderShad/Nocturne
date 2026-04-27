@@ -27,6 +27,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
     # Customization
     ## Interface
     context_button_el = Gtk.Template.Child()
+    context_label_el = Gtk.Template.Child()
     show_playlists_sidebar_el = Gtk.Template.Child()
     footer_big_mode_el = Gtk.Template.Child()
     translucent_player_el = Gtk.Template.Child()
@@ -126,6 +127,12 @@ class NocturnePreferences(Adw.PreferencesDialog):
         settings.bind(
             "show-context-button",
             self.context_button_el,
+            "active",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        settings.bind(
+            "show-context-button-label",
+            self.context_label_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )

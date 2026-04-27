@@ -49,6 +49,9 @@
 	  <key name="show-context-button" type="b">
 	    <default>true</default>
 	  </key>
+	  <key name="show-context-button-label" type="b">
+	    <default>true</default>
+	  </key>
 	  <key name="use-dynamic-accent" type="b">
 	    <default>true</default>
 	  </key>
