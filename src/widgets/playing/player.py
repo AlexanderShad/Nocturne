@@ -228,7 +228,6 @@ class Player(EventAdapter):
         self.settings.set_double("volume", volume)
         self.application = application
         self.gst = Gst.ElementFactory.make("playbin", "music-player")
-        self.gst.connect("about-to-finish", lambda playbin: self.handle_song_change_request("end"))
         self.gst.connect("source-setup", self.on_source_setup)
 
         self.bin = Gst.Bin.new("audio-filter-bin")
@@ -450,7 +449,8 @@ class Player(EventAdapter):
                                 current_artist = model.get_property('displaySongArtist')
                                 if current_artist != artist:
                                     model.set_property('displaySongArtist', artist)
-
+            elif message.type == Gst.MessageType.EOS:
+                self.handle_song_change_request("end")
             elif message.type == Gst.MessageType.ERROR:
                 err, debug = message.parse_error()
                 print("Error: {}".format(err.message))
