@@ -32,9 +32,10 @@ class SongQueue(Gtk.Box):
     def set_selected_mode(self, select:bool=False, selected_row:Gtk.Widget=None):
         integration = get_current_integration()
         for row in list(self.list_el):
-            row.suffixes_stack_el.set_visible_child_name('select' if select else 'normal')
-            row.check_el.set_active(row == selected_row)
-            row.set_activatable(not select and row.id != integration.loaded_models.get('currentSong').get_property('songId'))
+            if row.__gtype_name__ != 'NocturneDiscIndicator':
+                row.suffixes_stack_el.set_visible_child_name('select' if select else 'normal')
+                row.check_el.set_active(row == selected_row)
+                row.set_activatable(not select and row.id != integration.loaded_models.get('currentSong').get_property('songId'))
 
         if select:
             self.remove_el.set_visible(selected_row.removable)
@@ -46,13 +47,13 @@ class SongQueue(Gtk.Box):
         self.toolbar_revealer_el.set_reveal_child(select)
 
     def get_selected_rows(self) -> list:
-        return [row for row in list(self.list_el) if row.check_el.get_active()]
+        return [row for row in list(self.list_el) if row.__gtype_name__ != 'NocturneDiscIndicator' and row.check_el.get_active()]
 
     def get_selected_indexes(self) -> list:
-        return [i for i, row in enumerate(list(self.list_el)) if row.check_el.get_active()]
+        return [i for i, row in enumerate(list(self.list_el)) if row.__gtype_name__ != 'NocturneDiscIndicator' and row.check_el.get_active()]
 
     def get_all_ids(self) -> list:
-        return [row.id for row in list(self.list_el)]
+        return [row.id for row in list(self.list_el) if row.__gtype_name__ != 'NocturneDiscIndicator']
 
     @Gtk.Template.Callback()
     def close_selector(self, button=None):

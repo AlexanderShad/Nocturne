@@ -8,6 +8,22 @@ from ..containers import get_context_buttons_list
 import threading, uuid, io
 from colorthief import ColorThief
 
+class DiscIndicator(Gtk.ListBoxRow):
+    __gtype_name__ = 'NocturneDiscIndicator'
+
+    def __init__(self, discNumber:int):
+        self.discNumber = discNumber
+        super().__init__(
+            child=Gtk.Label(
+                label=_("Disc {}").format(self.discNumber),
+                xalign=0,
+                halign=Gtk.Align.START,
+                css_classes=["title-2"]
+            ),
+            css_classes=["p10"],
+            activatable=False
+        )
+
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/album/page.ui')
 class AlbumPage(Adw.NavigationPage):
     __gtype_name__ = 'NocturneAlbumPage'
@@ -53,12 +69,28 @@ class AlbumPage(Adw.NavigationPage):
     def song_list_sort_func(self, r1, r2):
         integration = get_current_integration()
         trackN1 = 0
+        discN1 = 0
         trackN2 = 0
-        if model1 := integration.loaded_models.get(r1.id):
-            trackN1 = model1.get_property('track')
-        if model2 := integration.loaded_models.get(r2.id):
-            trackN2 = model2.get_property('track')
-        return trackN1 - trackN2
+        discN2 = 0
+        if isinstance(r1, DiscIndicator):
+            trackN1 = -1
+            discN1 = r1.discNumber
+        else:
+            if model1 := integration.loaded_models.get(r1.id):
+                trackN1 = model1.get_property('track')
+                discN1 = model1.get_property('discNumber')
+        if isinstance(r2, DiscIndicator):
+            trackN2 = -1
+            discN2 = r2.discNumber
+        else:
+            if model2 := integration.loaded_models.get(r2.id):
+                trackN2 = model2.get_property('track')
+                discN2 = model2.get_property('discNumber')
+
+        if discN1 == discN2:
+            return trackN1 - trackN2
+        else:
+            return discN1 - discN2
 
     def update_cover(self, paintable:Gdk.Paintable=None):
         if paintable:
@@ -122,10 +154,20 @@ class AlbumPage(Adw.NavigationPage):
 
     def update_song_list(self, song_list:list):
         def run():
+            integration = get_current_integration()
             GLib.idle_add(self.song_list_el.list_el.remove_all)
             GLib.idle_add(self.song_list_el.main_stack.set_visible_child_name, 'content' if len(song_list) > 0 else 'no-content')
             song_ids = [s.get('id') for s in song_list]
+            discs = []
             for song_id in song_ids:
+                if not song_id in integration.loaded_models:
+                    integration.verifySong(song_id, use_threading=False)
+
+                model = integration.loaded_models.get(song_id)
+                discNumber = model.get_property('discNumber')
+                if discNumber > 0 and discNumber not in discs:
+                    discs.append(discNumber)
+
                 row = SongRow(song_id)
                 row.set_action_name('app.play_song_from_list')
                 row.set_action_target_value(GLib.Variant('a{sv}', {
@@ -133,6 +175,10 @@ class AlbumPage(Adw.NavigationPage):
                     'songs': GLib.Variant('as', song_ids)
                 }))
                 GLib.idle_add(self.song_list_el.list_el.append, row)
+            for disc in discs:
+                row = DiscIndicator(disc)
+                GLib.idle_add(self.song_list_el.list_el.append, row)
+
             GLib.idle_add(self.song_list_el.list_el.invalidate_sort)
         if len(list(self.song_list_el.list_el)) != song_list:
             threading.Thread(target=run).start()
