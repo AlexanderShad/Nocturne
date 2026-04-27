@@ -25,20 +25,6 @@ class Local(Base):
     }
     limitations = ('no-max-bitrate',)
 
-    def open_json(self, filename:str, is_list:bool=False) -> dict | list:
-        try:
-            with open(os.path.join(self.getIntegrationDir(), filename), 'r') as f:
-                result = json.load(f)
-                if is_list:
-                    if not isinstance(result, list):
-                        return []
-                else:
-                    if not isinstance(result, dict):
-                        return {}
-                return result
-        except Exception:
-            return [] if is_list else {}
-
     def on_login(self):
         # Goes through the whole directory retrieving all the metadata
         audio_data_list = []

@@ -3,8 +3,9 @@
 from gi.repository import Gtk, GLib, GObject, Gdk
 from . import models, secret
 from ..constants import get_nocturne_version, DEFAULT_MUSIC_DIR, INTEGRATIONS_DIR
-import requests, io, urllib3, time, os
+import requests, io, urllib3, time, os, json
 from PIL import Image
+from datetime import datetime
 from urllib.parse import urlparse
 
 # Just so that the logs don't get cluttered with warnings if trust-server = True
@@ -29,6 +30,21 @@ class Base(GObject.Object):
 
     # Show spinner in sidebar with message as tooltip text if set
     loadingMessage = GObject.Property(type=str)
+
+    def open_json(self, filename:str, is_list:bool=False) -> dict | list:
+        # loads a JSON file from the current integration
+        try:
+            with open(os.path.join(self.getIntegrationDir(), filename), 'r') as f:
+                result = json.load(f)
+                if is_list:
+                    if not isinstance(result, list):
+                        return []
+                else:
+                    if not isinstance(result, dict):
+                        return {}
+                return result
+        except Exception:
+            return [] if is_list else {}
 
     def check_if_ready(self, row) -> bool:
         # gets called to see if it is ready to show login page
@@ -215,6 +231,16 @@ class Base(GObject.Object):
         # the id is for a Song, this is how views are stored
         # called when a song is played
         # if you need to inherit this, also call super().scrobble(id) so that listenbrainz can also get the scrobble
+        playback_scrobble = self.open_json('playback.json')
+        date_formated = datetime.now().strftime("%m-%Y")
+        if date_formated not in playback_scrobble:
+            playback_scrobble[date_formated] = {}
+        if model_id in playback_scrobble.get(date_formated):
+            playback_scrobble[date_formated][model_id] += 1
+        else:
+            playback_scrobble[date_formated][model_id] = 1
+        with open(os.path.join(self.getIntegrationDir(), 'playback.json'), 'w') as f:
+            json.dump(playback_scrobble, f, ensure_ascii=False)
 
         if model := self.loaded_models.get(model_id):
             if token := secret.get_plain_password("listenbrainz"):
