@@ -63,9 +63,11 @@ class PlayerAdapter(MprisAdapter):
         if not song:
             return MetadataObj()
 
+        identifier = (song.get_property('albumId') or song.get_property('id')).replace('/', '_')
+        mpris_path = f"{MPRIS_COVER_PATH}_{identifier}"
         return MetadataObj(
             album=song.get_property('album'),
-            art_url='file://{}'.format(MPRIS_COVER_PATH),
+            art_url='file://{}'.format(mpris_path),
             artists=[urlparse(song.get_property('streamUrl')).netloc.capitalize()] if song.get_property('isRadio') and song.get_property('streamUrl') else ([a.get('name') for a in song.get_property('artists')] or [song.get_property('artist')]),
             as_text=[song.get_property('title')],
             length=song.get_property('duration')*1000000,
