@@ -244,10 +244,8 @@ class PlayingControlPage(Adw.NavigationPage):
         integration = get_current_integration()
         song_id = integration.loaded_models.get('currentSong').get_property('songId')
         if song_id:
-            song = integration.loaded_models.get(song_id)
-            identifier = (song.get_property('albumId') or song_id).replace('/', '_')
-            mpris_path = f"{MPRIS_COVER_PATH}_{identifier}"
-            
+            mpris_path = f"{MPRIS_COVER_PATH}_{song_id.replace('/', '_')}"
+
             for old_file in glob.glob(f"{MPRIS_COVER_PATH}_*"):
                 os.remove(old_file)
 

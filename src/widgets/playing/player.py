@@ -63,8 +63,7 @@ class PlayerAdapter(MprisAdapter):
         if not song:
             return MetadataObj()
 
-        identifier = (song.get_property('albumId') or song.get_property('id')).replace('/', '_')
-        mpris_path = f"{MPRIS_COVER_PATH}_{identifier}"
+        mpris_path = f"{MPRIS_COVER_PATH}_{song.get_property('id').replace('/', '_')}"
         return MetadataObj(
             album=song.get_property('album'),
             art_url='file://{}'.format(mpris_path),
