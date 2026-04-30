@@ -244,9 +244,9 @@ class PlayingControlPage(Adw.NavigationPage):
         integration = get_current_integration()
         song_id = integration.loaded_models.get('currentSong').get_property('songId')
         if song_id:
-            mpris_path = f"{MPRIS_COVER_PATH}_{song_id.replace('/', '_')}"
+            mpris_path = f"{MPRIS_COVER_PATH}_{song_id.replace('/', '_')}.png"
 
-            for old_file in glob.glob(f"{MPRIS_COVER_PATH}_*"):
+            for old_file in glob.glob(f"{MPRIS_COVER_PATH}_*.png"):
                 os.remove(old_file)
 
             gbytes, paintable = integration.getCoverArt(song_id)
