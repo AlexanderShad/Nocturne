@@ -129,7 +129,9 @@ window navigation-split-view > *:nth-child(1) {
 window,
 window:not(.popout-window) bottom-sheet#main-bottom-sheet sheet > stack,
 window:not(.popout-window) overlay-split-view .main_sidebar {
-  transition: background-image 0.5s ease-in-out;
+  transition: background-image 0.5s ease-in-out,
+    background 0.5s ease-in-out,
+    backdrop-filter 0.5s ease-in-out;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
@@ -155,12 +157,6 @@ window.popout-window.big-mode .fullscreen-bottom-bar button {
 window.popout-window.big-mode .fullscreen-bottom-bar button.color {
   padding: 12px;
   -gtk-icon-size: 24px;
-}
-
-window,
-window:not(.popout-window) bottom-sheet#main-bottom-sheet sheet.background {
-  transition: background 0.5s ease-in-out,
-  backdrop-filter 0.5s ease-in-out;
 }
 
 window.player-translucent:not(.popout-window) bottom-sheet#main-bottom-sheet sheet.background {
