@@ -11,7 +11,9 @@ from ...constants import MPRIS_COVER_PATH
 from ...integrations import get_current_integration, models
 from ..lyrics import LyricsDialog
 from urllib.parse import urlparse
-import threading, os
+import threading, os, colorsys, io, base64
+from PIL import Image, ImageFilter
+from colorthief import ColorThief
 
 Gst.init(None)
 
@@ -489,6 +491,49 @@ class Player(EventAdapter):
             )
         self.application.external_songs = []
 
+    def update_palette(self, raw_bytes:bytes):
+        # Load Image
+        img_io = io.BytesIO(raw_bytes)
+
+        # Generate Palette
+        palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
+
+        # Blur Image
+        with Image.open(img_io) as img:
+            small_img = img.resize((24, 24))
+            blurred_img = small_img.filter(ImageFilter.GaussianBlur(radius=2))
+            if blurred_img.mode != "RGBA":
+                blurred_img = blurred_img.convert("RGBA")
+            blurred_img.putalpha(int(255 * 0.4))
+            buffer = io.BytesIO()
+            blurred_img.save(buffer, format="PNG")
+            blur_str = "data:image/png;base64,{}".format(base64.b64encode(buffer.getvalue()).decode("utf-8"))
+
+        # Make and Load CSS
+        css = f"""
+        window.dynamic-accent {{
+            --accent-color: oklab(from rgb({','.join([str(c) for c in palette[0]])}) var(--standalone-color-oklab));
+        }}
+
+        window.popout-window.dynamic-bg-blur,
+        window.dynamic-bg-blur bottom-sheet#main-bottom-sheet sheet > stack,
+        window.dynamic-bg-blur overlay-split-view .main_sidebar {{
+            background-image: url("{blur_str}");
+        }}
+
+        window.popout-window.dynamic-bg-gradient,
+        window.dynamic-bg-gradient bottom-sheet#main-bottom-sheet sheet > stack,
+        window.dynamic-bg-gradient overlay-split-view .main_sidebar {{
+            background-image: linear-gradient(
+                to bottom,
+                rgba({','.join([str(c) for c in palette[0]])},0.4),
+                rgba({','.join([str(c) for c in palette[1]])},0.4)
+            );
+        }}
+        """
+
+        self.application.css_provider.load_from_string(css)
+
     def song_changed(self, song_id:str):
         integration = get_current_integration()
 
@@ -513,6 +558,7 @@ class Player(EventAdapter):
                 self.last_song_id = songId
                 self.rg_volume.set_property("fallback-gain", new_gain)
                 self.rg_volume.set_property("album-mode", album_mode)
+                threading.Thread(target=self.update_palette, args=(bytes(model.get_property('gdkPaintableBytes').get_data()),)).start()
 
         if song_id:
             if song_id != self.last_song_id:

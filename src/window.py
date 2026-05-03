@@ -43,7 +43,10 @@ class NocturneWindow(Adw.ApplicationWindow):
     playing_page = Gtk.Template.Child()
     queue_page = Gtk.Template.Child()
     lyrics_page = Gtk.Template.Child()
-    sheet_status_stack = Gtk.Template.Child()
+    player_sidebar_splitview = Gtk.Template.Child()
+    sidebar_playing_page = Gtk.Template.Child()
+    sidebar_queue_page = Gtk.Template.Child()
+    sidebar_lyrics_page = Gtk.Template.Child()
     main_sidebar = Gtk.Template.Child()
     main_stack = Gtk.Template.Child()
     footer = Gtk.Template.Child()
@@ -156,6 +159,31 @@ class NocturneWindow(Adw.ApplicationWindow):
                 integration.connect_to_model(playlistId, "name", lambda name, row=item: row.set_title(name))
                 integration.connect_to_model(playlistId, "songCount", lambda n, row=item: row.set_subtitle(('{} Songs' if n > 1 else '{} Song').format(n)))
 
+    def setup(self):
+        # call using glib_add
+        self.setup_sidebar()
+        self.footer.setup()
+        self.playing_page.setup()
+        self.lyrics_page.setup()
+        self.queue_page.setup()
+        self.sidebar_playing_page.setup()
+        self.sidebar_lyrics_page.setup()
+        self.sidebar_queue_page.setup()
+        self.downloads_button_el.setup()
+        integration = get_current_integration()
+        integration.connect_to_model('currentSong', 'songId', self.song_changed)
+
+    def song_changed(self, songId:str):
+        playing = bool(songId)
+        if application := self.get_root().get_application():
+            if playing:
+                application.inhibit_suspend()
+            else:
+                application.uninhibit_suspend()
+                if popout_window := application.popout_window:
+                    popout_window.close()
+        self.big_breakpoint_toggled()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -168,8 +196,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.show_external_file_warning, parameter_type=None)
         self.create_action(actions.update_navidrome_server, parameter_type=None)
         self.create_action(actions.delete_navidrome_server, parameter_type=None)
-        self.create_action(actions.open_popout_window, parameter_type=None)
-        self.create_action(actions.close_popout_window, parameter_type=None)
+        self.create_action(actions.open_popout_window, shortcuts=['<ctrl>P'], parameter_type=None)
         self.create_action(actions.toggle_fullscreen, shortcuts=['F11'], parameter_type=None)
 
         self.create_action(actions.player_play, parameter_type=None)
@@ -238,7 +265,6 @@ class NocturneWindow(Adw.ApplicationWindow):
             Gio.SettingsBindFlags.DEFAULT
         )
 
-        GLib.idle_add(self.setup_sidebar)
         list(list(self.sidebar_headerbar)[0])[0].get_center_widget().get_child().set_ellipsize(Pango.EllipsizeMode.NONE)
 
         css_settings = {
@@ -251,6 +277,7 @@ class NocturneWindow(Adw.ApplicationWindow):
 
         self.settings.connect('changed::player-dynamic-bg-mode', self.dynamic_bg_mode_changed)
         self.dynamic_bg_mode_changed(self.settings, 'player-dynamic-bg-mode')
+        self.settings.connect('changed::use-sidebar-player', lambda *_: self.big_breakpoint_toggled())
 
     def css_toggled(self, settings, key, css_class):
         if settings.get_value(key).unpack():
@@ -269,3 +296,24 @@ class NocturneWindow(Adw.ApplicationWindow):
     def on_drop(self, drop_target, file, x, y):
         self.get_application().do_open([file])
 
+    @Gtk.Template.Callback()
+    def big_breakpoint_toggled(self, bp=None):
+        if integration := get_current_integration():
+            song_playing = bool(integration.loaded_models.get('currentSong').get_property('songId'))
+        else:
+            song_playing = False
+
+        is_small = self.get_width() <= 700
+        if is_small:
+            self.player_sidebar_splitview.set_show_sidebar(False)
+            self.main_bottom_sheet.set_reveal_bottom_bar(song_playing)
+            self.main_bottom_sheet.set_can_open(song_playing)
+        else:
+            show_sidebar = self.settings.get_value('use-sidebar-player').unpack()
+            self.player_sidebar_splitview.set_show_sidebar(show_sidebar and song_playing)
+            self.main_bottom_sheet.set_reveal_bottom_bar(not show_sidebar and song_playing)
+            self.main_bottom_sheet.set_can_open(not show_sidebar and song_playing)
+            if show_sidebar:
+                self.main_bottom_sheet.set_open(False)
+        if not song_playing:
+            self.main_bottom_sheet.set_open(False)

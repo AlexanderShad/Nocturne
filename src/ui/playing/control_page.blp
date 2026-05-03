@@ -295,25 +295,6 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                 action-target: "''";
               }
 
-              Gtk.Stack pop_status_stack {
-                Gtk.StackPage {
-                  name: "popout";
-                  child: Gtk.Button {
-                    icon-name: "pip-in-symbolic";
-                    tooltip-text: _("Open Pop-out Window");
-                    action-name: "app.open_popout_window";
-                  };
-                }
-                Gtk.StackPage {
-                  name: "popin";
-                  child: Gtk.Button {
-                    icon-name: "pip-out-symbolic";
-                    tooltip-text: _("Close Pop-out Window");
-                    action-name: "app.close_popout_window";
-                  };
-                }
-              }
-
               Gtk.Button show_sidebar_el {
                 icon-name: "sidebar-show-right-symbolic";
                 tooltip-text: _("Show Sidebar");

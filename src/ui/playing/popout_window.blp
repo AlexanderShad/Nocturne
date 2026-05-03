@@ -6,7 +6,7 @@ template $NocturnePopoutWindow: Adw.ApplicationWindow {
   width-request: 360;
   height-request: 120;
   default-width: 360;
-  close-request => $close_request();
+  hide-on-close: true;
   notify::fullscreened => $fullscreen_toggled();
   styles [
     "popout-window"

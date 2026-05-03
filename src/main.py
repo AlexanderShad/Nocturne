@@ -100,11 +100,7 @@ class NocturneApplication(Adw.Application):
             set_current_integration(integration)
             integration.on_login()
             GLib.idle_add(main_win.main_stack.set_visible_child_name, "content")
-            GLib.idle_add(main_win.playing_page.setup)
-            GLib.idle_add(main_win.footer.setup)
-            GLib.idle_add(main_win.lyrics_page.setup)
-            GLib.idle_add(main_win.queue_page.setup)
-            GLib.idle_add(main_win.downloads_button_el.setup)
+            GLib.idle_add(main_win.setup)
             if not self.player:
                 self.player = Player(self)
             settings = Gio.Settings(schema_id="com.jeffser.Nocturne")

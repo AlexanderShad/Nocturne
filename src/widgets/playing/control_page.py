@@ -3,9 +3,7 @@
 from gi.repository import Gtk, Adw, Gdk, GLib, GObject, Gst, Gio
 from ...integrations import get_current_integration
 from ...constants import MPRIS_COVER_PATH, get_display_time
-import threading, random, io, colorsys, os, base64, glob
-from PIL import Image, ImageFilter
-from colorthief import ColorThief
+import threading, random, io, os, glob
 from urllib.parse import urlparse
 from .player import Player
 
@@ -13,7 +11,6 @@ from .player import Player
 class PlayingControlPage(Adw.NavigationPage):
     __gtype_name__ = 'NocturnePlayingControlPage'
 
-    pop_status_stack = Gtk.Template.Child()
     header_bar = Gtk.Template.Child()
     spectrum_el = Gtk.Template.Child()
     cover_el = Gtk.Template.Child()
@@ -30,7 +27,8 @@ class PlayingControlPage(Adw.NavigationPage):
     rating_container = Gtk.Template.Child()
 
     # Used to disconnect star_el when song changes
-    starred_connection = None
+    # song_id, connection_id
+    starred_connection = [None, None]
 
     def setup(self):
         integration = get_current_integration()
@@ -41,6 +39,10 @@ class PlayingControlPage(Adw.NavigationPage):
         integration.connect_to_model('currentSong', 'displaySongArtist', self.display_artist_changed)
         self.spectrum_el.setup()
         self.setup_sidebar_button_connection()
+        if stack := self.get_ancestor(Gtk.Stack):
+            GLib.idle_add(stack.get_parent().set_overflow, Gtk.Overflow.HIDDEN)
+            if stack2 := stack.get_parent().get_parent():
+                GLib.idle_add(stack2.get_parent().set_overflow, Gtk.Overflow.HIDDEN)
 
     def update_position(self, positionSeconds:int):
         integration = get_current_integration()
@@ -57,15 +59,13 @@ class PlayingControlPage(Adw.NavigationPage):
 
     def breakpoint_toggled(self, active:bool):
         self.show_sidebar_el.set_visible(active)
-        self.pop_status_stack.set_visible(not active)
         if isinstance(self.get_parent(), Adw.NavigationView) and not self.get_parent().get_vhomogeneous():
             self.get_parent().set_vhomogeneous(True)
 
     def setup_sidebar_button_connection(self):
         self.get_root().breakpoint_el.connect('apply', lambda *_: self.breakpoint_toggled(True))
         self.get_root().breakpoint_el.connect('unapply', lambda *_: self.breakpoint_toggled(False))
-        condition = self.get_root().breakpoint_el.get_condition().to_string()
-        is_small = self.get_root().get_width() < int(condition.split(': ')[1].strip('sp'))
+        is_small = self.get_root().get_width() < 480
         self.breakpoint_toggled(is_small and self.get_root().get_width() > 0)
 
     @Gtk.Template.Callback()
@@ -174,12 +174,12 @@ class PlayingControlPage(Adw.NavigationPage):
         self.star_el.set_visible(not model.get_property('isRadio') and not model.get_property('isExternalFile'))
 
         # Star Connection
-        global_player = self.get_root().get_application().player
-        if global_player.last_song_id and self.starred_connection:
-            integration.loaded_models.get(global_player.last_song_id).disconnect(self.starred_connection)
+        if self.starred_connection[0] and self.starred_connection[1]:
+            integration.loaded_models.get(self.starred_connection[0]).disconnect(self.starred_connection[1])
 
-        self.star_el.set_action_target_value(GLib.Variant.new_string(model.id))
-        self.starred_connection = integration.connect_to_model(model.id, 'starred', self.update_starred)
+        self.starred_connection[0] = model.get_property('id')
+        self.starred_connection[1] = integration.connect_to_model(self.starred_connection[0], 'starred', self.update_starred)
+        self.star_el.set_action_target_value(GLib.Variant.new_string(self.starred_connection[0]))
 
     def display_title_changed(self, display_title:str):
         self.title_el.set_label(display_title)
@@ -191,54 +191,8 @@ class PlayingControlPage(Adw.NavigationPage):
     def song_changed(self, song_id:str):
         integration = get_current_integration()
         model = integration.loaded_models.get(song_id)
-        self.change_bottom_sheet_state(model)
         self.update_interface(model)
         threading.Thread(target=self.update_cover_art).start()
-
-    def update_palette(self, raw_bytes:bytes):
-        # Load Image
-        img_io = io.BytesIO(raw_bytes)
-
-        # Generate Palette
-        palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
-
-        # Blur Image
-        with Image.open(img_io) as img:
-            small_img = img.resize((24, 24))
-            blurred_img = small_img.filter(ImageFilter.GaussianBlur(radius=2))
-            if blurred_img.mode != "RGBA":
-                blurred_img = blurred_img.convert("RGBA")
-            blurred_img.putalpha(int(255 * 0.4))
-            buffer = io.BytesIO()
-            blurred_img.save(buffer, format="PNG")
-            blur_str = "data:image/png;base64,{}".format(base64.b64encode(buffer.getvalue()).decode("utf-8"))
-
-        # Make and Load CSS
-        css = f"""
-        window.dynamic-accent {{
-            --accent-color: oklab(from rgb({','.join([str(c) for c in palette[0]])}) var(--standalone-color-oklab));
-        }}
-
-        window.popout-window.dynamic-bg-blur,
-        window.dynamic-bg-blur bottom-sheet#main-bottom-sheet sheet > stack {{
-            background-image: url("{blur_str}");
-        }}
-
-        window.popout-window.dynamic-bg-gradient,
-        window.dynamic-bg-gradient bottom-sheet#main-bottom-sheet sheet > stack {{
-            background-image: linear-gradient(
-                to bottom,
-                rgba({','.join([str(c) for c in palette[0]])},0.4),
-                rgba({','.join([str(c) for c in palette[1]])},0.4)
-            );
-        }}
-        """
-
-        if stack := self.get_ancestor(Gtk.Stack):
-            GLib.idle_add(stack.get_parent().set_overflow, Gtk.Overflow.HIDDEN)
-            if stack2 := stack.get_parent().get_parent():
-                GLib.idle_add(stack2.get_parent().set_overflow, Gtk.Overflow.HIDDEN)
-        self.get_root().get_application().css_provider.load_from_string(css)
 
     def update_cover_art(self):
         integration = get_current_integration()
@@ -249,13 +203,10 @@ class PlayingControlPage(Adw.NavigationPage):
                 os.remove(old_file)
 
             gbytes, paintable = integration.getCoverArt(song_id)
-            if gbytes:
-                threading.Thread(target=self.update_palette, args=(bytes(gbytes.get_data()),)).start()
             if paintable:
                 GLib.idle_add(self.cover_el.set_paintable, paintable)
                 GLib.idle_add(self.cover_el.set_visible, True)
                 paintable.save_to_png(mpris_path)
-                print(mpris_path)
             else:
                 GLib.idle_add(self.cover_el.set_paintable, None)
                 GLib.idle_add(self.cover_el.set_visible, False)

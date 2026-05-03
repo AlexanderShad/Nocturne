@@ -41,7 +41,6 @@ class PopoutWindow(Adw.ApplicationWindow):
         integration = get_current_integration()
         current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
         self.playing_page.last_song_id = current_song_id
-        self.playing_page.pop_status_stack.set_visible_child_name("popin")
 
         GLib.idle_add(self.playing_page.setup)
         GLib.idle_add(self.lyrics_page.setup)
@@ -87,10 +86,6 @@ class PopoutWindow(Adw.ApplicationWindow):
         self.remove_css_class('dynamic-bg-blur')
         if value:
             self.add_css_class('dynamic-bg-{}'.format(value))
-
-    @Gtk.Template.Callback()
-    def close_request(self, window):
-        self.get_root().activate_action("app.close_popout_window")
 
     def song_position_changed(self, positionSeconds:int):
         integration = get_current_integration()

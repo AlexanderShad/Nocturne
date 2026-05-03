@@ -117,7 +117,8 @@ overlay.album-button:hover image.card {
 }
 
 window.popout-window,
-window:not(.popout-window) bottom-sheet#main-bottom-sheet sheet > stack {
+window:not(.popout-window) bottom-sheet#main-bottom-sheet sheet > stack,
+overlay-split-view .main_sidebar {
   transition: background-image 0.5s ease-in-out;
   background-repeat: no-repeat;
   background-size: cover;
@@ -167,6 +168,10 @@ window.popout-window.big-mode navigation-view-page > toolbarview stack > * > scr
   padding-bottom: 152px;
 }
 
+window .main_sidebar .queue_page_padding_top > * > * {
+  padding-top: 45px;
+}
+
 
 switch:checked {
   background: var(--accent-color);
@@ -179,7 +184,8 @@ toast {
 @media (prefers-color-scheme: light) {
   window.popout-window list.boxed-list,
   bottom-sheet#main-bottom-sheet sheet list.boxed-list,
-  window.popout-window .fullscreen-bottom-bar {
+  window.popout-window .fullscreen-bottom-bar,
+  overlay-split-view .main_sidebar list.boxed-list {
     background-color: rgba(255,255,255,0.25);
   }
 }

@@ -248,14 +248,12 @@ def delete_navidrome_server(window):
     dialog.choose(window, None, response)
 
 def open_popout_window(window, fullscreened:bool=False):
-    window.main_bottom_sheet.set_open(False)
-    window.sheet_status_stack.set_visible_child_name("pop-out")
     if not window.get_application().popout_window:
         window.get_application().popout_window = Widgets.PopoutWindow(
             application=window.get_application(),
             fullscreened=fullscreened
         )
-        GLib.idle_add(window.get_application().popout_window.present)
+    GLib.idle_add(window.get_application().popout_window.present)
 
 def toggle_fullscreen(window):
     integration = get_current_integration()
@@ -269,21 +267,6 @@ def toggle_fullscreen(window):
             window.get_application().lookup_action("toggle_fullscreen").set_enabled(False)
             open_popout_window(window, True)
             GLib.timeout_add(1000, window.get_application().lookup_action("toggle_fullscreen").set_enabled, True)
-
-def close_popout_window(window):
-    if application := window.get_application():
-        if popoutwindow := application.popout_window:
-            try:
-                popoutwindow.close()
-            except Exception as e: # might fail if already closed
-                print(e)
-                pass
-            window.sheet_status_stack.set_visible_child_name("content")
-            integration = get_current_integration()
-            if integration.loaded_models.get('currentSong').get_property('queueModel').get_property('n-items') > 0:
-                window.main_bottom_sheet.set_open(True)
-            window.get_application().popout_window = None
-
 
 # -- PLAYER --
 

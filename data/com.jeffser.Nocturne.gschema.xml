@@ -67,6 +67,9 @@
 	  <key name="player-blur-bg" type="b"> <!--This is translucent mode-->
 	    <default>false</default>
 	  </key>
+	  <key name="use-sidebar-player" type="b">
+	    <default>false</default>
+	  </key>
 	  <key name="show-visualizer" type="b">
 	    <default>false</default>
 	  </key>
