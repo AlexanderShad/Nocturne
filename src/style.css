@@ -102,23 +102,33 @@ overlay.album-button:hover image.card {
   border-bottom-right-radius: 9px;
 }
 
-.carousel-overlay-right {
+window:not(.global-dynamic-bg-gradient):not(.global-dynamic-bg-blur) .carousel-overlay-right {
   background: linear-gradient(to left,
     @window_bg_color 0%,
     transparent 100%
   );
 }
 
-.carousel-overlay-left {
+window:not(.global-dynamic-bg-gradient):not(.global-dynamic-bg-blur) .carousel-overlay-left {
   background: linear-gradient(to right,
     @window_bg_color 0%,
     transparent 100%
   );
 }
 
-window.popout-window,
+window overlay-split-view > widget:nth-child(3) {
+  background: transparent;
+}
+
+window.global-dynamic-bg-gradient overlay-split-view .main_sidebar,
+window.global-dynamic-bg-blur overlay-split-view .main_sidebar,
+window navigation-split-view > *:nth-child(1) {
+  background: color-mix(in srgb, var(--sidebar-bg-color) 25%, transparent);
+}
+
+window,
 window:not(.popout-window) bottom-sheet#main-bottom-sheet sheet > stack,
-overlay-split-view .main_sidebar {
+window:not(.popout-window) overlay-split-view .main_sidebar {
   transition: background-image 0.5s ease-in-out;
   background-repeat: no-repeat;
   background-size: cover;
@@ -147,6 +157,7 @@ window.popout-window.big-mode .fullscreen-bottom-bar button.color {
   -gtk-icon-size: 24px;
 }
 
+window,
 window:not(.popout-window) bottom-sheet#main-bottom-sheet sheet.background {
   transition: background 0.5s ease-in-out,
   backdrop-filter 0.5s ease-in-out;
@@ -182,10 +193,8 @@ toast {
 }
 
 @media (prefers-color-scheme: light) {
-  window.popout-window list.boxed-list,
-  bottom-sheet#main-bottom-sheet sheet list.boxed-list,
-  window.popout-window .fullscreen-bottom-bar,
-  overlay-split-view .main_sidebar list.boxed-list {
+  list.boxed-list,
+  .card {
     background-color: rgba(255,255,255,0.25);
   }
 }

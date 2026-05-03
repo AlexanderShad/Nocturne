@@ -276,8 +276,10 @@ class NocturneWindow(Adw.ApplicationWindow):
             self.settings.connect('changed::{}'.format(key), self.css_toggled, class_name)
             self.css_toggled(self.settings, key, class_name)
 
-        self.settings.connect('changed::player-dynamic-bg-mode', self.dynamic_bg_mode_changed)
-        self.dynamic_bg_mode_changed(self.settings, 'player-dynamic-bg-mode')
+        self.settings.connect('changed::global-dynamic-bg-mode', self.dynamic_bg_mode_changed, 'global-')
+        self.dynamic_bg_mode_changed(self.settings, 'global-dynamic-bg-mode', 'global-')
+        self.settings.connect('changed::player-dynamic-bg-mode', self.dynamic_bg_mode_changed, '')
+        self.dynamic_bg_mode_changed(self.settings, 'player-dynamic-bg-mode', '')
         self.settings.connect('changed::use-sidebar-player', lambda *_: self.big_breakpoint_toggled())
 
     def css_toggled(self, settings, key, css_class):
@@ -286,12 +288,12 @@ class NocturneWindow(Adw.ApplicationWindow):
         else:
             self.remove_css_class(css_class)
 
-    def dynamic_bg_mode_changed(self, settings, key):
+    def dynamic_bg_mode_changed(self, settings, key, prefix):
         value = settings.get_value(key).unpack()
-        self.remove_css_class('dynamic-bg-gradient')
-        self.remove_css_class('dynamic-bg-blur')
+        self.remove_css_class('{}dynamic-bg-gradient'.format(prefix))
+        self.remove_css_class('{}dynamic-bg-blur'.format(prefix))
         if value:
-            self.add_css_class('dynamic-bg-{}'.format(value))
+            self.add_css_class('{}dynamic-bg-{}'.format(prefix, value))
 
     @Gtk.Template.Callback()
     def on_drop(self, drop_target, file, x, y):

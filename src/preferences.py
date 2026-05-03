@@ -34,6 +34,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
     use_sidebar_player_el = Gtk.Template.Child()
 
     ## Dynamic Background
+    global_dynamic_bg_el = Gtk.Template.Child()
     player_dynamic_bg_el = Gtk.Template.Child()
     popout_dynamic_bg_el = Gtk.Template.Child()
     dynamic_accent_el = Gtk.Template.Child()
@@ -163,6 +164,12 @@ class NocturnePreferences(Adw.PreferencesDialog):
         )
 
         ## Dynamic Background
+        settings.bind(
+            "global-dynamic-bg-mode",
+            self.global_dynamic_bg_el,
+            "active-name",
+            Gio.SettingsBindFlags.DEFAULT
+        )
         settings.bind(
             "player-dynamic-bg-mode",
             self.player_dynamic_bg_el,

@@ -61,6 +61,9 @@
 	  <key name="popout-dynamic-bg-mode" type="s">
 	    <default>'blur'</default>
 	  </key>
+	  <key name="global-dynamic-bg-mode" type="s">
+	    <default>''</default>
+	  </key>
 	  <key name="use-big-footer" type="b">
 	    <default>false</default>
 	  </key>

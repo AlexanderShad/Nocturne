@@ -517,13 +517,15 @@ class Player(EventAdapter):
 
         window.popout-window.dynamic-bg-blur,
         window.dynamic-bg-blur bottom-sheet#main-bottom-sheet sheet > stack,
-        window.dynamic-bg-blur overlay-split-view .main_sidebar {{
+        window.dynamic-bg-blur:not(.global-dynamic-bg-gradient):not(.global-dynamic-bg-blur) overlay-split-view .main_sidebar,
+        window.global-dynamic-bg-blur {{
             background-image: url("{blur_str}");
         }}
 
         window.popout-window.dynamic-bg-gradient,
         window.dynamic-bg-gradient bottom-sheet#main-bottom-sheet sheet > stack,
-        window.dynamic-bg-gradient overlay-split-view .main_sidebar {{
+        window.dynamic-bg-gradient:not(.global-dynamic-bg-gradient):not(.global-dynamic-bg-blur) overlay-split-view .main_sidebar,
+        window.global-dynamic-bg-gradient {{
             background-image: linear-gradient(
                 to bottom,
                 rgba({','.join([str(c) for c in palette[0]])},0.4),
