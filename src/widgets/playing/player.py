@@ -313,9 +313,12 @@ class Player(EventAdapter):
         integration.connect_to_model('currentSong', 'songId', self.song_changed)#lambda song_id: threading.Thread(target=self.song_changed, args=(song_id,)).start())
 
     def on_source_setup(self, playbin, source):
-        if GObject.type_is_a(source, Gst.ElementFactory.find("souphttpsrc").get_element_type()):
-            if integration := get_current_integration():
-                source.set_property("ssl-strict", not integration.get_property('trustServer'))
+        try:
+            if GObject.type_is_a(source, Gst.ElementFactory.find("souphttpsrc").get_element_type()):
+                if integration := get_current_integration():
+                    source.set_property("ssl-strict", not integration.get_property('trustServer'))
+        except:
+            pass
 
     # ---
 

@@ -132,9 +132,9 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
         } for art in tag.artist.split(';')],
         'track': tag.track or 0,
         'isExternalFile': is_external_file,
-        'discNumber': tag.disc,
-        'albumGain': tag.extra.get('replaygain_album_gain') or tag.extra.get('REPLAYGAIN_ALBUM_GAIN'),
-        'trackGain': tag.extra.get('replaygain_track_gain') or tag.extra.get('REPLAYGAIN_TRACK_GAIN')
+        'discNumber': tag.disc or 0,
+        'albumGain': tag.extra.get('replaygain_album_gain') or tag.extra.get('REPLAYGAIN_ALBUM_GAIN') or 1,
+        'trackGain': tag.extra.get('replaygain_track_gain') or tag.extra.get('REPLAYGAIN_TRACK_GAIN') or 1
     }
 
     if not is_external_file:
