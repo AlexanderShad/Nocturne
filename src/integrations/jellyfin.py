@@ -187,17 +187,16 @@ class Jellyfin(Base):
         elif list_type == "recent":
             params["SortBy"] = "DatePlayed"
             params["SortOrder"] = "Descending"
-            params["Filters"] = "IsPlayed"
         elif list_type == "starred":
             params["Filters"] = "IsFavorite"
 
-        response = self.make_request(
+        albums = self.make_request(
             action='Users/{userId}/Items',
             mode='GET',
             params=params
-        )
+        ).get('Items', [])
         id_list = []
-        for album in response.get('Items'):
+        for album in albums:
             artists = album.get("ArtistItems", [])
             songs = self.make_request(
                 action='Users/{userId}/Items',
