@@ -11,16 +11,24 @@ template $NocturneWindow: Adw.ApplicationWindow {
     apply => $big_breakpoint_toggled();
     unapply => $big_breakpoint_toggled();
   }
-  Adw.Breakpoint breakpoint_el {
+  Adw.Breakpoint {
     condition ("max-width: 480sp")
     setters {
       main_split_view.collapsed: true;
-      sheet_split_view.collapsed: true;
       main_split_view.show-content: true;
+      main_sidebar.mode: page;
+    }
+  }
+  Adw.Breakpoint breakpoint_el {
+    condition ("max-width: 400sp")
+    setters {
+      main_split_view.collapsed: true;
+      main_split_view.show-content: true;
+      main_sidebar.mode: page;
+      sheet_split_view.collapsed: true;
       sheet_header.title-widget: null;
       sheet_header.show-title: false;
       sheet_switch_bar.reveal: true;
-      main_sidebar.mode: page;
       main_bottom_sheet.full-width: true;
     }
   }

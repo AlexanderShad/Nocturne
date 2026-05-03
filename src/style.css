@@ -123,7 +123,7 @@ window overlay-split-view > widget:nth-child(3) {
 window.global-dynamic-bg-gradient overlay-split-view .main_sidebar,
 window.global-dynamic-bg-blur overlay-split-view .main_sidebar,
 window navigation-split-view > *:nth-child(1) {
-  background: color-mix(in srgb, var(--sidebar-bg-color) 25%, transparent);
+  background: color-mix(in srgb, var(--window-bg-color) 10%, transparent);
 }
 
 window,
