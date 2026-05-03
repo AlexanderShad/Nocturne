@@ -124,8 +124,9 @@ class NocturneApplication(Adw.Application):
     def do_activate(self):
         if not self.main_window:
             self.main_window = NocturneWindow(application=self)
+            self.load_default_integration()
         self.main_window.present()
-        self.load_default_integration()
+
 
     def do_open(self, files, n_files=None, hint=None):
         self.external_songs = []
