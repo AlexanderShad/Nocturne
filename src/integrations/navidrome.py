@@ -259,7 +259,7 @@ class Navidrome(Base):
         def update():
             response = self.make_request('getSong', {'id': model_id})
             song_dict = response.get('song', {})
-            if 'artists' not in song_dict:
+            if 'artists' not in song_dict and song_dict.get('artistId'):
                 song_dict['artists'] = [{
                     'id': song_dict.get('artistId'),
                     'name': song_dict.get('artist')
