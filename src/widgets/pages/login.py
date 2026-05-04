@@ -141,7 +141,11 @@ class LoginDialog(Adw.Dialog):
             data = self.integration.initiateQuickConnect()
             dialog = Adw.AlertDialog(
                 heading=_("Quick Connect"),
-                body=data.get("Code") or _("Error getting code")
+                body=data.get("Code") or _("Error getting code"),
+                extra_child=Gtk.LinkButton(
+                    label=_("Quick Connect Page"),
+                    uri="{}/web/#/quickconnect".format(self.url_el.get_text())
+                )
             )
             dialog.add_response(
                 "cancel",
