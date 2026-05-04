@@ -91,6 +91,46 @@
   </keywords>
 
   <releases>
+    <release version="1.0.0" date="2026-05-03">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/1.0.0</url>
+      <description translate="no">
+        <p>New</p>
+        <ul>
+          <li>Added option to show dynamic background in the main window</li>
+          <li>Added option to show player as a new sidebar</li>
+          <li>Added option to hide labels from buttons in multiple pages</li>
+          <li>Added support for grouping songs in album by their disc number</li>
+          <li>Added compatibility with word for word lyrics</li>
+          <li>Added support for gapless playback</li>
+          <li>Added support for changing max bitrate</li>
+          <li>Added support for replay gain (applies both at a track and album level)</li>
+          <li>Added dynamic load for playlist and album pages</li>
+          <li>Added support for huge play queues (100+)</li>
+          <li>Added dynamic title and artist handling for radios</li>
+          <li>Added tracking for monthly plays in every integration</li>
+          <li>Added shortcut for opening pop-out window</li>
+          <li>Added support for Quick Connect login in Jellyfin</li>
+          <li>Headerbar is now hidden when in fullscreen mode</li>
+          <li>Paginated playlists</li>
+          <li>Made resizing smoother</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Fixed code causing warnings when launching pop-out window</li>
+          <li>Fixed ratings in Jellyfin</li>
+          <li>Fixed stuttering problems when song does not have cover art</li>
+          <li>Fixed error of repeated songs in lists</li>
+          <li>Fixed multiple errors relating to radios</li>
+          <li>Fixed problems with Play Later and Play Next options</li>
+          <li>Fixed problems with lyrics when they use '/' in their name</li>
+          <li>Fixed self-signed ssl servers not being able to playback music</li>
+          <li>Fixed songs not playing in the correct order</li>
+          <li>Fixed playlist dialog not being scrollable</li>
+          <li>Fixed hide-on-close restore causing the queue to get restarted</li>
+          <li>Fixed no albums appearing in home page when using Jellyfin</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.9.7" date="2026-04-14">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.9.7</url>
       <description translate="no">
