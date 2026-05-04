@@ -259,6 +259,7 @@ def toggle_fullscreen(window):
     integration = get_current_integration()
     if integration.loaded_models.get('currentSong').get_property('queueModel').get_property('n-items') > 0:
         if popout_window := window.get_application().popout_window:
+            popout_window.present()
             if popout_window.is_fullscreen():
                 popout_window.unfullscreen()
             else:
