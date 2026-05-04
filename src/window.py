@@ -306,7 +306,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         else:
             song_playing = False
 
-        is_small = self.get_width() <= 700
+        is_small = self.get_width() <= 840
         if is_small:
             self.player_sidebar_splitview.set_show_sidebar(False)
             self.main_bottom_sheet.set_reveal_bottom_bar(song_playing)

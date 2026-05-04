@@ -7,7 +7,7 @@ template $NocturneWindow: Adw.ApplicationWindow {
   height-request: 560;
   close-request => $close_request();
   Adw.Breakpoint big_breakpoint_el {
-    condition ("max-width: 700sp")
+    condition ("max-width: 840sp")
     apply => $big_breakpoint_toggled();
     unapply => $big_breakpoint_toggled();
   }
