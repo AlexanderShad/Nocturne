@@ -41,6 +41,19 @@ The following dependencies are requirements of the project.
 - `gstreamer`
 - `blueprint-compiler >= 0.18.0`
 
+## Install
+### Linux (Flatpak)
+Most Linux distributions come with Flatpak preinstalled, make sure your device has [the Flathub repo enabled](https://flathub.org/en/setup).
+```sh
+flatpak install flathub com.jeffser.Nocturne
+```
+
+### Arch Linux (AUR)
+Nocturne is packaged unofficially in the AUR, to install it first make sure you have an AUR helper such as [yay](https://github.com/jguer/yay).
+```sh
+yay -S nocturne
+```
+
 ## Build
 ### Linux (Flatpak)
 Dependencies are automatically managed and built depending on host environment.
