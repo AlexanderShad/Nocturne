@@ -445,7 +445,7 @@ class Player(EventAdapter):
                 if model := integration.loaded_models.get('currentSong'):
                     if tag_list := message.parse_tag():
                         success, title = tag_list.get_string(Gst.TAG_TITLE)
-                        if success and title:
+                        if success and title and title != 'null':
                             current_title = model.get_property('displaySongTitle')
                             if current_title != title:
                                 model.set_property('displaySongTitle', title)
