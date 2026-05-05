@@ -41,7 +41,7 @@ msgstr "功能"
 
 #: data/com.jeffser.Nocturne.metainfo.xml.in:13
 msgid "Exploration by songs, artists, albums, radios and playlists"
-msgstr "透過歌曲、演出者、專輯、廣播和播放清單進行探索"
+msgstr "透過歌曲、演出者、專輯、電台和播放清單進行探索"
 
 #: data/com.jeffser.Nocturne.metainfo.xml.in:14
 msgid "Playlist management"
@@ -163,19 +163,19 @@ msgstr "未命名"
 
 #: src/actions.py:320
 msgid "Radio updated successfully"
-msgstr "廣播站台更新成功"
+msgstr "電台更新成功"
 
 #: src/actions.py:320
 msgid "Radio added successfully"
-msgstr "廣播站台新增成功"
+msgstr "電台新增成功"
 
 #: src/actions.py:331
 msgid "Error updating radio"
-msgstr "廣播站台更新出錯"
+msgstr "電台更新出錯"
 
 #: src/actions.py:331
 msgid "Error adding radio"
-msgstr "新增廣播站台失敗"
+msgstr "新增電台失敗"
 
 #: src/actions.py:340 src/actions.py:666
 msgid "Name"
@@ -187,11 +187,11 @@ msgstr "流媒體 URL"
 
 #: src/actions.py:352
 msgid "Update Radio Station"
-msgstr "更新廣播站台"
+msgstr "更新電台"
 
 #: src/actions.py:352
 msgid "Add Radio Station"
-msgstr "新增廣播站台"
+msgstr "新增電台"
 
 #: src/actions.py:356 src/preferences.py:316 src/ui/lyrics/dialog.blp:23
 #: src/ui/lyrics/dialog.blp:24
@@ -200,15 +200,15 @@ msgstr "儲存"
 
 #: src/actions.py:372
 msgid "Radio deleted successfully"
-msgstr "廣播站台移除成功"
+msgstr "電台移除成功"
 
 #: src/actions.py:380
 msgid "Error deleting radio"
-msgstr "廣播站台移除出錯"
+msgstr "電台移除出錯"
 
 #: src/actions.py:386
 msgid "Delete Radio Station"
-msgstr "移除廣播站台"
+msgstr "移除電台"
 
 #: src/actions.py:387 src/actions.py:788
 #, python-brace-format
@@ -452,7 +452,7 @@ msgstr "歌曲"
 #. Item
 #: src/constants.py:247 src/ui/pages/radios.blp:5 src/ui/pages/radios.blp:13
 msgid "Radios"
-msgstr "廣播站台"
+msgstr "電台"
 
 #: src/constants.py:261 src/constants.py:312 src/ui/lyrics/dialog.blp:47
 #: src/ui/playing/control_page.blp:244 src/ui/playing/footer.blp:103
@@ -495,7 +495,7 @@ msgstr "顯示演出者"
 #: src/constants.py:304 src/ui/playing/lyrics_page.blp:126
 #: src/widgets/song/row.py:108
 msgid "Radio"
-msgstr "廣播"
+msgstr "電台"
 
 #: src/constants.py:337 src/constants.py:365
 msgid "Edit"
@@ -864,15 +864,15 @@ msgstr "未找到播放清單"
 
 #: src/ui/pages/radios.blp:16
 msgid "Search radios"
-msgstr "搜尋廣播站台"
+msgstr "搜尋電台"
 
 #: src/ui/pages/radios.blp:26
 msgid "Add Radio"
-msgstr "新增廣播站台"
+msgstr "新增電台"
 
 #: src/ui/pages/radios.blp:61
 msgid "No Radios Found"
-msgstr "未找到廣播站台"
+msgstr "未找到電台"
 
 #: src/ui/pages/setup.blp:5
 msgid "Setup"
