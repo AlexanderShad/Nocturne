@@ -24,19 +24,19 @@ class LyricRow(Gtk.ListBoxRow):
             )
         )
 
-        pattern = r"<(\d{2}):(\d{2})\.(\d{2,3})>\s*([^<]*)"
+        pattern = r"<(\d{2}):(\d{2})\.(\d{2,3})>([^<]*)"
         matches = re.findall(pattern, content)
         self.cues = {}
         if len(matches) > 0:
             for m, s, ms_part, text in matches:
-                if clean_text := text.strip():
+                if text:
                     minutes = int(m)
                     seconds = int(s)
                     fraction = int(ms_part)
                     if len(ms_part) == 2:
                         fraction *= 10
                     total_ms = (minutes * 60000) + (seconds * 1000) + fraction
-                    self.cues[total_ms] = clean_text
+                    self.cues[total_ms] = text
         if len(self.cues) == 0:
             self.cues = {ms: content or "🎵"}
 
@@ -64,7 +64,7 @@ class LyricRow(Gtk.ListBoxRow):
             parts.append(f"<span fgalpha='{alpha_val}'>{word}</span>")
 
         if changed or force:
-            self.get_child().set_markup(" ".join(parts))
+            self.get_child().set_markup("".join(parts))
         return self.get_root()
 
 
