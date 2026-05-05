@@ -43,7 +43,7 @@ def __show_custom_toast(window, model_id:str, title_property:str, subtitle:str, 
             halign=Gtk.Align.CENTER,
             valign=Gtk.Align.CENTER,
         )
-        if paintable := model.get_property('gdkPaintable'):
+        if paintable := integration.getCoverArt(model_id):
             album_art.set_from_paintable(paintable)
             album_art.set_pixel_size(48)
         else:

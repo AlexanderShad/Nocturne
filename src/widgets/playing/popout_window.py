@@ -121,7 +121,7 @@ class PopoutWindow(Adw.ApplicationWindow):
             self.fs_artist_el.set_action_name("app.show_artist")
 
             # Paintable
-            paintable = model.get_property('gdkPaintable')
+            paintable = integration.getCoverArt(id)
             if paintable:
                 self.cover_el.remove_css_class('p50')
             else:

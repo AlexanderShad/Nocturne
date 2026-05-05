@@ -130,14 +130,14 @@ class Spectrum(Gtk.DrawingArea):
                         cr.fill()
 
     def song_changed(self, songId:str):
-        def set_color(model):
-            if paintable := model.get_property('gdkPaintable'):
+        integration = get_current_integration()
+        def set_color():
+            if paintable := integration.getCoverArt(songId):
                 img_io = io.BytesIO(paintable.save_to_png_bytes().get_data())
                 self.accent_color = [min(c/255, 1) for c in ColorThief(img_io).get_color(quality=10)]
 
-        integration = get_current_integration()
-        if found_model := integration.loaded_models.get(songId):
-            threading.Thread(target=set_color, args=(found_model,)).start()
+        if integration.loaded_models.get(songId):
+            threading.Thread(target=set_color).start()
         else:
             self.stopped = True
 
