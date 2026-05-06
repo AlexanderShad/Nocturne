@@ -12,7 +12,7 @@ class LyricRow(Gtk.ListBoxRow):
 
     ms = GObject.Property(type=int)
 
-    def __init__(self, content, ms):
+    def __init__(self, content:str, ms:int, duration_ms:int):
         super().__init__(
             ms=ms,
             child=Gtk.Label(
@@ -38,7 +38,17 @@ class LyricRow(Gtk.ListBoxRow):
                     total_ms = (minutes * 60000) + (seconds * 1000) + fraction
                     self.cues[total_ms] = text
         if len(self.cues) == 0:
-            self.cues = {ms: content or "🎵"}
+            if content:
+                if duration_ms == 0:
+                    self.cues[ms] = content
+                else:
+                    words = content.split(' ')
+                    ms_per_word = duration_ms / len(words)
+                    for i, word in enumerate(words):
+                        timestamp = ms + (i * ms_per_word)
+                        self.cues[timestamp] = word + ' '
+            else:
+                self.cues[ms] = "🎵"
 
         self.sorted_ts = sorted(self.cues.keys())
         self.alphas = {ts: 0.3 for ts in self.sorted_ts}
@@ -96,10 +106,24 @@ class PlayingLyricsPage(Gtk.Stack):
                 GLib.idle_add(self.lrc_list_el.remove_all)
                 if lyrics.get('content')[0].get('content'):
                     lyrics['content'].insert(0, {'content': '', 'ms': 0})
-                for line in lyrics.get('content'):
+                settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+                simulate_wbwl = settings.get_value('simulate-word-by-word-lyrics').unpack()
+                content = lyrics.get('content')
+                for i, line in enumerate(content):
+                    if simulate_wbwl:
+                        duration_ms = 1000
+                        if i + 1 < len(content):
+                            duration_ms = content[i+1].get('ms') - line.get('ms')
+                        else:
+                            integration = get_current_integration()
+                            if model := integration.loaded_models.get(song_id):
+                                duration_ms = model.get_property('duration') * 1000 - line.get('ms')
+                    else:
+                        duration_ms = 0
                     row = LyricRow(
                         ms=line.get('ms'),
-                        content=line.get('content', '')
+                        content=line.get('content', ''),
+                        duration_ms=duration_ms
                     )
                     GLib.idle_add(self.lrc_list_el.append, row)
 

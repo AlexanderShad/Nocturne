@@ -14,6 +14,10 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
       Adw.SwitchRow hide_on_close_el {
         title: _("Hide on Close");
       }
+      Adw.SwitchRow simulate_wbwl_el {
+        title: _("Simulate Word by Word Lyrics");
+        subtitle: _("Used when only line by line lyrics are available");
+      }
       Adw.ComboRow default_page_el {
         title: _("Default Page on Login");
         model: Gtk.StringList {};

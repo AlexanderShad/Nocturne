@@ -14,6 +14,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
     ## Behavior
     restore_el = Gtk.Template.Child()
     hide_on_close_el = Gtk.Template.Child()
+    simulate_wbwl_el = Gtk.Template.Child()
     default_page_el = Gtk.Template.Child()
     bitrate_el = Gtk.Template.Child()
 
@@ -75,6 +76,12 @@ class NocturnePreferences(Adw.PreferencesDialog):
         settings.bind(
             "hide-on-close",
             self.hide_on_close_el,
+            "active",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        settings.bind(
+            "simulate-word-by-word-lyrics",
+            self.simulate_wbwl_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )

@@ -43,6 +43,9 @@
 	  <key name="max-bitrate" type="i">
 	    <default>0</default>
 	  </key>
+	  <key name="simulate-word-by-word-lyrics" type="b">
+	    <default>false</default>
+	  </key>
 	  <key name="show-playlists-in-sidebar" type="b">
 	    <default>true</default>
 	  </key>
