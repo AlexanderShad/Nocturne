@@ -308,15 +308,16 @@ class NocturneWindow(Adw.ApplicationWindow):
 
         is_small = self.get_width() <= 840
         if is_small:
-            self.player_sidebar_splitview.set_show_sidebar(False)
-            self.main_bottom_sheet.set_reveal_bottom_bar(song_playing)
-            self.main_bottom_sheet.set_can_open(song_playing)
+            GLib.idle_add(self.player_sidebar_splitview.set_show_sidebar, False)
+            GLib.idle_add(self.main_bottom_sheet.set_reveal_bottom_bar, song_playing)
+            GLib.idle_add(self.main_bottom_sheet.set_can_open, song_playing)
         else:
             show_sidebar = self.settings.get_value('use-sidebar-player').unpack()
-            self.player_sidebar_splitview.set_show_sidebar(show_sidebar and song_playing)
-            self.main_bottom_sheet.set_reveal_bottom_bar(not show_sidebar and song_playing)
-            self.main_bottom_sheet.set_can_open(not show_sidebar and song_playing)
+            GLib.idle_add(self.player_sidebar_splitview.set_show_sidebar, show_sidebar and song_playing)
+            GLib.idle_add(self.main_bottom_sheet.set_reveal_bottom_bar, not show_sidebar and song_playing)
+            GLib.idle_add(self.main_bottom_sheet.set_can_open, not show_sidebar and song_playing)
             if show_sidebar:
-                self.main_bottom_sheet.set_open(False)
+                GLib.idle_add(self.main_bottom_sheet.set_open, False)
         if not song_playing:
-            self.main_bottom_sheet.set_open(False)
+            GLib.idle_add(self.main_bottom_sheet.set_open, False)
+
