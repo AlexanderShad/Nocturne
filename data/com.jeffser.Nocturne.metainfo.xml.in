@@ -91,6 +91,26 @@
   </keywords>
 
   <releases>
+    <release version="1.0.1" date="2026-05-05">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/1.0.1</url>
+      <description translate="no">
+        <p>New</p>
+        <ul>
+          <li>Added option to simulate word by word lyrics when none are available</li>
+        </ul>
+        <p>Optimizations</p>
+        <ul>
+          <li>Added dynamic image resolutions to save ram</li>
+          <li>Removed gdkPaintableBytes property to save ram</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Fixed sidebar player appearing on launch for a second even when disabled</li>
+          <li>Fixed 'null' appearing as title of radios sometimes</li>
+          <li>Fixed error when some OpenSubsonic instances use int as ID instead of str</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.0.0" date="2026-05-03">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/1.0.0</url>
       <description translate="no">
