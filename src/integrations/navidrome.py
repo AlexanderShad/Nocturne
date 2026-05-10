@@ -6,7 +6,7 @@ from ..constants import get_navidrome_path, check_if_navidrome_ready, get_navidr
 from .base import Base
 import requests, random, threading, io, subprocess, shutil, os
 from PIL import Image
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 class Navidrome(Base):
     __gtype_name__ = 'NocturneIntegrationNavidrome'
@@ -122,6 +122,18 @@ class Navidrome(Base):
                 except Exception as e:
                     pass
         return None
+
+    def getCoverArtUrl(self, model_id:str='', big:bool=False) -> str:
+        if model := self.loaded_models.get(model_id):
+            if isinstance(model, models.Song) and (model.get_property('isRadio') or model.get_property('isExternalFile')):
+                return ""
+            params = {
+                **self.get_base_params(),
+                'id': model.get_property('coverArt') or model.get_property('id'),
+                'size': 720 if big else 240
+            }
+            return '{}?{}'.format(self.get_url('getCoverArt'), urlencode(params))
+        return ""
 
     def ping(self) -> bool:
         try:
@@ -597,4 +609,3 @@ class NavidromeIntegrated(Navidrome):
             self.process.terminate()
             self.process = None
         self.set_property('serverRunning', False)
-

@@ -5,6 +5,7 @@ from . import secret, models, local
 from .base import Base
 from ..constants import DOWNLOAD_QUEUE_DIR, DOWNLOADS_DIR, DOWNLOAD_MIME_MAP
 import requests, subprocess, random, threading, base64, os, json, platform
+from urllib.parse import urlencode
 
 class Jellyfin(Base):
     __gtype_name__ = 'NocturneIntegrationJellyfin'
@@ -171,6 +172,19 @@ class Jellyfin(Base):
                 except Exception as e:
                     pass
         return None
+
+    def getCoverArtUrl(self, model_id:str='', big:bool=False) -> str:
+        if model := self.loaded_models.get(model_id):
+            if isinstance(model, models.Song) and (model.get_property('isRadio') or model.get_property('isExternalFile')):
+                return ""
+            params = {
+                'maxWidth': 720 if big else 240,
+                'quality': 90
+            }
+            if token := self.get_property('accessToken'):
+                params['api_key'] = token
+            return '{}?{}'.format(self.get_url('Items/{id}/Images/Primary', id=model_id), urlencode(params))
+        return ""
 
     def ping(self) -> bool:
         self.set_property('accessToken', "")
@@ -934,5 +948,4 @@ class Jellyfin(Base):
             pass
 
         return server_information
-
 

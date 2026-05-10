@@ -46,6 +46,15 @@
 	  <key name="simulate-word-by-word-lyrics" type="b">
 	    <default>false</default>
 	  </key>
+	  <key name="discord-rpc-enabled" type="b">
+	    <default>false</default>
+	  </key>
+	  <key name="discord-rpc-client-id" type="s">
+	    <default>'1503167534549958758'</default>
+	  </key>
+	  <key name="discord-rpc-public-url" type="s">
+	    <default>''</default>
+	  </key>
 	  <key name="show-playlists-in-sidebar" type="b">
 	    <default>true</default>
 	  </key>
