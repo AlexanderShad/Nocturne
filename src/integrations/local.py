@@ -11,6 +11,7 @@ from ..constants import DOWNLOADS_DIR, get_song_info_from_file
 
 class Local(Base):
     __gtype_name__ = 'NocturneIntegrationLocal'
+    album_artist_ids = set()
 
     login_page_metadata = {
         'icon-name': "folder-open-symbolic",
@@ -29,6 +30,7 @@ class Local(Base):
         # Goes through the whole directory retrieving all the metadata
         audio_data_list = []
         path_obj = pathlib.Path(self.get_property('libraryDir'))
+        self.album_artist_ids = set()
 
         def load_songs():
             # load songs, albums, artists
@@ -170,7 +172,7 @@ class Local(Base):
         return [model_id for model_id in album_list if model_id in self.loaded_models][offset:size+offset]
 
     def getArtists(self, size:int=10) -> list:
-        return [model_id for model_id in list(self.loaded_models) if model_id.startswith('ARTIST:')][:size]
+        return [model_id for model_id in list(self.loaded_models) if model_id in self.album_artist_ids][:size]
 
     def getPlaylists(self) -> list:
         self.load_playlists()
@@ -224,23 +226,30 @@ class Local(Base):
                     self.loaded_models[album.get('id')] = models.Album(**album)
 
             # Making Artist Model
-            artist_id = song.get('artistId')
-            if artist_id:
+            def update_artist(artist_id:str, artist_name:str):
                 if artist_id not in self.loaded_models:
                     self.loaded_models[artist_id] = models.Artist(
                         id=artist_id,
                         coverArt=song.get('path'),
-                        name=song.get('artist'),
+                        name=artist_name,
                         album=[],
                         albumCount=0,
                         starred=artist_id in star_dict
                     )
 
-                # Add album
                 album_list = self.loaded_models.get(artist_id).album
                 if album_id and not any(album.get('id') == album_id for album in album_list):
                     self.loaded_models.get(artist_id).album.append({'id': album_id})
                     self.loaded_models.get(artist_id).albumCount += 1
+
+            artist_id = song.get('artistId')
+            if artist_id:
+                self.album_artist_ids.add(artist_id)
+                update_artist(artist_id, song.get('artist'))
+
+            for artist in song.get('artists', []):
+                if artist.get('id'):
+                    update_artist(artist.get('id'), artist.get('name'))
 
         if force_update or not self.loaded_models.get(model_id).get_property('title'):
             if use_threading:
@@ -328,7 +337,7 @@ class Local(Base):
         return {'type': 'not-found'}
 
     def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
-        all_artists = [model for model_id, model in self.loaded_models.items() if model_id.startswith('ARTIST:')]
+        all_artists = [model for model_id, model in self.loaded_models.items() if model_id in self.album_artist_ids]
         all_albums = [model for model_id, model in self.loaded_models.items() if model_id.startswith('ALBUM:')]
         all_songs = [model for model_id, model in self.loaded_models.items() if model_id.startswith('SONG:')]
 
