@@ -38,8 +38,7 @@ class Local(Base):
                 # Exclude any hidden files/folders within the library path
                 if any(part.startswith(".") for part in file_path.relative_to(path_obj).parts):
                     continue
-
-                if file_path.suffix.lower() in ('.mp3', '.flac', '.m4a', '.ogg', '.wav'):
+                if file_path.suffix.lower() in ('.mp3', '.flac', '.m4a', '.oga', '.ogg', '.opus', '.wav'):
                     song_id = 'SONG:{}'.format(file_path)
                     self.loaded_models[song_id] = models.Song(id=song_id, path=file_path, coverArt=file_path)
                     threads.append(threading.Thread(target=self.verifySong, args=(song_id,)))
