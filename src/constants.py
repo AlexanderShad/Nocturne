@@ -160,6 +160,7 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
 
 TRANSLATORS = [
     "Jeffry Samuel (Spanish) https://jeffser.com",
+    "Jordi Bultó (Catalan) https://github.com/formajestically",
     "Martin Prokoph (German) https://github.com/Motschen",
     "Aleksandr Shamaraev (Russian) https://github.com/AlexanderShad",
     "Muhammed Emin Akalan (Turkish) https://github.com/muhammedeminakalan",
