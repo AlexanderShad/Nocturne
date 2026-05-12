@@ -231,6 +231,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.play_album_shuffle)
 
         self.create_action(actions.show_playlist)
+        self.create_action(actions.resume_playlist)
         self.create_action(actions.play_playlist)
         self.create_action(actions.play_playlist_next)
         self.create_action(actions.play_playlist_later)

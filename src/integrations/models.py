@@ -141,12 +141,14 @@ class SongDownload(GObject.Object):
 
 class CurrentSong(GObject.Object):
     __gtype_name__ = 'NocturneModelCurrentSong'
+    # Not really currentSong, more like currentState at this point
 
     songId = GObject.Property(type=str)
     positionSeconds = GObject.Property(type=float, default=0.0)
     buttonState = GObject.Property(type=str, default="play") # play, pause (for use in state stacks)
     magnitudes = GObject.Property(type=GObject.TYPE_PYOBJECT) # dict
     seeking = GObject.Property(type=bool, default=False)
+    queueOrigin = GObject.Property(type=str, default="") # set to the id of playlist / album where the queue originated from
     queueModel = GObject.Property(type=Gio.ListStore, default=Gio.ListStore.new(item_type=Gtk.StringObject))
     generatedQueue = GObject.Property(type=Gio.ListStore, default=Gio.ListStore.new(item_type=Gtk.StringObject))
     generatingQueue = GObject.Property(type=bool, default=False)

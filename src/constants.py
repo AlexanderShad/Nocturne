@@ -328,6 +328,11 @@ CONTEXT_PLAYLIST = {
         "icon-name": "media-playback-start-symbolic",
         "action-name": "app.play_playlist"
     },
+    "resume": {
+        "name": _("Resume"),
+        "icon-name": "playback-options-symbolic",
+        "action-name": "app.resume_playlist"
+    },
     "shuffle": {
         "name": _("Shuffle"),
         "icon-name": "media-playlist-shuffle-symbolic",

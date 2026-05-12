@@ -95,7 +95,8 @@ class PlaylistPage(Adw.NavigationPage):
                 row.set_action_name('app.play_song_from_list')
                 row.set_action_target_value(GLib.Variant('a{sv}', {
                     'songId': GLib.Variant('s', songId),
-                    'songs': GLib.Variant('as', self.song_ids)
+                    'songs': GLib.Variant('as', self.song_ids),
+                    'originId': GLib.Variant('s', self.id)
                 }))
                 GLib.idle_add(self.song_list_el.list_el.append, row)
             self.current_offset += 50

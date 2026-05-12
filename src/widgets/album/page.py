@@ -183,7 +183,8 @@ class AlbumPage(Adw.NavigationPage):
             row.set_action_name(None)
             row.set_action_target_value(GLib.Variant('a{sv}', {
                 'songId': GLib.Variant('s', row.id),
-                'songs': GLib.Variant('as', song_ids)
+                'songs': GLib.Variant('as', song_ids),
+                'originId': GLib.Variant('s', self.id)
             }))
             row.set_action_name('app.play_song_from_list')
 

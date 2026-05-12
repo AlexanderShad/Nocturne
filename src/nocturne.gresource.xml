@@ -62,6 +62,7 @@
     <file alias="icons/scalable/status/paintbrush-symbolic.svg">icons/paintbrush-symbolic.svg</file>
     <file alias="icons/scalable/status/cross-large-circle-filled-symbolic.svg">icons/cross-large-circle-filled-symbolic.svg</file>
     <file alias="icons/scalable/status/cross-large-symbolic.svg">icons/cross-large-symbolic.svg</file>
+    <file alias="icons/scalable/status/playback-options-symbolic.svg">icons/playback-options-symbolic.svg</file>
 
     <file alias="window.ui">ui/window.ui</file>
     <file alias="shortcuts-dialog.ui">ui/shortcuts-dialog.ui</file>

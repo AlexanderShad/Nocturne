@@ -55,8 +55,9 @@ def __show_custom_toast(window, model_id:str, title_property:str, subtitle:str, 
     )
     GLib.idle_add(window.get_application().props.active_window.toast_overlay.add_toast, toast)
 
-def __replace_queue(window, songs:list, current_id:str=None):
+def __replace_queue(window, songs:list, current_id:str=None, origin_id:str=""):
     integration = get_current_integration()
+    integration.loaded_models.get('currentSong').set_property('queueOrigin', origin_id)
     queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
     GLib.idle_add(queue_model.remove_all)
     if len(songs) > 0:
@@ -73,6 +74,7 @@ def __replace_queue(window, songs:list, current_id:str=None):
 
 def __play_next(window, songs:list):
     integration = get_current_integration()
+    integration.loaded_models.get('currentSong').set_property('queueOrigin', "")
     current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
     queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
     if queue_model.get_property('n-items') == 0 or not current_song_id:
@@ -94,6 +96,7 @@ def __play_next(window, songs:list):
 
 def __play_later(window, songs:list):
     integration = get_current_integration()
+    integration.loaded_models.get('currentSong').set_property('queueOrigin', "")
     current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
     queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
     if queue_model.get_property('n-items') == 0 or not current_song_id:
@@ -426,11 +429,13 @@ def play_song(window, model_id:str):
 def play_song_from_list(window, data:dict):
     song_id = data.get('songId')
     songs = data.get('songs', [song_id])
+    origin_id = data.get('originId', "")
 
     if song_id:
         threading.Thread(
             target=__replace_queue,
             args=(window, songs, song_id),
+            kwargs={"origin_id": origin_id},
             daemon=True
         ).start()
 
@@ -561,6 +566,7 @@ def play_album(window, model_id:str):
         threading.Thread(
             target=__replace_queue,
             args=(window, [s.get('id') for s in album.get_property('song')]),
+            kwargs={"origin_id": model_id},
             daemon=True
         ).start()
 
@@ -609,6 +615,7 @@ def play_album_shuffle(window, model_id:str):
         threading.Thread(
             target=__replace_queue,
             args=(window, song_list),
+            kwargs={"origin_id": model_id},
             daemon=True
         ).start()
 
@@ -619,13 +626,26 @@ def show_playlist(window, model_id:str):
 
 def play_playlist(window, model_id:str):
     integration = get_current_integration()
-    playlist = integration.loaded_models.get(model_id)
 
-    if playlist:
+    if playlist := integration.loaded_models.get(model_id):
         integration.verifyPlaylist(playlist.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
             target=__replace_queue,
             args=(window, [s.get('id') for s in playlist.get_property('entry')],),
+            kwargs={"origin_id": model_id},
+            daemon=True
+        ).start()
+
+def resume_playlist(window, model_id:str):
+    integration = get_current_integration()
+    current_id = integration.getPlaylistLastPlayedSong(model_id)
+
+    if playlist := integration.loaded_models.get(model_id):
+        integration.verifyPlaylist(playlist.get_property('id'), force_update=True, use_threading=False)
+        threading.Thread(
+            target=__replace_queue,
+            args=(window, [s.get('id') for s in playlist.get_property('entry')],),
+            kwargs={"origin_id": model_id, "current_id": current_id},
             daemon=True
         ).start()
 
@@ -674,6 +694,7 @@ def play_playlist_shuffle(window, model_id:str):
         threading.Thread(
             target=__replace_queue,
             args=(window, song_list),
+            kwargs={"origin_id": model_id},
             daemon=True
         ).start()
 
