@@ -43,12 +43,12 @@ class Local(Base):
                 if file_path.suffix.lower() in ('.mp3', '.flac', '.m4a', '.oga', '.ogg', '.opus', '.wav'):
                     song_id = 'SONG:{}'.format(file_path)
                     self.loaded_models[song_id] = models.Song(id=song_id, path=file_path, coverArt=file_path)
-                    threads.append(threading.Thread(target=self.verifySong, args=(song_id,)))
+                    threads.append(threading.Thread(target=self.verifySong, args=(song_id,), daemon=True))
                     threads[-1].start()
             for t in threads:
                 t.join()
             self.set_property('loadingMessage', "")
-        threading.Thread(target=load_songs).start()
+        threading.Thread(target=load_songs, daemon=True).start()
 
         # Load radios
         radio_dict = self.open_json('radios.json')
@@ -183,13 +183,13 @@ class Local(Base):
         return [song_id for song_id in star_dict if song_id.startswith("SONG:") and song_id in self.loaded_models]
 
     def verifyArtist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
-        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,), daemon=True).start()
 
     def verifyAlbum(self, model_id:str, force_update:bool=False, use_threading:bool=True):
-        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,), daemon=True).start()
 
     def verifyPlaylist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
-        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,), daemon=True).start()
 
     def verifySong(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def run():
@@ -253,11 +253,11 @@ class Local(Base):
 
         if force_update or not self.loaded_models.get(model_id).get_property('title'):
             if use_threading:
-                threading.Thread(target=run).start()
+                threading.Thread(target=run, daemon=True).start()
             else:
                 run()
 
-        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,), daemon=True).start()
 
     def star(self, model_id:str) -> bool:
         star_dict = self.open_json('stars.json')

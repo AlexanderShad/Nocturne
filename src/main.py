@@ -104,7 +104,7 @@ class NocturneApplication(Adw.Application):
                 directory = settings.get_value('integration-library-dir').unpack()
                 if Gio.File.new_for_path(directory).query_exists():
                     integration.set_property('libraryDir', directory)
-                threading.Thread(target=self.try_login, args=(integration,)).start()
+                threading.Thread(target=self.try_login, args=(integration,), daemon=True).start()
                 return
         self.main_window.main_stack.set_visible_child_name('welcome')
 
@@ -120,9 +120,9 @@ class NocturneApplication(Adw.Application):
             settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
             default_page = settings.get_value('default-page-tag').unpack() or 'home'
             self.main_window.activate_action("app.replace_root_page", GLib.Variant('s', default_page))
-            GLib.idle_add(threading.Thread(target=self.main_window.update_playlist_section_of_sidebar).start)
+            GLib.idle_add(threading.Thread(target=self.main_window.update_playlist_section_of_sidebar, daemon=True).start)
             if settings.get_value("restore-session").unpack():
-                threading.Thread(target=self.player.restore_play_queue).start()
+                threading.Thread(target=self.player.restore_play_queue, daemon=True).start()
             if dialog := self.main_window.get_visible_dialog():
                 dialog.close()
         else:

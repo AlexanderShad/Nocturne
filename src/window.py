@@ -81,7 +81,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         if page:
             self.main_bottom_sheet.set_open(False)
             self.main_split_view.set_show_content(True)
-            threading.Thread(target=page.reload).start()
+            threading.Thread(target=page.reload, daemon=True).start()
             self.main_navigationview.replace([page])
 
     def create_action(self, callback:callable, shortcuts:list=[], parameter_type:str="s"):
@@ -119,7 +119,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.loading_el.set_visible(message)
         self.loading_el.set_tooltip_text(message)
         if not message:
-            threading.Thread(target=self.main_navigationview.get_visible_page().reload).start()
+            threading.Thread(target=self.main_navigationview.get_visible_page().reload, daemon=True).start()
 
     def update_playlist_section_of_sidebar(self):
         integration = get_current_integration()

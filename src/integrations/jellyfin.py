@@ -378,11 +378,11 @@ class Jellyfin(Base):
             if model_id not in self.loaded_models:
                 self.loaded_models[model_id] = models.Artist(id=model_id)
             if use_threading:
-                threading.Thread(target=run).start()
+                threading.Thread(target=run, daemon=True).start()
             else:
                 run()
 
-        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,), daemon=True).start()
 
     def verifyAlbum(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def run():
@@ -427,11 +427,11 @@ class Jellyfin(Base):
             if model_id not in self.loaded_models:
                 self.loaded_models[model_id] = models.Album(id=model_id)
             if use_threading:
-                threading.Thread(target=run).start()
+                threading.Thread(target=run, daemon=True).start()
             else:
                 run()
 
-        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,), daemon=True).start()
 
     def verifyPlaylist(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def run():
@@ -466,11 +466,11 @@ class Jellyfin(Base):
             if model_id not in self.loaded_models:
                 self.loaded_models[model_id] = models.Playlist(id=model_id)
             if use_threading:
-                threading.Thread(target=run).start()
+                threading.Thread(target=run, daemon=True).start()
             else:
                 run()
 
-        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,), daemon=True).start()
 
     def verifySong(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def run():
@@ -506,11 +506,11 @@ class Jellyfin(Base):
             if model_id not in self.loaded_models:
                 self.loaded_models[model_id] = models.Song(id=model_id)
             if use_threading:
-                threading.Thread(target=run).start()
+                threading.Thread(target=run, daemon=True).start()
             else:
                 run()
 
-        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,), daemon=True).start()
 
     def star(self, model_id:str) -> bool:
         response = self.make_request(

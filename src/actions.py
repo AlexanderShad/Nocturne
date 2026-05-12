@@ -69,7 +69,7 @@ def __replace_queue(window, songs:list, current_id:str=None):
         )
     GLib.idle_add(integration.loaded_models.get('currentSong').set_property, 'songId', current_id)
     if Gio.Settings(schema_id="com.jeffser.Nocturne").get_value('auto-play').unpack():
-        threading.Thread(target=generate_auto_play_queue, args=(window, False)).start()
+        threading.Thread(target=generate_auto_play_queue, args=(window, False), daemon=True).start()
 
 def __play_next(window, songs:list):
     integration = get_current_integration()
@@ -145,7 +145,7 @@ def generate_auto_play_queue(window, replace_on_finish:bool):
         if replace_on_finish:
             __replace_queue(window, [so.get_string() for so in list(generated_queue_model)])
 
-    threading.Thread(target=run).start()
+    threading.Thread(target=run, daemon=True).start()
 
 def set_equalizer_preset(window, preset_name:str):
     preset = {
@@ -194,7 +194,7 @@ def logout(window):
     settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
     settings.set_string('integration-user', '')
     settings.set_string('selected-instance-type', '')
-    threading.Thread(target=__replace_queue, args=(window,[])).start()
+    threading.Thread(target=__replace_queue, args=(window,[]), daemon=True).start()
     GLib.idle_add(window.main_stack.set_visible_child_name, 'welcome')
     GLib.idle_add(replace_root_page, window, 'home')
     if window.get_application().player.mpris_published:
@@ -313,7 +313,7 @@ def play_radio(window, model_id:str):
     if model_id in [so.get_string() for so in integration.loaded_models.get('currentSong').get_property('queueModel')]:
         integration.loaded_models.get('currentSong').set_property('songId', model_id)
     else:
-        threading.Thread(target=__replace_queue, args=(window,[model_id],)).start()
+        threading.Thread(target=__replace_queue, args=(window,[model_id],), daemon=True).start()
 
 def update_radio(window, id:str=""):
     integration = get_current_integration()
@@ -348,7 +348,7 @@ def update_radio(window, id:str=""):
                         model.set_property('title', name)
                         model.set_property('streamUrl', stream)
                     else:
-                        threading.Thread(target=window.main_navigationview.get_visible_page().reload).start()
+                        threading.Thread(target=window.main_navigationview.get_visible_page().reload, daemon=True).start()
                     return
             toast = Adw.Toast(
                 title=_("Error updating radio") if id else _("Error adding radio"),
@@ -378,7 +378,7 @@ def update_radio(window, id:str=""):
     dialog.add_response("cancel", _("Cancel"))
     dialog.add_response("save", _("Save"))
     dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
-    dialog.choose(window, None, lambda *prms: threading.Thread(target=response, args=prms).start(), name_el, stream_el, id)
+    dialog.choose(window, None, lambda *prms: threading.Thread(target=response, args=prms, daemon=True).start(), name_el, stream_el, id)
 
 def add_radio(window):
     update_radio(window)
@@ -397,7 +397,7 @@ def delete_radio(window, model_id:str):
                 )
                 window.toast_overlay.add_toast(toast)
                 del integration.loaded_models[id]
-                threading.Thread(target=window.main_navigationview.get_visible_page().reload).start()
+                threading.Thread(target=window.main_navigationview.get_visible_page().reload, daemon=True).start()
             else:
                 toast = Adw.Toast(
                     title=_("Error deleting radio"),
@@ -421,7 +421,7 @@ def play_song(window, model_id:str):
     if model_id in [so.get_string() for so in integration.loaded_models.get('currentSong').get_property('queueModel')]:
         integration.loaded_models.get('currentSong').set_property('songId', model_id)
     else:
-        threading.Thread(target=__replace_queue, args=(window,[model_id],)).start()
+        threading.Thread(target=__replace_queue, args=(window,[model_id],), daemon=True).start()
 
 def play_song_from_list(window, data:dict):
     song_id = data.get('songId')
@@ -430,65 +430,77 @@ def play_song_from_list(window, data:dict):
     if song_id:
         threading.Thread(
             target=__replace_queue,
-            args=(window, songs, song_id)
+            args=(window, songs, song_id),
+            daemon=True
         ).start()
 
 def play_song_next(window, model_id:str):
     threading.Thread(
         target=__play_next,
-        args=(window, [model_id])
+        args=(window, [model_id]),
+        daemon=True
     ).start()
     threading.Thread(
         target=__show_custom_toast,
-        args=(window, model_id, 'title', _("Playing Next"))
+        args=(window, model_id, 'title', _("Playing Next")),
+        daemon=True
     ).start()
 
 def play_song_later(window, model_id:str):
     threading.Thread(
         target=__play_later,
-        args=(window, [model_id])
+        args=(window, [model_id]),
+        daemon=True
     ).start()
     threading.Thread(
         target=__show_custom_toast,
-        args=(window, model_id, 'title', _("Playing Later"))
+        args=(window, model_id, 'title', _("Playing Later")),
+        daemon=True
     ).start()
 
 def play_songs(window, song_list:list):
     threading.Thread(
         target=__replace_queue,
-        args=(window, song_list)
+        args=(window, song_list),
+        daemon=True
     ).start()
 
 def play_songs_next(window, song_list:list):
     threading.Thread(
         target=__play_next,
-        args=(window, song_list)
+        args=(window, song_list),
+        daemon=True
     ).start()
     if len(song_list)> 1:
         threading.Thread(
             target=__show_custom_toast,
-            args=(window, None, _("{} Songs").format(len(song_list)), _("Playing Next"), "list-high-priority-symbolic")
+            args=(window, None, _("{} Songs").format(len(song_list)), _("Playing Next"), "list-high-priority-symbolic"),
+            daemon=True
         ).start()
     else:
         threading.Thread(
             target=__show_custom_toast,
-            args=(window, song_list[0], "title", _("Playing Next"))
+            args=(window, song_list[0], "title", _("Playing Next")),
+            daemon=True
         ).start()
 
 def play_songs_later(window, song_list:list):
     threading.Thread(
         target=__play_later,
-        args=(window, song_list,)
+        args=(window, song_list,),
+        daemon=True
     ).start()
     if len(song_list) > 1:
         threading.Thread(
             target=__show_custom_toast,
-            args=(window, None, _("{} Songs").format(len(song_list)), _("Playing Later"), "list-low-priority-symbolic")
+            args=(window, None, _("{} Songs").format(len(song_list)), _("Playing Later"), "list-low-priority-symbolic"),
+            daemon=True
         ).start()
     else:
         threading.Thread(
             target=__show_custom_toast,
-            args=(window, song_list[0], "title", _("Playing Later"))
+            args=(window, song_list[0], "title", _("Playing Later")),
+            daemon=True
         ).start()
 
 def edit_lyrics(window, song_id:str):
@@ -517,14 +529,16 @@ def save_lyrics(window, lyric_dict:dict):
 
     threading.Thread(
         target=__show_custom_toast,
-        args=(window, lyric_dict.get('id'), "title", _("Lyrics Saved"))
+        args=(window, lyric_dict.get('id'), "title", _("Lyrics Saved")),
+        daemon=True
     ).start()
 
 def play_random_queue(window):
     integration = get_current_integration()
     threading.Thread(
         target=__replace_queue,
-        args=(window, integration.getRandomSongs(),)
+        args=(window, integration.getRandomSongs(),),
+        daemon=True
     ).start()
 
 # -- ALBUM --
@@ -546,7 +560,8 @@ def play_album(window, model_id:str):
         integration.verifyAlbum(album.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
             target=__replace_queue,
-            args=(window, [s.get('id') for s in album.get_property('song')])
+            args=(window, [s.get('id') for s in album.get_property('song')]),
+            daemon=True
         ).start()
 
 def play_album_next(window, model_id:str):
@@ -557,11 +572,13 @@ def play_album_next(window, model_id:str):
         integration.verifyAlbum(album.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
             target=__play_next,
-            args=(window, [s.get('id') for s in album.get_property('song')])
+            args=(window, [s.get('id') for s in album.get_property('song')]),
+            daemon=True
         ).start()
     threading.Thread(
         target=__show_custom_toast,
-        args=(window, model_id, 'name', _("Playing Next"))
+        args=(window, model_id, 'name', _("Playing Next")),
+        daemon=True
     ).start()
 
 def play_album_later(window, model_id:str):
@@ -572,11 +589,13 @@ def play_album_later(window, model_id:str):
         integration.verifyAlbum(album.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
             target=__play_later,
-            args=(window, [s.get('id') for s in album.get_property('song')])
+            args=(window, [s.get('id') for s in album.get_property('song')]),
+            daemon=True
         ).start()
     threading.Thread(
         target=__show_custom_toast,
-        args=(window, model_id, 'name', _("Playing Later"))
+        args=(window, model_id, 'name', _("Playing Later")),
+        daemon=True
     ).start()
 
 def play_album_shuffle(window, model_id:str):
@@ -589,7 +608,8 @@ def play_album_shuffle(window, model_id:str):
         random.shuffle(song_list)
         threading.Thread(
             target=__replace_queue,
-            args=(window, song_list)
+            args=(window, song_list),
+            daemon=True
         ).start()
 
 # -- PLAYLIST --
@@ -605,7 +625,8 @@ def play_playlist(window, model_id:str):
         integration.verifyPlaylist(playlist.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
             target=__replace_queue,
-            args=(window, [s.get('id') for s in playlist.get_property('entry')],)
+            args=(window, [s.get('id') for s in playlist.get_property('entry')],),
+            daemon=True
         ).start()
 
 def play_playlist_next(window, model_id:str):
@@ -616,11 +637,13 @@ def play_playlist_next(window, model_id:str):
         integration.verifyPlaylist(playlist.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
             target=__play_next,
-            args=(window, [s.get('id') for s in playlist.get_property('entry')],)
+            args=(window, [s.get('id') for s in playlist.get_property('entry')],),
+            daemon=True
         ).start()
     threading.Thread(
         target=__show_custom_toast,
-        args=(window, model_id, 'name', _("Playing Next"))
+        args=(window, model_id, 'name', _("Playing Next")),
+        daemon=True
     ).start()
 
 def play_playlist_later(window, model_id:str):
@@ -631,11 +654,13 @@ def play_playlist_later(window, model_id:str):
         integration.verifyPlaylist(playlist.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
             target=__play_later,
-            args=(window, [s.get('id') for s in playlist.get_property('entry')])
+            args=(window, [s.get('id') for s in playlist.get_property('entry')]),
+            daemon=True
         ).start()
     threading.Thread(
         target=__show_custom_toast,
-        args=(window, model_id, 'name', _("Playing Later"))
+        args=(window, model_id, 'name', _("Playing Later")),
+        daemon=True
     ).start()
 
 def play_playlist_shuffle(window, model_id:str):
@@ -648,7 +673,8 @@ def play_playlist_shuffle(window, model_id:str):
         random.shuffle(song_list)
         threading.Thread(
             target=__replace_queue,
-            args=(window, song_list)
+            args=(window, song_list),
+            daemon=True
         ).start()
 
 def update_playlist(window, model_id:str=None):
@@ -665,7 +691,7 @@ def update_playlist(window, model_id:str=None):
                 )
                 if result:
                     if not id:
-                        threading.Thread(target=window.update_playlist_section_of_sidebar).start()
+                        threading.Thread(target=window.update_playlist_section_of_sidebar, daemon=True).start()
                     toast = Adw.Toast(
                         title=_("Playlist updated successfully") if id else _("Playlist created successfully"),
                         timeout=2
@@ -674,7 +700,7 @@ def update_playlist(window, model_id:str=None):
                     if id:
                         model.set_property('name', name)
                     else:
-                        threading.Thread(target=window.main_navigationview.get_visible_page().reload).start()
+                        threading.Thread(target=window.main_navigationview.get_visible_page().reload, daemon=True).start()
                     return
             toast = Adw.Toast(
                 title=_("Error updating playlist") if id else _("Error creating playlist"),
@@ -715,12 +741,14 @@ def remove_songs_from_playlist(window, data:dict):
         if len(song_list) > 1:
             threading.Thread(
                 target=__show_custom_toast,
-                args=(window, playlist_id, "name", _("{} Songs Removed").format(len(song_list)))
+                args=(window, playlist_id, "name", _("{} Songs Removed").format(len(song_list))),
+                daemon=True
             ).start()
         else:
             threading.Thread(
                 target=__show_custom_toast,
-                args=(window, playlist_id, "name", _("Song Removed"))
+                args=(window, playlist_id, "name", _("Song Removed")),
+                daemon=True
             ).start()
 
 def prompt_add_songs_to_playlist(window, song_list:list):
@@ -757,9 +785,10 @@ def add_songs_to_playlist(window, data):
                 message = _("1 Song Added")
             threading.Thread(
                 target=__show_custom_toast,
-                args=(window, response, "name", message)
+                args=(window, response, "name", message),
+                daemon=True
             ).start()
-            threading.Thread(target=window.update_playlist_section_of_sidebar).start()
+            threading.Thread(target=window.update_playlist_section_of_sidebar, daemon=True).start()
 
     elif data.get('playlist'):
         integration.verifyPlaylist(data.get('playlist'), force_update=True, use_threading=False)
@@ -787,7 +816,8 @@ def add_songs_to_playlist(window, data):
 
         threading.Thread(
             target=__show_custom_toast,
-            args=(window, data.get('playlist'), "name", ' | '.join(message))
+            args=(window, data.get('playlist'), "name", ' | '.join(message)),
+            daemon=True
         ).start()
 
 def delete_playlist(window, model_id:str):
@@ -803,8 +833,8 @@ def delete_playlist(window, model_id:str):
         if dialog.choose_finish(task) == "delete":
             result = integration.deletePlaylist(model.get_property('id'))
             if result:
-                threading.Thread(target=show_toast, args=(model,)).start()
-                threading.Thread(target=window.update_playlist_section_of_sidebar).start()
+                threading.Thread(target=show_toast, args=(model,), daemon=True).start()
+                threading.Thread(target=window.update_playlist_section_of_sidebar, daemon=True).start()
 
     dialog = Adw.AlertDialog(
         heading=_("Delete Playlist"),
@@ -846,7 +876,7 @@ def play_shuffle_artist(window, model_id:str):
                     songs.extend([s.get('id') for s in album_model.get_property('song')])
             if len(songs) > 0:
                 play_songs(window, random.sample(songs, min(20, len(songs))))
-    threading.Thread(target=run).start()
+    threading.Thread(target=run, daemon=True).start()
 
 def play_radio_artist(window, model_id:str):
     integration = get_current_integration()
@@ -859,7 +889,7 @@ def play_radio_artist(window, model_id:str):
                 title=_("No songs found")
             )
             GLib.idle_add(window.toast_overlay.add_toast, toast)
-    threading.Thread(target=run).start()
+    threading.Thread(target=run, daemon=True).start()
 
 # -- DOWNLOADS --
 
@@ -887,7 +917,7 @@ def __request_song_download(model_id:str) -> bool:
             return False
         download_queue.insert(0, download_model)
         callback = lambda frac, md=download_model: md.set_property('progress', frac)
-        threading.Thread(target=integration.downloadSong, args=(model_id, file_title, callback)).start()
+        threading.Thread(target=integration.downloadSong, args=(model_id, file_title, callback), daemon=True).start()
         return True
     return False
 
@@ -908,7 +938,7 @@ def download_song(window, model_id:str):
                 'title',
                 _("Already Downloaded")
             )
-    threading.Thread(target=run, args=(model_id,)).start()
+    threading.Thread(target=run, args=(model_id,), daemon=True).start()
 
 def download_songs(window, model_list:str):
     if len(model_list) == 1:
@@ -946,7 +976,7 @@ def download_songs(window, model_list:str):
                 _("Download Skipped"),
                 _("Already Downloaded")
             )
-    threading.Thread(target=run, args=(model_list,)).start()
+    threading.Thread(target=run, args=(model_list,), daemon=True).start()
 
 def download_album(window, model_id:str):
     def run(albumId):
@@ -982,7 +1012,7 @@ def download_album(window, model_id:str):
                     _("Already Downloaded")
                 )
 
-    threading.Thread(target=run, args=(model_id,)).start()
+    threading.Thread(target=run, args=(model_id,), daemon=True).start()
 
 def download_playlist(window, model_id:str):
     def run(playlistId):
@@ -1018,7 +1048,7 @@ def download_playlist(window, model_id:str):
                     _("Already Downloaded")
                 )
 
-    threading.Thread(target=run, args=(model_id,)).start()
+    threading.Thread(target=run, args=(model_id,), daemon=True).start()
 
 def __request_download_delete(model_id:str) -> bool:
     # returns true if download is deleted
@@ -1045,7 +1075,7 @@ def delete_download(window, model_id:str):
                 _("Deleted")
             )
             del integration.loaded_models[model_id]
-    threading.Thread(target=run).start()
+    threading.Thread(target=run, daemon=True).start()
 
 def delete_downloads(window, model_list:list):
     def run():
@@ -1063,5 +1093,5 @@ def delete_downloads(window, model_list:list):
             _("{} Songs").format(successful_deletes),
             _("Deleted")
         )
-    threading.Thread(target=run).start()
+    threading.Thread(target=run, daemon=True).start()
 
