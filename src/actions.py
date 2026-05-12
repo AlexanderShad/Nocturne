@@ -271,6 +271,17 @@ def toggle_fullscreen(window):
 
 # -- PLAYER --
 
+def player_toggle(window):
+    player = window.get_application().player
+    success, state, pending = player.gst.get_state(Gst.CLOCK_TIME_NONE)
+    if success:
+        if state == Gst.State.PLAYING:
+            # Pause the song
+            player.gst.set_state(Gst.State.PAUSED)
+        else:
+            # Play the song
+            player.gst.set_state(Gst.State.PLAYING)
+
 def player_play(window):
     window.get_application().player.gst.set_state(Gst.State.PLAYING)
 
@@ -282,6 +293,18 @@ def player_next(window):
 
 def player_previous(window):
     window.get_application().player.handle_song_change_request("previous")
+
+def player_raise_volume(window):
+    settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+    volume = settings.get_value('volume').unpack()
+    volume = max(0, min(1, volume + 0.1))
+    settings.set_double('volume', volume)
+
+def player_lower_volume(window):
+    settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+    volume = settings.get_value('volume').unpack()
+    volume = max(0, min(1, volume - 0.1))
+    settings.set_double('volume', volume)
 
 # -- RADIO --
 

@@ -199,10 +199,13 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.open_popout_window, shortcuts=['<ctrl>P'], parameter_type=None)
         self.create_action(actions.toggle_fullscreen, shortcuts=['F11'], parameter_type=None)
 
+        self.create_action(actions.player_toggle, shortcuts=['<ctrl>K'], parameter_type=None)
         self.create_action(actions.player_play, parameter_type=None)
         self.create_action(actions.player_pause, parameter_type=None)
-        self.create_action(actions.player_next, parameter_type=None)
-        self.create_action(actions.player_previous, parameter_type=None)
+        self.create_action(actions.player_next, shortcuts=['<ctrl>Right'], parameter_type=None)
+        self.create_action(actions.player_previous, shortcuts=['<ctrl>Left'], parameter_type=None)
+        self.create_action(actions.player_raise_volume, shortcuts=['<ctrl>Up'], parameter_type=None)
+        self.create_action(actions.player_lower_volume, shortcuts=['<ctrl>Down'], parameter_type=None)
 
         self.create_action(actions.play_radio)
         self.create_action(actions.add_radio, parameter_type=None)
