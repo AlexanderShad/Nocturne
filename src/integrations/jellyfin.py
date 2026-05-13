@@ -366,27 +366,30 @@ class Jellyfin(Base):
                 mode="GET"
             )
 
-            albums = self.make_request(
-                action='Users/{userId}/Items',
-                mode="GET",
-                params={
-                    "ParentId": model_id,
-                    "IncludeItemTypes": "MusicAlbum",
-                    "Recursive": "true",
-                    "Fields": "ItemCounts"
-                }
-            ).get("Items", [])
+            if artist.get("Id"):
+                albums = self.make_request(
+                    action='Users/{userId}/Items',
+                    mode="GET",
+                    params={
+                        "ParentId": model_id,
+                        "IncludeItemTypes": "MusicAlbum",
+                        "Recursive": "true",
+                        "Fields": "ItemCounts"
+                    }
+                ).get("Items", [])
 
-            self.loaded_models.get(model_id).update_data(
-                id=artist.get("Id"),
-                name=artist.get("Name"),
-                albumCount=len(albums),
-                album=[{"id": alb.get("Id"), "name": alb.get("Name")} for alb in albums],
-                starred=artist.get("UserData", {}).get("IsFavorite", False),
-                biography=artist.get("Overview", ""),
-                similarArtists=[{"id": art.get("Id"), "name": art.get("Name")} for art in artist.get("SimilarItems", [])],
-                userRating=self.get_rating(artist.get("Id"))
-            )
+                self.loaded_models.get(model_id).update_data(
+                    id=artist.get("Id"),
+                    name=artist.get("Name"),
+                    albumCount=len(albums),
+                    album=[{"id": alb.get("Id"), "name": alb.get("Name")} for alb in albums],
+                    starred=artist.get("UserData", {}).get("IsFavorite", False),
+                    biography=artist.get("Overview", ""),
+                    similarArtists=[{"id": art.get("Id"), "name": art.get("Name")} for art in artist.get("SimilarItems", [])],
+                    userRating=self.get_rating(artist.get("Id"))
+                )
+            elif model_id in self.loaded_models:
+                del self.loaded_models[model_id]
 
         if model_id not in self.loaded_models or force_update:
             if model_id not in self.loaded_models:
@@ -406,37 +409,40 @@ class Jellyfin(Base):
                 mode="GET"
             )
 
-            songs = self.make_request(
-                action='Users/{userId}/Items',
-                mode="GET",
-                params={
-                    "ParentId": model_id,
-                    "IncludeItemTypes": "Audio",
-                    "Recursive": "true",
-                    "Fields": "RunTimeTicks,IndexNumber,ParentIndexNumber",
-                    "SortBy": "ParentIndexNumber,IndexNumber",
-                    "SortOrder": "Ascending"
-                }
-            ).get("Items", [])
+            if album.get("Id"):
+                songs = self.make_request(
+                    action='Users/{userId}/Items',
+                    mode="GET",
+                    params={
+                        "ParentId": model_id,
+                        "IncludeItemTypes": "Audio",
+                        "Recursive": "true",
+                        "Fields": "RunTimeTicks,IndexNumber,ParentIndexNumber",
+                        "SortBy": "ParentIndexNumber,IndexNumber",
+                        "SortOrder": "Ascending"
+                    }
+                ).get("Items", [])
 
-            duration = int(sum(song.get("RunTimeTicks", 0) for song in songs) / 10000000)
+                duration = int(sum(song.get("RunTimeTicks", 0) for song in songs) / 10000000)
 
-            for i, song in enumerate(songs):
-                if model := self.loaded_models.get(song.get("Id")):
-                    model.update_data(track=song.get("IndexNumber") or i)
+                for i, song in enumerate(songs):
+                    if model := self.loaded_models.get(song.get("Id")):
+                        model.update_data(track=song.get("IndexNumber") or i)
 
-            self.loaded_models.get(model_id).update_data(
-                id=album.get("Id"),
-                name=album.get("Name"),
-                artist=album.get("AlbumArtist"),
-                artistId=album.get("ArtistItems", [{}])[0].get("Id") if album.get("ArtistItems") else None,
-                songCount=len(songs),
-                duration=duration,
-                artists=[{"id": art.get("Id"), "name": art.get("Name")} for art in album.get("ArtistItems", [])],
-                song=[{"id": song.get("Id"), "name": song.get("Name")} for song in songs],
-                starred=album.get("UserData", {}).get("IsFavorite", False),
-                userRating=self.get_rating(album.get("Id"))
-            )
+                self.loaded_models.get(model_id).update_data(
+                    id=album.get("Id"),
+                    name=album.get("Name"),
+                    artist=album.get("AlbumArtist"),
+                    artistId=album.get("ArtistItems", [{}])[0].get("Id") if album.get("ArtistItems") else None,
+                    songCount=len(songs),
+                    duration=duration,
+                    artists=[{"id": art.get("Id"), "name": art.get("Name")} for art in album.get("ArtistItems", [])],
+                    song=[{"id": song.get("Id"), "name": song.get("Name")} for song in songs],
+                    starred=album.get("UserData", {}).get("IsFavorite", False),
+                    userRating=self.get_rating(album.get("Id"))
+                )
+            elif model_id in self.loaded_models:
+                del self.loaded_models[model_id]
 
         if model_id not in self.loaded_models or force_update:
             if model_id not in self.loaded_models:
@@ -456,26 +462,29 @@ class Jellyfin(Base):
                 mode="GET"
             )
 
-            songs = self.make_request(
-                action='Users/{userId}/Items',
-                mode="GET",
-                params={
-                    "ParentId": model_id,
-                    "IncludeItemTypes": "Audio",
-                    "Recursive": "true",
-                    "Fields": "RunTimeTicks"
-                }
-            ).get("Items", [])
+            if playlist.get("Id"):
+                songs = self.make_request(
+                    action='Users/{userId}/Items',
+                    mode="GET",
+                    params={
+                        "ParentId": model_id,
+                        "IncludeItemTypes": "Audio",
+                        "Recursive": "true",
+                        "Fields": "RunTimeTicks"
+                    }
+                ).get("Items", [])
 
-            duration = int(sum(song.get("RunTimeTicks", 0) for song in songs) / 10000000)
+                duration = int(sum(song.get("RunTimeTicks", 0) for song in songs) / 10000000)
 
-            self.loaded_models.get(model_id).update_data(
-                id=playlist.get("Id"),
-                name=playlist.get("Name"),
-                songCount=len(songs),
-                duration=duration,
-                entry=[{"id": song.get("Id"), "name": song.get("Name")} for song in songs]
-            )
+                self.loaded_models.get(model_id).update_data(
+                    id=playlist.get("Id"),
+                    name=playlist.get("Name"),
+                    songCount=len(songs),
+                    duration=duration,
+                    entry=[{"id": song.get("Id"), "name": song.get("Name")} for song in songs]
+                )
+            elif model_id in self.loaded_models:
+                del self.loaded_models[model_id]
 
         if model_id not in self.loaded_models or force_update:
             if model_id not in self.loaded_models:
@@ -499,24 +508,27 @@ class Jellyfin(Base):
                 params=params
             )
 
-            duration = int(song.get("RunTimeTicks", 0) / 10000000)
-
-            self.loaded_models.get(model_id).update_data(
-                id=song.get("Id"),
-                title=song.get("Name"),
-                album=song.get("Album"),
-                albumId=song.get("AlbumId"),
-                artist=song.get("AlbumArtist"),
-                artistId=(song.get("ArtistItems") or [{}])[0].get("Id"),
-                duration=duration,
-                artists=[{"id": art.get("Id"), "name": art.get("Name")} for art in song.get("ArtistItems", [])],
-                starred=song.get("UserData", {}).get("IsFavorite", False),
-                track=song.get("IndexNumber") or 0,
-                discNumber=song.get("ParentIndexNumber") or 0,
-                albumGain=song.get("AlbumNormalizationGain", song.get("NormalizationGain")) or 0.0,
-                trackGain=song.get("NormalizationGain") or 0.0,
-                userRating=self.get_rating(model_id)
-            )
+            if song.get("Id"):
+                duration = int(song.get("RunTimeTicks", 0) / 10000000)
+                self.loaded_models.get(model_id).update_data(
+                    id=song.get("Id"),
+                    title=song.get("Name"),
+                    album=song.get("Album"),
+                    albumId=song.get("AlbumId"),
+                    artist=song.get("AlbumArtist"),
+                    artistId=(song.get("ArtistItems") or [{}])[0].get("Id"),
+                    duration=duration,
+                    artists=[{"id": art.get("Id"), "name": art.get("Name")} for art in song.get("ArtistItems", [])],
+                    starred=song.get("UserData", {}).get("IsFavorite", False),
+                    track=song.get("IndexNumber") or 0,
+                    discNumber=song.get("ParentIndexNumber") or 0,
+                    albumGain=song.get("AlbumNormalizationGain", song.get("NormalizationGain")) or 0.0,
+                    trackGain=song.get("NormalizationGain") or 0.0,
+                    userRating=self.get_rating(model_id)
+                )
+            elif model_id in self.loaded_models:
+                self.loaded_models.get(model_id).set_property('deleted', True)
+                del self.loaded_models[model_id]
 
         if model_id not in self.loaded_models or force_update:
             if model_id not in self.loaded_models:
@@ -606,24 +618,25 @@ class Jellyfin(Base):
 
         id_list = []
         for song in songs:
-            duration = int(song.get("RunTimeTicks", 0) / 10000000)
-            properties = {
-                "id": song.get("Id"),
-                "title": song.get("Name"),
-                "album": song.get("Album"),
-                "albumId": song.get("AlbumId"),
-                "artist": song.get("AlbumArtist"),
-                "artistId": (song.get("ArtistItems") or [{}])[0].get("Id"),
-                "duration": duration,
-                "artists": [{"id": art.get("Id"), "name": art.get("Name")} for art in song.get("ArtistItems", [])],
-                "starred": song.get("UserData", {}).get("IsFavorite", False),
-                "userRating": self.get_rating(song.get("Id"))
-            }
-            if song.get("Id") in self.loaded_models:
-                self.loaded_models.get(song.get("Id")).update_data(**properties)
-            else:
-                self.loaded_models[song.get("Id")] = models.Song(**properties)
-            id_list.append(song.get("Id"))
+            if song.get("Id"):
+                duration = int(song.get("RunTimeTicks", 0) / 10000000)
+                properties = {
+                    "id": song.get("Id"),
+                    "title": song.get("Name"),
+                    "album": song.get("Album"),
+                    "albumId": song.get("AlbumId"),
+                    "artist": song.get("AlbumArtist"),
+                    "artistId": (song.get("ArtistItems") or [{}])[0].get("Id"),
+                    "duration": duration,
+                    "artists": [{"id": art.get("Id"), "name": art.get("Name")} for art in song.get("ArtistItems", [])],
+                    "starred": song.get("UserData", {}).get("IsFavorite", False),
+                    "userRating": self.get_rating(song.get("Id"))
+                }
+                if song.get("Id") in self.loaded_models:
+                    self.loaded_models.get(song.get("Id")).update_data(**properties)
+                else:
+                    self.loaded_models[song.get("Id")] = models.Song(**properties)
+                id_list.append(song.get("Id"))
         return id_list
 
     def getRandomSongs(self, size:int=20) -> list:
@@ -642,23 +655,24 @@ class Jellyfin(Base):
 
         id_list = []
         for song in songs:
-            duration = int(song.get("RunTimeTicks", 0) / 10000000)
-            properties = {
-                "id": song.get("Id"),
-                "title": song.get("Name"),
-                "album": song.get("Album"),
-                "albumId": song.get("AlbumId"),
-                "artist": song.get("AlbumArtist"),
-                "artistId": (song.get("ArtistItems") or [{}])[0].get("Id"),
-                "duration": duration,
-                "artists": [{"id": art.get("Id"), "name": art.get("Name")} for art in song.get("ArtistItems", [])],
-                "starred": song.get("UserData", {}).get("IsFavorite", False),
-                "userRating": self.get_rating(song.get("Id"))
-            }
-            if song.get("Id") in self.loaded_models:
-                self.loaded_models.get(song.get("Id")).update_data(**properties)
-            else:
-                self.loaded_models[song.get("Id")] = models.Song(**properties)
+            if song.get("Id"):
+                duration = int(song.get("RunTimeTicks", 0) / 10000000)
+                properties = {
+                    "id": song.get("Id"),
+                    "title": song.get("Name"),
+                    "album": song.get("Album"),
+                    "albumId": song.get("AlbumId"),
+                    "artist": song.get("AlbumArtist"),
+                    "artistId": (song.get("ArtistItems") or [{}])[0].get("Id"),
+                    "duration": duration,
+                    "artists": [{"id": art.get("Id"), "name": art.get("Name")} for art in song.get("ArtistItems", [])],
+                    "starred": song.get("UserData", {}).get("IsFavorite", False),
+                    "userRating": self.get_rating(song.get("Id"))
+                }
+                if song.get("Id") in self.loaded_models:
+                    self.loaded_models.get(song.get("Id")).update_data(**properties)
+                else:
+                    self.loaded_models[song.get("Id")] = models.Song(**properties)
             id_list.append(song.get("Id"))
         return id_list
 
