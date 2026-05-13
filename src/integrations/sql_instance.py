@@ -96,7 +96,7 @@ def ensure_schema(integration):
             cursor.executemany(query, to_insert)
             os.remove(os.path.join(integration.getIntegrationDir(), 'radios.json'))
 
-    ## Ratings (Local)
+    ## Ratings (Local and Jellyfin)
     if 'ratings' in schema_dict:
         if ratings_dict := integration.open_json('ratings.json'):
             to_insert = [(songId, rating) for songId, rating in ratings_dict.items() if rating > 0]

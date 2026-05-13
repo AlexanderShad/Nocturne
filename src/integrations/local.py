@@ -48,6 +48,13 @@ class Local(Base):
         }
     }
 
+    def get_rating(self, model_id) -> int:
+        conn, cursor = sql_instance.get_connection(self)
+        cursor.execute("SELECT rating FROM ratings WHERE id = ?", (model_id,))
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result else 0
+
     def on_login(self):
         # Goes through the whole directory retrieving all the metadata
         audio_data_list = []
@@ -64,7 +71,12 @@ class Local(Base):
                     continue
                 if file_path.suffix.lower() in ('.mp3', '.flac', '.m4a', '.oga', '.ogg', '.opus', '.wav'):
                     song_id = 'SONG:{}'.format(file_path)
-                    self.loaded_models[song_id] = models.Song(id=song_id, path=file_path, coverArt=file_path)
+                    self.loaded_models[song_id] = models.Song(
+                        id=song_id,
+                        path=file_path,
+                        coverArt=file_path,
+                        userRating=self.get_rating(song_id)
+                    )
                     threads.append(threading.Thread(target=self.verifySong, args=(song_id,), daemon=True))
                     threads[-1].start()
             for t in threads:
@@ -242,7 +254,8 @@ class Local(Base):
                         'artist': song.get('artist'),
                         'artistId': song.get('artistId'),
                         'song': [{'id': model_id}],
-                        'starred': album_id in star_list
+                        'starred': album_id in star_list,
+                        'userRating': self.get_rating(album_id)
                     }
                     self.loaded_models[album.get('id')] = models.Album(**album)
 
@@ -255,7 +268,8 @@ class Local(Base):
                         name=artist_name,
                         album=[],
                         albumCount=0,
-                        starred=artist_id in star_list
+                        starred=artist_id in star_list,
+                        userRating=self.get_rating(artist_id)
                     )
 
                 album_list = self.loaded_models.get(artist_id).album
