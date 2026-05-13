@@ -43,7 +43,7 @@ The following dependencies are requirements of the project.
 - `python-requests >= 2.33.1`
 - `python-colorthief >= 0.2.1`
 - `python-syncedlyrics >= 1.0.1`
-- `python--mpris-server >= 0.10.0`
+- `python-mpris-server >= 0.10.0`
 - `python-tinytag >= 2.2.1`
 
 ## Install
