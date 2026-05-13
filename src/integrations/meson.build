@@ -8,6 +8,7 @@ widgets = [
   'navidrome.py',
   'base.py',
   'jellyfin.py',
+  'sql_instance.py',
 ]
 
 install_data(widgets, install_dir: moduledir)

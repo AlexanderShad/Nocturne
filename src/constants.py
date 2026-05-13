@@ -127,7 +127,7 @@ def _normalize_artists(values:list[str]) -> list[str]:
                 artists.append(artist_name)
     return artists
 
-def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:bool=False) -> dict | None:
+def get_song_info_from_file(file_path:str, star_list:list=[], is_external_file:bool=False) -> dict | None:
     tag = TinyTag.get(file_path)
     if not tag:
         return None
@@ -146,7 +146,7 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
         'artists': [{
             'id': "ARTIST:{}".format(artist_name),
             'name': artist_name,
-            'starred': star_dict.get("ARTIST:{}".format(artist_name))
+            'starred': "ARTIST:{}".format(artist_name) in star_list
         } for artist_name in artists],
         'track': tag.track or 0,
         'isExternalFile': is_external_file,

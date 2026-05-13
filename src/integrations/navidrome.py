@@ -67,11 +67,6 @@ class Navidrome(Base):
 
     # ----------- #
 
-    def on_login(self):
-        self.getServerInformation()
-        self.getStarredSongs()
-        pass
-
     def get_stream_url(self, song_id:str) -> str:
         # streams are handled by gst not requests
         if song_id not in self.loaded_models:
@@ -126,7 +121,7 @@ class Navidrome(Base):
     def ping(self) -> bool:
         try:
             response = self.make_request('ping')
-            return response.get('status') == 'ok'
+            return response.get('status') == 'ok' and super().ping()
         except Exception:
             return False
 

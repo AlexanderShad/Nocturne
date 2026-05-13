@@ -24,6 +24,13 @@ class Jellyfin(Base):
         'deleted-radios': []
     }
 
+    sqlSchema = {
+        'ratings': {
+            'id': 'TEXT PRIMARY KEY',
+            'rating': 'INTEGER DEFAULT 1'
+        }
+    }
+
     AUTH_HEADER = 'MediaBrowser Client="Nocturne", Device="{}", DeviceId="{}", Version="1.0.0"'.format(platform.node(), str(abs(hash(platform.node()))))
 
     url = GObject.Property(type=str, default="http://127.0.0.1:8096")
@@ -91,9 +98,6 @@ class Jellyfin(Base):
         return True
 
     def terminate_instance(self):
-        pass
-
-    def on_login(self):
         pass
 
     def get_stream_url(self, song_id:str) -> str:
@@ -197,7 +201,7 @@ class Jellyfin(Base):
             )
             self.set_property('accessToken', response.get('AccessToken'))
             self.set_property('userId', response.get('User', {}).get('Id'))
-        return self.get_property('accessToken') and self.get_property('userId')
+        return self.get_property('accessToken') and self.get_property('userId') and super().ping()
 
     def getAlbumList(self, list_type:str="recent", size:int=10, offset:int=0) -> list:
         params = {
@@ -833,10 +837,19 @@ class Jellyfin(Base):
         return response.get("state") == "ok"
 
     def setRating(self, model_id:str, rating:int=0) -> bool:
-        rating_dict = self.open_json('ratings.json')
-        rating_dict[model_id] = rating
-        self.loaded_models.get(model_id).set_property('userRating', rating)
-        self.save_json('ratings.json', rating_dict)
+        conn, cursor = sql_instance.get_connection(self)
+        if rating == 0:
+            cursor.execute("DELETE FROM ratings WHERE id = ?", (model_id,))
+        else:
+            query = """
+            INSERT INTO ratings (id, rating)
+            VALUES (?, ?)
+            ON CONFLICT (id) DO UPDATE SET
+                rating = excluded.rating
+            """
+            cursor.execute(query, (model_id, rating))
+        conn.commit()
+        conn.close()
         return True
 
     def getTopSongs(self, artist_id:str, count:int=10) -> list:
