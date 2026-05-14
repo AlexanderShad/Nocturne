@@ -21,6 +21,7 @@ class SongRow(Adw.ActionRow):
     star_el = Gtk.Template.Child()
     check_el = Gtk.Template.Child()
     menu_button_el = Gtk.Template.Child()
+    subtitle_wrapbox = Gtk.Template.Child()
 
     def __init__(self, id:str, draggable:bool=False, removable:bool=False):
         self.id = id

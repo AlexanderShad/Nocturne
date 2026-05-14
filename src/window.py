@@ -23,6 +23,7 @@ from . import actions
 from .integrations import get_current_integration, models
 from .constants import SIDEBAR_MENU
 import threading
+from datetime import datetime, timedelta
 
 class SidebarItem(Adw.SidebarItem):
     __gtype_name__ = 'NocturneSidebarItem'
@@ -89,8 +90,7 @@ class NocturneWindow(Adw.ApplicationWindow):
             self.replace_root_page(page_tag)
 
     def replace_root_page(self, page_tag:str):
-        page = self.main_navigationview.find_page(page_tag)
-        if page:
+        if page := self.main_navigationview.find_page(page_tag):
             self.main_bottom_sheet.set_open(False)
             self.main_split_view.set_show_content(True)
             threading.Thread(target=page.reload, daemon=True).start()
@@ -182,6 +182,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.sidebar_lyrics_page.setup()
         self.sidebar_queue_page.setup()
         self.downloads_button_el.setup()
+        self.notify_playback()
         integration = get_current_integration()
         integration.connect_to_model('currentSong', 'songId', self.song_changed)
 
@@ -196,9 +197,35 @@ class NocturneWindow(Adw.ApplicationWindow):
                     popout_window.close()
         self.big_breakpoint_toggled()
 
+    def notify_playback(self):
+        # Notifies user if Nocturne Playback is ready for this month
+        prev_month = datetime.now().replace(day=1) - timedelta(days=1)
+        if prev_month.strftime("%m-%Y") != self.settings.get_value('last-playback-checked').unpack():
+            integration = get_current_integration()
+            top_songs = []
+            for songId, plays in integration.getPlaybackScrobble(prev_month.strftime("%m-%Y")):
+                integration.verifySong(songId, use_threading=False)
+                if songId in integration.loaded_models:
+                    top_songs.append((songId, plays))
+            if len(top_songs) > 5:
+                def response(dialog, task):
+                    if dialog.choose_finish(task) == "show":
+                        self.get_root().activate_action("app.launch_playback")
+                dialog = Adw.AlertDialog(
+                    heading=_("Nocturne Playback"),
+                    body=_("Your Playback queue for {} is available!").format(prev_month.strftime("%B %Y"))
+                )
+                dialog.add_response("show", _("Show"))
+                dialog.add_response("later", _("Later"))
+                dialog.set_response_appearance("show", Adw.ResponseAppearance.SUGGESTED)
+                dialog.set_default_response("show")
+                dialog.choose(self, None, response)
+            self.settings.set_string('last-playback-checked', prev_month.strftime("%m-%Y"))
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.create_action(actions.launch_playback, parameter_type=None)
         self.create_action(actions.generate_auto_play_queue, parameter_type="b")
         self.create_action(actions.set_equalizer_preset)
         self.create_action(actions.replace_root_page)

@@ -10,6 +10,9 @@
 	  <key name="hide-on-close" type="b">
 	    <default>false</default>
 	  </key>
+	  <key name="last-playback-checked" type="s">
+	    <default>''</default>
+	  </key>
 	  <key name="selected-instance-type" type="s">
 	    <default>''</default>
 	  </key>

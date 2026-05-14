@@ -355,16 +355,16 @@ class Base(GObject.Object):
         # Do NOT add it to loaded_models
         return models.SongDetails()
     
-    def getPlaybackScrobble(self, month:str) -> list:
+    def getPlaybackScrobble(self, month:str, top:int=50) -> list:
         # Works as is, no need to modify
         # Month in format %m-%Y
         # Returns list of tuples (song_id, amount)
         conn, cursor = sql_instance.get_connection(self)
         query = """
         SELECT song_id, amount FROM playback_scrobble
-        WHERE month = ? ORDER BY amount DESC LIMIT 50;
+        WHERE month = ? ORDER BY amount DESC LIMIT ?;
         """
-        cursor.execute(query, (month,))
+        cursor.execute(query, (month, top))
         results = cursor.fetchall()
         conn.close()
         return results

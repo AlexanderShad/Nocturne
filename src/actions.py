@@ -2,15 +2,14 @@
 
 from .integrations import get_current_integration, models
 import random, threading, os, shutil, pathlib
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from . import widgets as Widgets
 from gi.repository import Gio, Adw, Gtk, GLib, Gst
 from .constants import DATA_DIR, BASE_NAVIDROME_DIR, DOWNLOADS_DIR
 
 # -- HELPER --
 
-def __show_page(window, page):
-    # page is Adw.NavigationViewPage
+def __show_page(window, page:Adw.NavigationPage):
     for dialog in window.get_dialogs():
         dialog.close()
     application = window.get_application()
@@ -132,6 +131,34 @@ def __play_later(window, songs:list):
         )
 
 # -- MISC --
+
+def launch_playback(window):
+    def run():
+        integration = get_current_integration()
+        prev_month = datetime.now().replace(day=1) - timedelta(days=1)
+        top_songs = []
+        for songId, plays in integration.getPlaybackScrobble(prev_month.strftime("%m-%Y")):
+            integration.verifySong(songId, use_threading=False)
+            if songId in integration.loaded_models:
+                top_songs.append((songId, plays))
+
+        if len(top_songs) > 5:
+            GLib.idle_add(window.main_stack.set_visible_child_name, 'playback')
+            GLib.idle_add(window.main_stack.get_child_by_name('playback').setup, top_songs, prev_month)
+            threading.Thread(
+                target=__replace_queue,
+                args=(window, [s[0] for s in top_songs])
+            ).start()
+        else:
+            toast = Adw.Toast(
+                title=_("Not enough songs found for Playback ({})").format(prev_month.strftime("%B %Y")),
+                timeout=2
+            )
+            GLib.idle_add(window.toast_overlay.add_toast, toast)
+            GLib.idle_add(window.main_stack.set_visible_child_name, 'content')
+
+    window.main_stack.set_visible_child_name('loading')
+    threading.Thread(target=run, daemon=True).start()
 
 def generate_auto_play_queue(window, replace_on_finish:bool):
     def run():
