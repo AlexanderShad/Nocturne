@@ -35,15 +35,28 @@ template $NocturneSongButton: Gtk.Box {
           label: _("Song cover art");
         }
       }
-      Gtk.Label name_el {
-        styles [
-          "title-3"
-        ]
-        ellipsize: end;
-        max-width-chars: 1;
+      Gtk.CenterBox {
+        hexpand: true;
         margin-bottom: 5;
         margin-start: 5;
         margin-end: 5;
+        start-widget: Gtk.Image play_indicator_el {
+          valign: center;
+          visible: false;
+          margin-end: 5;
+          icon-name: "sound-symbolic";
+          accessibility {
+            label: _("Play Indicator");
+          }
+        };
+        center-widget: Gtk.Label name_el {
+          styles [
+            "title-3"
+          ]
+          ellipsize: end;
+          max-width-chars: 1;
+          hexpand: true;
+        };
       }
     };
     Gtk.GestureClick {

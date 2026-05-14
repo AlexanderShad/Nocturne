@@ -11,6 +11,7 @@ class SongButton(Gtk.Box):
 
     cover_el = Gtk.Template.Child()
     cover_button_el = Gtk.Template.Child()
+    play_indicator_el = Gtk.Template.Child()
     name_el = Gtk.Template.Child()
     artist_el = Gtk.Template.Child()
 
@@ -53,6 +54,7 @@ class SongButton(Gtk.Box):
             self.cover_el.set_pixel_size(-1)
 
     def current_song_changed(self, songId):
+        self.play_indicator_el.set_visible(self.id == songId)
         if self.id == songId:
             self.cover_button_el.set_action_name(None)
             self.cover_button_el.add_css_class('accent')
