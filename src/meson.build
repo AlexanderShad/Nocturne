@@ -27,6 +27,7 @@ blueprints = files(
   'ui/pages/radios.blp',
   'ui/pages/welcome.blp',
   'ui/pages/setup.blp',
+  'ui/pages/playback.blp',
 
   'ui/album/button.blp',
   'ui/album/page.blp',
@@ -46,6 +47,7 @@ blueprints = files(
   'ui/song/queue.blp',
   'ui/song/small_row.blp',
   'ui/song/details_dialog.blp',
+  'ui/song/button.blp',
 
   'ui/containers/carousel.blp',
   'ui/containers/wrapbox.blp',

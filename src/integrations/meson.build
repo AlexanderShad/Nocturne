@@ -9,6 +9,7 @@ widgets = [
   'base.py',
   'jellyfin.py',
   'discord_rpc.py',
+  'sql_instance.py',
 ]
 
 install_data(widgets, install_dir: moduledir)

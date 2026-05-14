@@ -13,6 +13,7 @@ widgets = [
   'radios.py',
   'welcome.py',
   'setup.py',
+  'playback.py',
 ]
 
 install_data(widgets, install_dir: moduledir)
