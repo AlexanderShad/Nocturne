@@ -350,3 +350,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
             schema_type="listenbrainz",
             callback=lambda: self.listenbrainz_stack_el.set_visible_child_name("link")
         )
+
+    @Gtk.Template.Callback()
+    def reset_discord_app_id(self, button):
+        Gio.Settings(schema_id="com.jeffser.Nocturne").reset("discord-rpc-client-id")
