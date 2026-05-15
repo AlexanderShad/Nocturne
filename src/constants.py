@@ -164,11 +164,12 @@ def get_song_info_from_file(file_path:str, star_list:list=[], is_external_file:b
 TRANSLATORS = [
     "Jeffry Samuel (Spanish) https://jeffser.com",
     "Jordi Bultó (Catalan) https://github.com/formajestically",
+    "Ibai Oihanguren Sala (Basque) https://ibaios.eus",
     "Martin Prokoph (German) https://github.com/Motschen",
     "Aleksandr Shamaraev (Russian) https://github.com/AlexanderShad",
+    "Saul Gman (Simplified Chinese) https://github.com/Ja4e",
     "Muhammed Emin Akalan (Turkish) https://github.com/muhammedeminakalan",
-    "Yuan Chiu (Traditional Chinese) https://yuaner.tw",
-    "Saul Gman (Simplified Chinese) https://github.com/Ja4e"
+    "Yuan Chiu (Traditional Chinese) https://yuaner.tw"
 ]
 
 PLAYBACK_MODES = {
