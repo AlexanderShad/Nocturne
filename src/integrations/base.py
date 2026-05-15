@@ -115,6 +115,9 @@ class Base(GObject.Object):
         print('WARNING', 'getCoverArt', 'not implemented')
         return None
 
+    def getCoverArtUrl(self, model_id:str='', big:bool=False) -> str:
+        return ""
+
     def ping(self) -> bool:
         # return True if logged in and connection is successful
         # when implementing also do super().ping() to prepare SQL

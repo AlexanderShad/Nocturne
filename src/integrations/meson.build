@@ -8,6 +8,7 @@ widgets = [
   'navidrome.py',
   'base.py',
   'jellyfin.py',
+  'discord_rpc.py',
   'sql_instance.py',
 ]
 
