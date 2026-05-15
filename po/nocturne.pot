@@ -231,7 +231,11 @@ msgid "Playing Later"
 msgstr ""
 
 #: src/actions.py:447 src/actions.py:463 src/actions.py:905 src/actions.py:1040
-#: src/widgets/playlist/dialog.py:31
+#: src/widgets/playlist/button.py:50 src/widgets/playlist/button.py:52
+#: src/widgets/playlist/dialog.py:31 src/widgets/playlist/page.py:118
+#: src/widgets/playlist/page.py:120 src/widgets/playlist/row.py:49
+#: src/widgets/playlist/row.py:51 src/widgets/playlist/selector_row.py:38
+#: src/widgets/playlist/selector_row.py:40
 #, python-brace-format
 msgid "{} Song"
 msgid_plural "{} Songs"
@@ -1495,13 +1499,6 @@ msgstr ""
 msgid "LRC File"
 msgstr ""
 
-#: src/widgets/playlist/button.py:50 src/widgets/playlist/page.py:118
-#: src/widgets/playlist/row.py:49 src/widgets/playlist/selector_row.py:38
-#, python-brace-format
-msgid "{} Song"
-msgid_plural "{} Songs"
-msgstr[0] ""
-msgstr[1] ""
 
 #: src/widgets/playlist/dialog.py:55
 msgid "New Playlist"
