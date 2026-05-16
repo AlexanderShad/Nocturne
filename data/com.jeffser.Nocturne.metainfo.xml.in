@@ -91,6 +91,31 @@
   </keywords>
 
   <releases>
+    <release version="1.1.0" date="2026-05-16">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/1.1.0</url>
+      <description translate="no">
+        <p>New</p>
+        <ul>
+          <li>Added Nocturne Playback</li>
+          <li>Added Discord Rich Presence</li>
+          <li>Added shortcuts for pausing, playing and skipping songs</li>
+          <li>Added option to resume playlists</li>
+          <li>Added song details dialog</li>
+          <li>Added preferences to hide items from sidebar</li>
+          <li>Added accent color to the current song row</li>
+        </ul>
+        <p>Internal</p>
+        <ul>
+          <li>Standardized JSON handling in instances</li>
+          <li>Moved most local data to SQLite3</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Fixed incorrect time format handling</li>
+          <li>Fixed ratings not being loaded for local and Jellyfin instances</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.0.1" date="2026-05-05">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/1.0.1</url>
       <description translate="no">
