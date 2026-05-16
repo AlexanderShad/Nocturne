@@ -207,11 +207,6 @@ SIDEBAR_MENU = [
                 'title': _("Artists"),
                 'icon-name': "music-artist-symbolic",
                 'page-tag': 'artists'
-            },
-            { # Item
-                'title': _("Playlists"),
-                'icon-name': "playlist-symbolic",
-                'page-tag': "playlists"
             }
         ]
     },
@@ -272,7 +267,13 @@ SIDEBAR_MENU = [
     },
     { # Section
         'title': _("Playlists"),
-        'items': []
+        'items': [
+            { # Item
+                'title': _("All"),
+                'icon-name': "playlist-symbolic",
+                'page-tag': "playlists"
+            }
+        ]
     }
 ]
 

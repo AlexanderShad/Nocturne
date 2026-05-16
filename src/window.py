@@ -74,16 +74,14 @@ class NocturneWindow(Adw.ApplicationWindow):
 
                 integration.savePlayQueue(id_list, song_id, timestamp * 1000)
                 integration.terminate_instance()
-            settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
-            settings.set_int('default-width', self.get_width())
-            settings.set_int('default-height', self.get_height())
+            self.settings.set_int('default-width', self.get_width())
+            self.settings.set_int('default-height', self.get_height())
             self.get_application().quit()
 
     @Gtk.Template.Callback()
     def on_sidebar_activated(self, sidebar, index):
         page_tag = sidebar.get_selected_item().get_property('page_tag')
-        if page_tag == "playlist":
-            playlist_id = sidebar.get_selected_item().get_property('playlist_id')
+        if playlist_id := sidebar.get_selected_item().get_property('playlist_id'):
             self.activate_action("app.replace_root_page", GLib.Variant('s', 'playlists'))
             self.activate_action("app.show_playlist", GLib.Variant('s', playlist_id))
         else:
@@ -105,26 +103,25 @@ class NocturneWindow(Adw.ApplicationWindow):
         )
 
     def setup_sidebar(self):
-        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        enabled_pages = self.settings.get_value('sidebar-enabled-pages').unpack()
+        self.main_sidebar.remove_all()
         for section in SIDEBAR_MENU:
             section_el = Adw.SidebarSection(
                 title=section.get('title')
             )
-            self.main_sidebar.append(section_el)
+            append_section = False
             for item in section.get('items'):
-                row = SidebarItem(
-                    title=item.get('title'),
-                    icon_name=item.get('icon-name'),
-                    page_tag=item.get('page-tag')
-                )
-                if item.get('page-tag') == 'playlists':
-                    settings.bind(
-                        'show-playlists-in-sidebar',
-                        row,
-                        'visible',
-                        Gio.SettingsBindFlags.INVERT_BOOLEAN
+                if item.get('page-tag') in enabled_pages:
+                    row = SidebarItem(
+                        title=item.get('title'),
+                        icon_name=item.get('icon-name'),
+                        page_tag=item.get('page-tag')
                     )
-                section_el.append(row)
+                    section_el.append(row)
+                    append_section = True
+            if append_section:
+                self.main_sidebar.append(section_el)
+        threading.Thread(target=self.update_playlist_section_of_sidebar, daemon=True).start()
 
     def update_loading_message(self, integration):
         message = integration.get_property("loadingMessage")
@@ -134,12 +131,13 @@ class NocturneWindow(Adw.ApplicationWindow):
             threading.Thread(target=self.main_navigationview.get_visible_page().reload, daemon=True).start()
 
     def update_playlist_section_of_sidebar(self):
+        if 'playlists' not in self.settings.get_value('sidebar-enabled-pages').unpack():
+            return
         integration = get_current_integration()
         integration.connect('notify::loadingMessage', lambda integration, ud: self.update_loading_message(integration))
         if integration.get_property('loadingMessage'):
             self.update_loading_message(integration)
 
-        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         playlist_section = self.main_sidebar.get_sections()[-1]
 
         GLib.idle_add(playlist_section.remove_all)
@@ -148,25 +146,13 @@ class NocturneWindow(Adw.ApplicationWindow):
             icon_name="playlist-symbolic",
             page_tag="playlists"
         )
-        settings.bind(
-            'show-playlists-in-sidebar',
-            item,
-            'visible',
-            Gio.SettingsBindFlags.DEFAULT
-        )
         GLib.idle_add(playlist_section.append, item)
 
         for playlistId in integration.getPlaylists()[:4]:
             if model := integration.loaded_models.get(playlistId):
                 item = SidebarItem(
-                    page_tag="playlist",
+                    page_tag="playlists",
                     playlist_id=playlistId
-                )
-                settings.bind(
-                    'show-playlists-in-sidebar',
-                    item,
-                    'visible',
-                    Gio.SettingsBindFlags.DEFAULT
                 )
                 GLib.idle_add(playlist_section.append, item)
                 integration.connect_to_model(playlistId, "name", lambda name, row=item: row.set_title(name))
@@ -183,6 +169,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.sidebar_queue_page.setup()
         self.downloads_button_el.setup()
         self.notify_playback()
+        self.setup_sidebar()
         integration = get_current_integration()
         integration.connect_to_model('currentSong', 'songId', self.song_changed)
 
@@ -224,6 +211,7 @@ class NocturneWindow(Adw.ApplicationWindow):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
 
         self.create_action(actions.launch_playback, parameter_type=None)
         self.create_action(actions.generate_auto_play_queue, parameter_type="b")
@@ -298,7 +286,6 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.delete_download)
         self.create_action(actions.delete_downloads, parameter_type="as")
 
-        self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         self.set_property('default-width', self.settings.get_value('default-width').unpack())
         self.set_property('default-height', self.settings.get_value('default-height').unpack())
         self.set_property('hide-on-close', self.settings.get_value('hide-on-close').unpack())
@@ -324,7 +311,6 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.settings.connect('changed::player-dynamic-bg-mode', self.dynamic_bg_mode_changed, '')
         self.dynamic_bg_mode_changed(self.settings, 'player-dynamic-bg-mode', '')
         self.settings.connect('changed::use-sidebar-player', lambda *_: self.big_breakpoint_toggled())
-        GLib.idle_add(self.setup_sidebar)
 
     def css_toggled(self, settings, key, css_class):
         if settings.get_value(key).unpack():

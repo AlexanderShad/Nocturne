@@ -39,7 +39,7 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
 
       Adw.SwitchRow discord_coverart_share_el {
         title: _("Share Cover Art With Discord");
-        subtitle: _("If the instance is not reachable by Discord, CoverArtArchive will be used instead");
+        subtitle: _("If the instance is not reachable by Discord servers, CoverArtArchive will be used instead");
         visible: bind discord_rpc_el.active;
         subtitle-lines: 2;
       }
@@ -114,9 +114,6 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
       }
       Adw.SwitchRow context_label_el {
         title: _("Show Labels in Buttons of Pages");
-      }
-      Adw.SwitchRow show_playlists_sidebar_el {
-        title: _("Show Playlists in Sidebar");
       }
       Adw.SwitchRow footer_big_mode_el {
         title: _("Show Progressbar in Player Footer");
@@ -247,6 +244,10 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
           value: 1;
         };
       }
+    }
+
+    Adw.PreferencesGroup sidebar_group {
+      title: _("Sidebar");
     }
   }
   Adw.PreferencesPage {

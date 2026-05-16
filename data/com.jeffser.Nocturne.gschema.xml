@@ -74,6 +74,10 @@
 	  <key name="n-playlists-home" type="i">
 	    <default>12</default>
 	  </key>
+	  <!--### Section: Sidebar -->
+	  <key name="sidebar-enabled-pages" type="as">
+	    <default>['home', 'artists', 'albums-all', 'albums-random', 'albums-starred', 'albums-newest', 'albums-recent', 'albums-frequent', 'songs-all', 'songs-starred', 'radios', 'playlists']</default>
+	  </key>
 
 	  <!--## Page: Visualizer -->
 	  <!--### Section: Preferences -->

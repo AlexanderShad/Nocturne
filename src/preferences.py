@@ -31,7 +31,6 @@ class NocturnePreferences(Adw.PreferencesDialog):
     ## Interface
     context_button_el = Gtk.Template.Child()
     context_label_el = Gtk.Template.Child()
-    show_playlists_sidebar_el = Gtk.Template.Child()
     footer_big_mode_el = Gtk.Template.Child()
     translucent_player_el = Gtk.Template.Child()
     use_sidebar_player_el = Gtk.Template.Child()
@@ -47,6 +46,9 @@ class NocturnePreferences(Adw.PreferencesDialog):
     hp_albums_el = Gtk.Template.Child()
     hp_artists_el = Gtk.Template.Child()
     hp_playlists_el = Gtk.Template.Child()
+
+    ## Sidebar
+    sidebar_group = Gtk.Template.Child()
 
     # Visualizer
     ## Preferences
@@ -166,12 +168,6 @@ class NocturnePreferences(Adw.PreferencesDialog):
             Gio.SettingsBindFlags.DEFAULT
         )
         settings.bind(
-            "show-playlists-in-sidebar",
-            self.show_playlists_sidebar_el,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT
-        )
-        settings.bind(
             "use-big-footer",
             self.footer_big_mode_el,
             "active",
@@ -241,6 +237,33 @@ class NocturnePreferences(Adw.PreferencesDialog):
             "value",
             Gio.SettingsBindFlags.DEFAULT
         )
+
+        ## Sidebar
+        enabled_pages = settings.get_value('sidebar-enabled-pages').unpack()
+        for section in SIDEBAR_MENU:
+            section_expander = None
+            if section.get("title"):
+                section_expander = Adw.ExpanderRow(
+                    title=section.get("title")
+                )
+                self.sidebar_group.add(section_expander)
+
+            for item in section.get('items', []):
+                if item.get('page-tag') != 'home':
+                    row = Adw.SwitchRow(
+                        title=item.get("title"),
+                        active=item.get("page-tag") in enabled_pages,
+                        name=item.get("page-tag")
+                    )
+                    row.connect('notify::active', self.sidebar_item_toggled)
+                    if item.get("icon-name"):
+                        row.add_prefix(
+                            Gtk.Image(icon_name=item.get("icon-name"))
+                        )
+                    if section_expander:
+                        section_expander.add_row(row)
+                    else:
+                        self.sidebar_group.add(row)
 
         # Visualizer
         ## Preferences
@@ -357,6 +380,20 @@ class NocturnePreferences(Adw.PreferencesDialog):
             callback=lambda: self.listenbrainz_stack_el.set_visible_child_name("link")
         )
 
+    def sidebar_item_toggled(self, row, gp):
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        enabled_pages = settings.get_value('sidebar-enabled-pages').unpack()
+        name = row.get_name()
+        if row.get_active():
+            if name not in enabled_pages:
+                enabled_pages.append(name)
+        else:
+            if name in enabled_pages:
+                enabled_pages.remove(name)
+        settings.set_value('sidebar-enabled-pages', GLib.Variant('as', enabled_pages))
+        if main_window := self.get_root().get_application().main_window:
+            GLib.idle_add(main_window.setup_sidebar)
+
     def show_discord_flatpak_warning(self, settings, key):
         if settings.get_value(key).unpack():
             directory = os.environ.get("XDG_RUNTIME_DIR")
@@ -374,3 +411,4 @@ class NocturnePreferences(Adw.PreferencesDialog):
                 )
                 dialog.add_response('c', _("Close"))
                 dialog.choose(self.get_root(), None, lambda *_, st=settings, ky=key: st.set_boolean(ky, False))
+
