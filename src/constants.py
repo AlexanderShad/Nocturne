@@ -169,7 +169,8 @@ TRANSLATORS = [
     "Aleksandr Shamaraev (Russian) https://github.com/AlexanderShad",
     "Saul Gman (Simplified Chinese) https://github.com/Ja4e",
     "Muhammed Emin Akalan (Turkish) https://github.com/muhammedeminakalan",
-    "Yuan Chiu (Traditional Chinese) https://yuaner.tw"
+    "Yuan Chiu (Traditional Chinese) https://yuaner.tw",
+    "Milo Ivir (Croatian) https://github.com/milotype"
 ]
 
 PLAYBACK_MODES = {

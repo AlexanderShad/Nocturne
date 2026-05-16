@@ -120,3 +120,4 @@ Russian                 | [Aleksandr Shamaraev](https://github.com/AlexanderShad
 Simplified Chinese      | [Saul Gman](https://github.com/Ja4e)
 Turkish                 | [Muhammed Emin Akalan](https://github.com/muhammedeminakalan)
 Traditional Chinese     | [Yuan Chiu](https://yuaner.tw)
+Croatian                | [Milo Ivir](https://github.com/milotype)
