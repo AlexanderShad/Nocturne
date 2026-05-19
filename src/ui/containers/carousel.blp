@@ -34,12 +34,44 @@ template $NocturneCarousel: Gtk.Box {
     }
 
     [overlay]
+    Gtk.Button pan_start_el {
+      tooltip-text: _("Pan To The Left");
+      icon-name: "pan-start-symbolic";
+      valign: end;
+      halign: start;
+      margin-start: 10;
+      margin-bottom: 10;
+      visible: false;
+      clicked => $pan_start();
+      styles [
+        "circular",
+        "accent"
+      ]
+    }
+
+    [overlay]
     Adw.Bin {
       halign: end;
       vexpand: true;
       width-request: 10;
       styles [
         "carousel-overlay-right"
+      ]
+    }
+
+    [overlay]
+    Gtk.Button pan_end_el {
+      tooltip-text: _("Pan To The Right");
+      icon-name: "pan-end-symbolic";
+      valign: end;
+      halign: end;
+      margin-end: 10;
+      margin-bottom: 10;
+      visible: false;
+      clicked => $pan_end();
+      styles [
+        "circular",
+        "accent"
       ]
     }
 
@@ -50,6 +82,7 @@ template $NocturneCarousel: Gtk.Box {
       allow-long-swipes: true;
       allow-mouse-drag: true;
       allow-scroll-wheel: false;
+      page-changed => $page_changed();
 
       Gtk.EventControllerScroll {
         scroll => $on_scroll();

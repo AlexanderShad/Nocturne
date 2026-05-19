@@ -48,6 +48,9 @@
 	  <key name="use-sidebar-player" type="b">
 	    <default>false</default>
 	  </key>
+	  <key name="show-carousel-pan-buttons" type="b">
+	    <default>false</default>
+	  </key>
 	  <!--### Section: Dynamic Background-->
     <key name="global-dynamic-bg-mode" type="s">
 	    <default>''</default>
@@ -167,3 +170,4 @@
 	  </key>
 	</schema>
 </schemalist>
+

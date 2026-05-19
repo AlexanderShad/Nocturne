@@ -1,6 +1,6 @@
 # carousel.py
 
-from gi.repository import Gtk, Adw, GLib, Gdk
+from gi.repository import Gtk, Adw, GLib, Gdk, Gio
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/containers/carousel.ui')
 class Carousel(Gtk.Box):
@@ -8,6 +8,13 @@ class Carousel(Gtk.Box):
 
     header_button = Gtk.Template.Child()
     list_el = Gtk.Template.Child()
+    pan_start_el = Gtk.Template.Child()
+    pan_end_el = Gtk.Template.Child()
+
+    def __init__(self):
+        super().__init__()
+        self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        self.settings.connect("changed::show-carousel-pan-buttons", self.update_pan_button_visibility)
 
     def set_header(self, label:str, icon_name:str, page_tag:str=None):
         self.header_button.set_tooltip_text(label)
@@ -37,6 +44,13 @@ class Carousel(Gtk.Box):
             GLib.idle_add(self.list_el.append, page)
         GLib.timeout_add(200, scroll_to_middle)
 
+        GLib.idle_add(self.update_pan_button_visibility, self.settings, "show-carousel-pan-buttons")
+
+    def update_pan_button_visibility(self, settings, key):
+        visible = self.list_el.get_n_pages() >= 5 and settings.get_value(key).unpack()
+        self.pan_start_el.set_visible(visible)
+        self.pan_end_el.set_visible(visible)
+
     @Gtk.Template.Callback()
     def on_scroll(self, controller, dx, dy):
         position = self.list_el.get_position()
@@ -50,4 +64,25 @@ class Carousel(Gtk.Box):
                     self.list_el.scroll_to(next_page, True)
         return Gdk.EVENT_PROPAGATE
 
+    def pan(self, to_end:bool):
+        if first_page := self.list_el.get_nth_page(0):
+            visible_pages_n = int(self.list_el.get_width() / first_page.get_width())
+            if to_end:
+                next_position = int(self.list_el.get_position() + visible_pages_n)
+            else:
+                next_position = int(self.list_el.get_position() - visible_pages_n)
+            next_position = max(min(next_position, self.list_el.get_n_pages() - 1), 0)
+            self.list_el.scroll_to(self.list_el.get_nth_page(next_position), True)
 
+    @Gtk.Template.Callback()
+    def pan_start(self, button):
+        self.pan(False)
+
+    @Gtk.Template.Callback()
+    def pan_end(self, button):
+        self.pan(True)
+
+    @Gtk.Template.Callback()
+    def page_changed(self, carousel, index):
+        self.pan_start_el.set_sensitive(index != 0)
+        self.pan_end_el.set_sensitive(index != carousel.get_n_pages() - 1)
