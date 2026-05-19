@@ -101,6 +101,7 @@
         <p>Fixes</p>
         <ul>
           <li>Fixed problems with JSON reads</li>
+          <li>Fixed capitalization errors in some tooltips</li>
         </ul>
       </description>
     </release>
