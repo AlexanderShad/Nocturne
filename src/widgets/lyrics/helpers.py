@@ -24,13 +24,16 @@ def prepare_lrc(lrc_str:str) -> list:
                 ms_str = "0"
             else:
                 seconds_str, ms_str = diveded_second[:2]
-            minutes = int(minutes_str)
-            seconds = int(seconds_str)
-            ms = int(ms_str)
-            if len(ms_str) == 2:
-                ms *= 10
-            timing = (minutes * 60000) + (seconds * 1000) + ms
-            lrc_lines.append({'ms': timing, 'content': content.strip()})
+            try:
+                minutes = int(minutes_str)
+                seconds = int(seconds_str)
+                ms = int(ms_str)
+                if len(ms_str) == 2:
+                    ms *= 10
+                timing = (minutes * 60000) + (seconds * 1000) + ms
+                lrc_lines.append({'ms': timing, 'content': content.strip()})
+            except ValueError:
+                pass
     return lrc_lines
 
 def list_to_lrc_str(lrc_list:list) -> str:
