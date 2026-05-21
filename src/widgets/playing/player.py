@@ -282,7 +282,9 @@ class Player(EventAdapter):
         self.gst.set_property("buffer-duration", 5 * Gst.SECOND)
         self.gst.set_property("buffer-size", 10 * 1024 * 1024) # 10MB I think
 
-        self.settings.connect("changed::volume", self.volume_changed)
+        self.updating_volume = False
+        self.settings.connect("changed::volume", self.settings_volume_changed)
+        self.gst.connect("notify::volume", self.gst_volume_changed)
 
         self.bus = self.gst.get_bus()
         self.bus.add_signal_watch()
@@ -312,10 +314,24 @@ class Player(EventAdapter):
         integration.connect_to_model('currentSong', 'displaySongTitle', lambda *_: self.discord_rpc.update())
         integration.connect_to_model('currentSong', 'displaySongArtist', lambda *_: self.discord_rpc.update())
 
-    def volume_changed(self, settings, key):
-        # Volume in gst is supposed to be handled with a cubic curve so we do volume^3
-        linear_value = settings.get_value(key).unpack()
-        self.gst.set_property('volume', linear_value ** 3.0)
+    def settings_volume_changed(self, settings, key):
+        if not self.updating_volume:
+            self.updating_volume = True
+            try:
+                value = settings.get_value(key).unpack() ** 3
+                self.gst.set_property('volume', value)
+            finally:
+                self.updating_volume = False
+
+    def gst_volume_changed(self, gst, gp):
+        if not self.updating_volume:
+            self.updating_volume = True
+            try:
+                value = gst.get_property('volume')
+                value = value ** (1/3) if value > 0 else 0.0
+                self.settings.set_double('volume', value)
+            finally:
+                self.updating_volume = False
 
     def on_source_setup(self, playbin, source):
         try:
