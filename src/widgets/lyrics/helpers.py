@@ -62,7 +62,7 @@ def get_lyrics(song_id:str, online_download:bool) -> dict:
     if not model:
         return {'type': 'not-found', 'content': None}
 
-    if model.get_property('isRadio'):
+    if model.get_property('radioStreamUrl'):
         return {'type': 'radio', 'content': None}
 
     lyrics_dir = os.path.join(DATA_DIR, 'lyrics')

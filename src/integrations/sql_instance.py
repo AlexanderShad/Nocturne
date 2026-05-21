@@ -87,7 +87,7 @@ def ensure_schema(integration):
                 if all(row):
                     to_insert.append(row)
             query = """
-            INSERT INTO radios (id, name, stream_url)
+            INSERT INTO radios (id, name, stream_url)`
             VALUES (?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET
                 name = excluded.name,

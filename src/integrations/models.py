@@ -110,11 +110,7 @@ class Song(GObject.Object):
     isExternalFile = GObject.Property(type=bool, default=False)
     userRating = GObject.Property(type=int)
     deleted = GObject.Property(type=bool, default=False)
-
-    # --RADIO--
-    isRadio = GObject.Property(type=bool, default=False)
-    streamUrl = GObject.Property(type=str)
-    # ---------
+    radioStreamUrl = GObject.Property(type=str)
 
     path = GObject.Property(type=str) # For use in Local
 

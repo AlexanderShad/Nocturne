@@ -39,7 +39,7 @@ class SongRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'artists', self.update_artists)
         integration.connect_to_model(self.id, 'duration', self.update_duration)
         integration.connect_to_model(self.id, 'starred', self.update_starred)
-        integration.connect_to_model(self.id, 'streamUrl', self.update_streamUrl) # for radios
+        integration.connect_to_model(self.id, 'radioStreamUrl', self.update_radioStreamUrl) # for radios
         integration.connect_to_model(self.id, 'isExternalFile', self.update_is_external)
         integration.connect_to_model(self.id, 'deleted', self.delete_status_changed)
         integration.connect_to_model('currentSong', 'songId', self.current_song_changed)
@@ -60,7 +60,7 @@ class SongRow(Adw.ActionRow):
         self.external_file_el.set_visible(isExternalFile)
 
         integration = get_current_integration()
-        self.star_el.set_visible(not isExternalFile and not integration.loaded_models.get(self.id).get_property('isRadio'))
+        self.star_el.set_visible(not isExternalFile and not integration.loaded_models.get(self.id).get_property('radioStreamUrl'))
 
     def generate_context_menu(self) -> ContextContainer:
         integration = get_current_integration()
@@ -71,14 +71,14 @@ class SongRow(Adw.ActionRow):
         context_dict["play-next"]["sensitive"] = integration.loaded_models.get('currentSong').get_property('songId') != self.id
         context_dict["play-later"]["sensitive"] = integration.loaded_models.get('currentSong').get_property('songId') != self.id
 
-        if not model or not (model.get_property('isRadio') and not self.draggable):
+        if not model or not (model.get_property('radioStreamUrl') and not self.draggable):
             del context_dict["edit-radio"]
             del context_dict["delete-radio"]
 
         if "edit" in context_dict and 'no-edit-radio' in integration.limitations:
             del context_dict["edit-radio"]
 
-        if 'no-downloads' in integration.limitations or not model or model.get_property('isRadio'):
+        if 'no-downloads' in integration.limitations or not model or model.get_property('radioStreamUrl'):
             del context_dict["download"]
 
         if integration.__gtype_name__ == 'NocturneIntegrationOffline':
@@ -86,7 +86,7 @@ class SongRow(Adw.ActionRow):
         else:
             del context_dict["delete-download"]
 
-        if not model or model.get_property('isRadio') or model.get_property('isExternalFile'):
+        if not model or model.get_property('radioStreamUrl') or model.get_property('isExternalFile'):
             del context_dict["add-to-playlist"]
             del context_dict["edit-lyrics"]
             del context_dict["show-album"]
@@ -167,11 +167,11 @@ class SongRow(Adw.ActionRow):
             self.star_el.set_icon_name('heart-outline-thick-symbolic')
             self.star_el.set_tooltip_text(_('Not Favorite'))
 
-    def update_streamUrl(self, streamUrl:str):
-        if not streamUrl:
+    def update_radioStreamUrl(self, radioStreamUrl:str):
+        if not radioStreamUrl:
             return
-        if streamUrl := urlparse(streamUrl):
-            homepage_url = '{}://{}'.format(streamUrl.scheme, streamUrl.netloc)
+        if radioStreamUrl := urlparse(radioStreamUrl):
+            homepage_url = '{}://{}'.format(radioStreamUrl.scheme, radioStreamUrl.netloc)
             button = Gtk.Button(
                 action_name = 'app.visit_url',
                 action_target = GLib.Variant.new_string(homepage_url),

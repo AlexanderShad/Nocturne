@@ -140,10 +140,11 @@ class PopoutWindow(Adw.ApplicationWindow):
             GLib.idle_add(self.cover_el.set_paintable, paintable)
 
             # Radio
-            self.fs_artist_el.set_visible(not model.get_property('isRadio'))
-            self.fs_album_el.set_visible(not model.get_property('isRadio'))
-            self.fs_timestamp_el.set_visible(not model.get_property('isRadio'))
-            self.fs_progress_el.set_visible(not model.get_property('isRadio'))
+            isRadio = bool(model.get_property('radioStreamUrl'))
+            self.fs_artist_el.set_visible(not isRadio)
+            self.fs_album_el.set_visible(not isRadio)
+            self.fs_timestamp_el.set_visible(not isRadio)
+            self.fs_progress_el.set_visible(not isRadio)
 
     def display_title_changed(self, display_title:str):
         self.fs_title_el.set_label(display_title)

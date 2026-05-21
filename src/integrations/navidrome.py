@@ -73,8 +73,8 @@ class Navidrome(Base):
             self.verifySong(song_id, use_threading=False)
         model = self.loaded_models.get(song_id)
 
-        if model.get_property('isRadio'):
-            return model.get_property('streamUrl')
+        if radioStreamUrl := model.get_property('radioStreamUrl'):
+            return radioStreamUrl
         elif model.get_property('isExternalFile'):
             return 'file://{}'.format(model.get_property('path'))
         max_bitrate = Gio.Settings(schema_id="com.jeffser.Nocturne").get_value('max-bitrate').unpack()
@@ -87,7 +87,7 @@ class Navidrome(Base):
 
     def getCoverArt(self, model_id:str='', big:bool=False) -> Gdk.Paintable:
         if model := self.loaded_models.get(model_id):
-            if isinstance(model, models.Song) and model.get_property('isRadio'):
+            if isinstance(model, models.Song) and model.get_property('radioStreamUrl'):
                 return None
             if isinstance(model, models.Song) and model.get_property('isExternalFile'):
                 return local.Local.getCoverArt(self, model_id, big=big)
@@ -120,7 +120,7 @@ class Navidrome(Base):
 
     def getCoverArtUrl(self, model_id:str='', big:bool=False) -> str:
         if model := self.loaded_models.get(model_id):
-            if isinstance(model, models.Song) and (model.get_property('isRadio') or model.get_property('isExternalFile')):
+            if isinstance(model, models.Song) and (model.get_property('radioStreamUrl') or model.get_property('isExternalFile')):
                 return ""
             params = {
                 **self.get_base_params(),
@@ -413,29 +413,28 @@ class Navidrome(Base):
                 self.loaded_models[radio.get('id')] = models.Song(
                     id=radio.get('id'),
                     title=radio.get('name'),
-                    streamUrl=radio.get('streamUrl'),
-                    duration=-1,
-                    isRadio=True
+                    radioStreamUrl=radio.get('streamUrl'),
+                    duration=-1
                 )
         return [radio.get('id') for radio in radios]
 
-    def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
+    def createInternetRadioStation(self, name:str, radioStreamUrl:str) -> bool:
         # returns true if ok
-        parsedStreamUrl = urlparse(streamUrl)
+        parsedStreamUrl = urlparse(radioStreamUrl)
         response = self.make_request('createInternetRadioStation', {
             'name': name,
-            'streamUrl': streamUrl,
+            'streamUrl': radioStreamUrl,
             'homepageUrl': '{}://{}'.format(parsedStreamUrl.scheme, parsedStreamUrl.netloc)
         })
         return response.get('status') == 'ok'
 
-    def updateInternetRadioStation(self, model_id:str, name:str, streamUrl:str) -> bool:
+    def updateInternetRadioStation(self, model_id:str, name:str, radioStreamUrl:str) -> bool:
         # returns true if ok
-        parsedStreamUrl = urlparse(streamUrl)
+        parsedStreamUrl = urlparse(radioStreamUrl)
         response = self.make_request('updateInternetRadioStation', {
             'id': model_id,
             'name': name,
-            'streamUrl': streamUrl,
+            'streamUrl': radioStreamUrl,
             'homepageUrl': '{}://{}'.format(parsedStreamUrl.scheme, parsedStreamUrl.netloc)
         })
         return response.get('status') == 'ok'

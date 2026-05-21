@@ -128,16 +128,16 @@ class PlayingControlPage(Adw.NavigationPage):
         integration = get_current_integration()
 
         # HomePage (radio)
-        if model.get_property('isRadio') and model.get_property('streamUrl'):
-            stream_url = urlparse(model.get_property('streamUrl'))
+        if model.get_property('radioStreamUrl'):
+            stream_url = urlparse(model.get_property('radioStreamUrl'))
             homepage_url = '{}://{}'.format(stream_url.scheme, stream_url.netloc)
             self.radio_homepage_el.set_tooltip_text(homepage_url)
             self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(homepage_url))
-        self.radio_homepage_el.set_visible(model.get_property('isRadio') and model.get_property('streamUrl'))
+        self.radio_homepage_el.set_visible(model.get_property('radioStreamUrl'))
 
         # Timestamp (radio)
-        self.positive_progress_el.set_visible(not model.get_property('isRadio'))
-        self.negative_progress_el.set_visible(not model.get_property('isRadio'))
+        self.positive_progress_el.set_visible(not model.get_property('radioStreamUrl'))
+        self.negative_progress_el.set_visible(not model.get_property('radioStreamUrl'))
 
         # Artist
         artists = model.get_property('artists')
@@ -162,16 +162,16 @@ class PlayingControlPage(Adw.NavigationPage):
 
         # Progressbar
         self.progress_el.get_adjustment().set_upper(model.get_property('duration'))
-        self.progress_el.set_visible(not model.get_property('isRadio'))
+        self.progress_el.set_visible(not model.get_property('radioStreamUrl'))
 
         # Rating
         rating = model.get_property("userRating")
         for i, el in enumerate(list(self.rating_container)):
             el.set_icon_name("starred-symbolic" if rating >= i+1 else "non-starred-symbolic")
-        self.rating_container.set_visible(not model.get_property('isRadio'))
+        self.rating_container.set_visible(not model.get_property('radioStreamUrl'))
 
         # Star
-        self.star_el.set_visible(not model.get_property('isRadio') and not model.get_property('isExternalFile'))
+        self.star_el.set_visible(not model.get_property('radioStreamUrl') and not model.get_property('isExternalFile'))
 
         # Star Connection
         if self.starred_connection[0] and self.starred_connection[1]:

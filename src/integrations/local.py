@@ -103,9 +103,8 @@ class Local(Base):
             self.loaded_models[radio[0]] = models.Song(
                 id=radio[0],
                 title=radio[1],
-                streamUrl=radio[2],
-                duration=-1,
-                isRadio=True
+                radioStreamUrl=radio[2],
+                duration=-1
             )
         conn.close()
         self.load_playlists()
@@ -133,13 +132,13 @@ class Local(Base):
 
     def get_stream_url(self, song_id:str) -> str:
         model = self.loaded_models.get(song_id)
-        if model.get_property('isRadio'):
-            return model.get_property('streamUrl')
+        if radioStreamUrl := model.get_property('radioStreamUrl'):
+            return radioStreamUrl
         return 'file://{}'.format(model.get_property('path'))
 
     def getCoverArt(self, model_id:str='', big:bool=False) -> Gdk.Paintable:
         if model := self.loaded_models.get(model_id):
-            if isinstance(model, models.Song) and model.get_property('isRadio'):
+            if isinstance(model, models.Song) and model.get_property('radioStreamUrl'):
                 return None
             if not big and not isinstance(model, models.Playlist) and model.get_property('gdkPaintable'):
                 return model.get_property('gdkPaintable')
@@ -407,11 +406,11 @@ class Local(Base):
     def getInternetRadioStations(self) -> list:
         return [model_id for model_id in list(self.loaded_models) if model_id.startswith('RADIO:')]
 
-    def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
+    def createInternetRadioStation(self, name:str, radioStreamUrl:str) -> bool:
         radio_id = 'RADIO:{}'.format(str(uuid.uuid4()))
-        return self.updateInternetRadioStation(radio_id, name, streamUrl)
+        return self.updateInternetRadioStation(radio_id, name, radioStreamUrl)
 
-    def updateInternetRadioStation(self, model_id:str, name:str, streamUrl:str) -> bool:
+    def updateInternetRadioStation(self, model_id:str, name:str, radioStreamUrl:str) -> bool:
         conn, cursor = sql_instance.get_connection(self)
         query = """
         INSERT INTO radios (id, name, stream_url)
@@ -420,7 +419,7 @@ class Local(Base):
             name = excluded.name,
             stream_url = excluded.stream_url
         """
-        cursor.execute(query, (model_id, name, streamUrl))
+        cursor.execute(query, (model_id, name, radioStreamUrl))
         conn.commit()
         conn.close()
         return True
@@ -514,7 +513,7 @@ class Local(Base):
         if not model_id:
             return
         if model := self.loaded_models.get(model_id):
-            if model.get_property('isExternalFile') or model.get_property('isRadio'):
+            if model.get_property('isExternalFile') or model.get_property('radioStreamUrl'):
                 return
             
             if submission:

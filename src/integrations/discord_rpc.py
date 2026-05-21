@@ -176,7 +176,7 @@ class DiscordRPC:
                 }
             }
 
-        if song and song.get_property("isRadio"):
+        if song and song.get_property("radioStreamUrl"):
             title = current_song.get_property("displaySongTitle") or song.get_property("title")
             artist = current_song.get_property("displaySongArtist") or song.get_property("artist")
         else:

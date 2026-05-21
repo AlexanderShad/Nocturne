@@ -110,8 +110,8 @@ class Jellyfin(Base):
 
     def get_stream_url(self, song_id:str) -> str:
         model = self.loaded_models.get(song_id)
-        if model.get_property('isRadio') and model.get_property('streamUrl'):
-            return model.get_property('streamUrl')
+        if radioStreamUrl := model.get_property('radioStreamUrl'):
+            return radioStreamUrl
         elif model.get_property('isExternalFile'):
             return 'file://{}'.format(model.get_property('path'))
         base_url = self.get_url('Audio/{}/stream'.format(song_id))
@@ -146,7 +146,7 @@ class Jellyfin(Base):
 
     def getCoverArt(self, model_id:str='', big:bool=False) -> Gdk.Paintable:
         if model := self.loaded_models.get(model_id):
-            if isinstance(model, models.Song) and model.get_property('isRadio'):
+            if isinstance(model, models.Song) and model.get_property('radioStreamUrl'):
                 return None
             if isinstance(model, models.Song) and model.get_property('isExternalFile'):
                 return local.Local.getCoverArt(self, model_id, big=big)
@@ -186,7 +186,7 @@ class Jellyfin(Base):
 
     def getCoverArtUrl(self, model_id:str='', big:bool=False) -> str:
         if model := self.loaded_models.get(model_id):
-            if isinstance(model, models.Song) and (model.get_property('isRadio') or model.get_property('isExternalFile')):
+            if isinstance(model, models.Song) and (model.get_property('radioStreamUrl') or model.get_property('isExternalFile')):
                 return ""
             params = {
                 'maxWidth': 720 if big else 240,
@@ -754,8 +754,7 @@ class Jellyfin(Base):
                 radio_model = models.Song(
                     id=radio.get("Id"),
                     title=radio.get("Name"),
-                    duration=-1,
-                    isRadio=True
+                    duration=-1
                 )
                 self.loaded_models[radio.get("Id")] = radio_model
 
@@ -772,17 +771,17 @@ class Jellyfin(Base):
                     raw_url = radio_metadata[0].get('Path')
                 if not raw_url:
                     raw_url = self.get_stream_url(radio.get("Id"))
-                self.loaded_models.get(radio.get("Id")).set_property("streamUrl", raw_url)
+                self.loaded_models.get(radio.get("Id")).set_property("radioStreamUrl", raw_url)
 
                 id_list.append(radio.get("Id"))
         return id_list
 
-    def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
+    def createInternetRadioStation(self, name:str, radioStreamUrl:str) -> bool:
         radio = self.make_request(
             action='LiveTv/TunerHosts',
             mode='POST',
             json={
-                "Url": streamUrl,
+                "Url": radioStreamUrl,
                 "Type": "M3U",
                 "FriendlyName": name
             }
@@ -792,7 +791,7 @@ class Jellyfin(Base):
                 id=radio.get("Id"),
                 title=radio.get("FriendlyName"),
                 duration=-1,
-                isRadio=True
+                radioStreamUrl=radioStreamUrl
             )
             return True
         return False

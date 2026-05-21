@@ -68,7 +68,7 @@ class PlayerAdapter(MprisAdapter):
         return MetadataObj(
             album=song.get_property('album'),
             art_url=integration.getCoverArtUrl(song.get_property('id')),
-            artists=[urlparse(song.get_property('streamUrl')).netloc.capitalize()] if song.get_property('isRadio') and song.get_property('streamUrl') else ([a.get('name') for a in song.get_property('artists')] or [song.get_property('artist')]),
+            artists=[urlparse(song.get_property('radioStreamUrl')).netloc.capitalize()] if song.get_property('radioStreamUrl') else ([a.get('name') for a in song.get_property('artists')] or [song.get_property('artist')]),
             as_text=[song.get_property('title')],
             length=song.get_property('duration')*1000000,
             title=song.get_property('title'),
@@ -472,7 +472,7 @@ class Player(EventAdapter):
                             if current_title != title:
                                 model.set_property('displaySongTitle', title)
                         if song_model := integration.loaded_models.get(model.get_property('songId')):
-                            if song_model.get_property('isRadio'):
+                            if song_model.get_property('radioStreamUrl'): # is radio
                                 success, artist = tag_list.get_string(Gst.TAG_ARTIST)
                                 if success and artist and artist != 'null':
                                     current_artist = model.get_property('displaySongArtist')
@@ -568,8 +568,7 @@ class Player(EventAdapter):
         def update_default_metadata(songId):
             if model := integration.loaded_models.get(songId):
                 integration.loaded_models.get('currentSong').set_property('displaySongTitle', model.get_property('title'))
-                if model.get_property('isRadio'):
-                    stream_url = urlparse(model.get_property('streamUrl'))
+                if stream_url := model.get_property('radioStreamUrl'):
                     integration.loaded_models.get('currentSong').set_property('displaySongArtist', stream_url.netloc.capitalize())
                 else:
                     artists = model.get_property('artists')

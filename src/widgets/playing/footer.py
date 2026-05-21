@@ -57,7 +57,7 @@ class PlayingFooter(Gtk.Overlay):
         songId = integration.loaded_models.get('currentSong').get_property('songId')
         isRadio = False
         if model := integration.loaded_models.get(songId):
-            isRadio = model.get_property('isRadio')
+            isRadio = bool(model.get_property('radioStreamUrl'))
         self.progress_el.set_visible(not isRadio and (mode_status or force_status))
 
     def song_changed(self, song_id:str):

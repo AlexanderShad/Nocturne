@@ -204,17 +204,17 @@ class Base(GObject.Object):
         return {'artist': {}, 'album': {}, 'song': {}}
 
     def getInternetRadioStations(self) -> list:
-        # returns a list of Song IDs with the property isRadio=True
+        # returns a list of Song IDs with the property radioStreamUrl set
         # make sure the id also exists in self.loaded_models, no need to be verified
         print('WARNING', 'getInternetRadioStations', 'not implemented')
         return []
 
-    def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
+    def createInternetRadioStation(self, name:str, radioStreamUrl:str) -> bool:
         # returns True if created successfully
         print('WARNING', 'createInternetRadioStation', 'not implemented')
         return False
 
-    def updateInternetRadioStation(self, model_id:str, name:str, streamUrl:str) -> bool:
+    def updateInternetRadioStation(self, model_id:str, name:str, radioStreamUrl:str) -> bool:
         # returns True if updated successfully
         print('WARNING', 'updateInternetRadioStation', 'not implemented')
         return False

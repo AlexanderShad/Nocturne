@@ -394,7 +394,7 @@ def update_radio(window, id:str=""):
                     window.toast_overlay.add_toast(toast)
                     if id:
                         model.set_property('title', name)
-                        model.set_property('streamUrl', stream)
+                        model.set_property('radioStreamUrl', stream)
                     else:
                         threading.Thread(target=window.main_navigationview.get_visible_page().reload, daemon=True).start()
                     return
@@ -409,14 +409,14 @@ def update_radio(window, id:str=""):
         css_classes=['boxed-list']
     )
     name_el = Adw.EntryRow(title=_("Name"))
-    if model and model.get_property('isRadio'):
+    if model and model.get_property('radioStreamUrl'):
         name_el.set_text(model.get_property('title'))
     list_box.append(name_el)
     stream_el = Adw.EntryRow(
         title=_("Stream Url")
     )
-    if model and model.get_property('isRadio'):
-        stream_el.set_text(model.get_property('streamUrl'))
+    if model and model.get_property('radioStreamUrl'):
+        stream_el.set_text(model.get_property('radioStreamUrl'))
     list_box.append(stream_el)
 
     dialog = Adw.AlertDialog(
