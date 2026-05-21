@@ -25,10 +25,10 @@ class PlayingControlPage(Adw.NavigationPage):
     show_sidebar_el = Gtk.Template.Child()
     state_stack_el = Gtk.Template.Child()
     rating_container = Gtk.Template.Child()
-
-    # Used to disconnect star_el when song changes
-    # song_id, connection_id
-    starred_connection = [None, None]
+    song_connections = {
+        'songId': '',
+        'connections': []
+    }
 
     def setup(self):
         integration = get_current_integration()
@@ -121,89 +121,61 @@ class PlayingControlPage(Adw.NavigationPage):
                     if popout_window := application.popout_window:
                         popout_window.close()
 
-    def update_interface(self, model):
-        if not model:
-            return
+    def update_radioStreamUrl(self, radioStreamUrl:str):
+        self.radio_homepage_el.set_visible(radioStreamUrl)
+        self.positive_progress_el.set_visible(not radioStreamUrl)
+        self.negative_progress_el.set_visible(not radioStreamUrl)
+        self.progress_el.set_visible(not radioStreamUrl)
+        self.rating_container.set_visible(self.rating_container.get_visible() and not radioStreamUrl)
+        self.star_el.set_visible(self.star_el.get_visible() and not radioStreamUrl)
 
-        integration = get_current_integration()
-
-        # HomePage (radio)
-        if model.get_property('radioStreamUrl'):
-            stream_url = urlparse(model.get_property('radioStreamUrl'))
+        homepage_url = ""
+        if radioStreamUrl:
+            stream_url = urlparse(radioStreamUrl)
             homepage_url = '{}://{}'.format(stream_url.scheme, stream_url.netloc)
-            self.radio_homepage_el.set_tooltip_text(homepage_url)
-            self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(homepage_url))
-        self.radio_homepage_el.set_visible(model.get_property('radioStreamUrl'))
+        self.radio_homepage_el.set_tooltip_text(homepage_url)
+        self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(homepage_url))
 
-        # Timestamp (radio)
-        self.positive_progress_el.set_visible(not model.get_property('radioStreamUrl'))
-        self.negative_progress_el.set_visible(not model.get_property('radioStreamUrl'))
-
-        # Artist
-        artists = model.get_property('artists')
+    def update_artists(self, artists:list):
+        artist_id = ""
+        artist_name = ""
         if len(artists) > 0:
-            self.artist_el.set_visible(True)
-            self.artist_el.set_action_target_value(GLib.Variant.new_string(artists[0].get('id')))
+            artist_id = artists[0].get('id')
+            artist_name = artists[0].get('name')
+
+        self.artist_el.set_visible(artist_id and artist_name)
+        if artist_id:
+            self.artist_el.set_action_target_value(GLib.Variant.new_string(artist_id))
             self.artist_el.set_action_name("app.show_artist")
-            self.artist_el.get_child().set_label(artists[0].get('name'))
-            self.artist_el.set_tooltip_text(artists[0].get('name'))
+            self.artist_el.set_sensitive(True)
         else:
-            self.artist_el.set_visible(False)
+            self.artist_el.set_action_name("")
+            self.artist_el.set_sensitive(False)
+        self.artist_el.get_child().set_label(artist_name)
+        self.artist_el.set_tooltip_text(artist_name)
 
-        # Album
-        self.album_el.get_child().set_label(model.get_property('album'))
-        self.album_el.set_tooltip_text(model.get_property('album'))
-        self.album_el.set_action_target_value(GLib.Variant.new_string(model.get_property('albumId')))
-        self.album_el.set_action_name("app.show_album")
-        self.album_el.set_visible(self.album_el.get_child().get_label())
+    def update_album(self, album:str):
+        self.album_el.get_child().set_label(album)
+        self.album_el.set_tooltip_text(album)
+        self.album_el.set_visible(album)
 
-        # External File
-        self.album_el.get_ancestor(Adw.WrapBox).set_sensitive(not model.get_property('isExternalFile'))
+    def update_albumId(self, albumId:str):
+        if albumId:
+            self.album_el.set_action_target_value(GLib.Variant.new_string(albumId))
+            self.album_el.set_action_name("app.show_album")
+            self.album_el.set_sensitive(True)
+        else:
+            self.album_el.set_action_name("")
+            self.album_el.set_sensitive(False)
 
-        # Progressbar
-        self.progress_el.get_adjustment().set_upper(model.get_property('duration'))
-        self.progress_el.set_visible(not model.get_property('radioStreamUrl'))
+    def update_isExternalFile(self, isExternalFile:bool):
+        self.album_el.get_ancestor(Adw.WrapBox).set_sensitive(not isExternalFile)
+        self.rating_container.set_visible(self.rating_container.get_visible() and not isExternalFile)
+        self.star_el.set_visible(self.star_el.get_visible() and not isExternalFile)
 
-        # Rating
-        rating = model.get_property("userRating")
+    def update_userRating(self, userRating:int):
         for i, el in enumerate(list(self.rating_container)):
-            el.set_icon_name("starred-symbolic" if rating >= i+1 else "non-starred-symbolic")
-        self.rating_container.set_visible(not model.get_property('radioStreamUrl'))
-
-        # Star
-        self.star_el.set_visible(not model.get_property('radioStreamUrl') and not model.get_property('isExternalFile'))
-
-        # Star Connection
-        if self.starred_connection[0] and self.starred_connection[1]:
-            integration.loaded_models.get(self.starred_connection[0]).disconnect(self.starred_connection[1])
-
-        self.starred_connection[0] = model.get_property('id')
-        self.starred_connection[1] = integration.connect_to_model(self.starred_connection[0], 'starred', self.update_starred)
-        self.star_el.set_action_target_value(GLib.Variant.new_string(self.starred_connection[0]))
-
-    def display_title_changed(self, display_title:str):
-        self.title_el.set_label(display_title)
-        self.title_el.set_tooltip_text(display_title)
-
-    def display_artist_changed(self, display_artist:str):
-        self.radio_homepage_el.get_child().set_label(display_artist)
-
-    def song_changed(self, song_id:str):
-        integration = get_current_integration()
-        model = integration.loaded_models.get(song_id)
-        self.update_interface(model)
-        threading.Thread(target=self.update_cover_art, daemon=True).start()
-
-    def update_cover_art(self):
-        integration = get_current_integration()
-        song_id = integration.loaded_models.get('currentSong').get_property('songId')
-        if model := integration.loaded_models.get(song_id):
-            if paintable := integration.getCoverArt(song_id, big=True):
-                GLib.idle_add(self.cover_el.set_paintable, paintable)
-                GLib.idle_add(self.cover_el.set_visible, True)
-            else:
-                GLib.idle_add(self.cover_el.set_paintable, None)
-                GLib.idle_add(self.cover_el.set_visible, False)
+            el.set_icon_name("starred-symbolic" if userRating >= i+1 else "non-starred-symbolic")
 
     def update_starred(self, starred:bool):
         if starred:
@@ -216,4 +188,56 @@ class PlayingControlPage(Adw.NavigationPage):
             self.star_el.add_css_class('dim-label')
             self.star_el.set_icon_name('heart-outline-thick-symbolic')
             self.star_el.set_tooltip_text(_('Not Favorite'))
+
+    def display_title_changed(self, display_title:str):
+        self.title_el.set_label(display_title)
+        self.title_el.set_tooltip_text(display_title)
+
+    def display_artist_changed(self, display_artist:str):
+        self.radio_homepage_el.get_child().set_label(display_artist)
+
+    def song_changed(self, song_id:str):
+        def run():
+            integration = get_current_integration()
+            integration.verifySong(song_id, use_threading=False)
+            if model := integration.loaded_models.get(song_id):
+                # Set CoverArt
+                if paintable := integration.getCoverArt(song_id, big=True):
+                    GLib.idle_add(self.cover_el.set_paintable, paintable)
+                    GLib.idle_add(self.cover_el.set_visible, True)
+                else:
+                    GLib.idle_add(self.cover_el.set_paintable, None)
+                    GLib.idle_add(self.cover_el.set_visible, False)
+
+                # Set Defaults
+                GLib.idle_add(self.rating_container.set_visible, True)
+                GLib.idle_add(self.star_el.set_visible, True)
+                GLib.idle_add(self.star_el.set_action_target_value, GLib.Variant.new_string(song_id))
+
+                # Disconnect From Previous Song
+                if previousSong := integration.loaded_models.get(self.song_connections.get('songId', '')):
+                    for connection_id in self.song_connections.get('connections', []):
+                        try:
+                            previousSong.disconnect(connection_id)
+                        except:
+                            pass
+
+                # Connect UI
+                connections = {
+                    'radioStreamUrl': self.update_radioStreamUrl,
+                    'artists': self.update_artists,
+                    'album': self.update_album,
+                    'albumId': self.update_albumId,
+                    'isExternalFile': self.update_isExternalFile,
+                    'duration': self.progress_el.get_adjustment().set_upper,
+                    'userRating': self.update_userRating,
+                    'starred': self.update_starred
+                }
+                self.song_connections['connections'] = []
+                self.song_connections['songId'] = song_id
+                for property_name, cb in connections.items():
+                    if connection_id := integration.connect_to_model(song_id, property_name, cb):
+                        self.song_connections['connections'].append(connection_id)
+
+        threading.Thread(target=run, daemon=True).start()
 
