@@ -282,12 +282,7 @@ class Player(EventAdapter):
         self.gst.set_property("buffer-duration", 5 * Gst.SECOND)
         self.gst.set_property("buffer-size", 10 * 1024 * 1024) # 10MB I think
 
-        self.settings.bind(
-            "volume",
-            self.gst,
-            "volume",
-            Gio.SettingsBindFlags.DEFAULT
-        )
+        self.settings.connect("changed::volume", self.volume_changed)
 
         self.bus = self.gst.get_bus()
         self.bus.add_signal_watch()
@@ -316,6 +311,11 @@ class Player(EventAdapter):
         integration.connect_to_model('currentSong', 'songId', lambda *_: self.discord_rpc.update())
         integration.connect_to_model('currentSong', 'displaySongTitle', lambda *_: self.discord_rpc.update())
         integration.connect_to_model('currentSong', 'displaySongArtist', lambda *_: self.discord_rpc.update())
+
+    def volume_changed(self, settings, key):
+        # Volume in gst is supposed to be handled with a cubic curve so we do volume^3
+        linear_value = settings.get_value(key).unpack()
+        self.gst.set_property('volume', linear_value ** 3.0)
 
     def on_source_setup(self, playbin, source):
         try:
