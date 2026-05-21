@@ -530,7 +530,7 @@ class Player(EventAdapter):
             blurred_img = small_img.filter(ImageFilter.GaussianBlur(radius=2))
             if blurred_img.mode != "RGBA":
                 blurred_img = blurred_img.convert("RGBA")
-            blurred_img.putalpha(int(255 * 0.4))
+            blurred_img.putalpha(int(255 * 0.5))
             buffer = io.BytesIO()
             blurred_img.save(buffer, format="PNG")
             blur_str = "data:image/png;base64,{}".format(base64.b64encode(buffer.getvalue()).decode("utf-8"))
