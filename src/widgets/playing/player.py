@@ -560,20 +560,20 @@ class Player(EventAdapter):
         }}
         """
 
-        self.application.css_provider.load_from_string(css)
+        GLib.idle_add(self.application.css_provider.load_from_string, css)
 
     def song_changed(self, song_id:str):
         integration = get_current_integration()
 
         def update_default_metadata(songId):
             if model := integration.loaded_models.get(songId):
-                integration.loaded_models.get('currentSong').set_property('displaySongTitle', model.get_property('title'))
+                GLib.idle_add(integration.loaded_models.get('currentSong').set_property, 'displaySongTitle', model.get_property('title'))
                 if stream_url := model.get_property('radioStreamUrl'):
-                    integration.loaded_models.get('currentSong').set_property('displaySongArtist', urlparse(stream_url).netloc.capitalize())
+                    GLib.idle_add(integration.loaded_models.get('currentSong').set_property, 'displaySongArtist', urlparse(stream_url).netloc.capitalize())
                 else:
                     artists = model.get_property('artists')
                     if len(artists) > 0:
-                        integration.loaded_models.get('currentSong').set_property('displaySongArtist', artists[0].get('name'))
+                        GLib.idle_add(integration.loaded_models.get('currentSong').set_property, 'displaySongArtist', artists[0].get('name'))
 
                 new_gain = model.get_property('trackGain')
                 album_mode = False
@@ -583,8 +583,8 @@ class Player(EventAdapter):
                         album_mode = True
 
                 self.last_song_id = songId
-                self.rg_volume.set_property("fallback-gain", new_gain)
-                self.rg_volume.set_property("album-mode", album_mode)
+                GLib.idle_add(self.rg_volume.set_property, "fallback-gain", new_gain)
+                GLib.idle_add(self.rg_volume.set_property, "album-mode", album_mode)
                 if paintable := integration.getCoverArt(songId):
                     if raw_bytes := paintable.save_to_png_bytes().get_data():
                         threading.Thread(target=self.update_palette, args=(raw_bytes,), daemon=True).start()

@@ -185,7 +185,6 @@ class PlayingControlPage(Adw.NavigationPage):
         self.title_el.set_tooltip_text(display_title)
 
     def display_artist_changed(self, display_artist:str):
-        self.radio_homepage_el.set_visible(display_artist)
         self.artist_el.set_visible(display_artist)
         self.radio_homepage_el.get_child().set_label(display_artist)
         self.artist_el.get_child().set_label(display_artist)
