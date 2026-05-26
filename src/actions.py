@@ -170,7 +170,7 @@ def launch_playback(window):
             ).start()
         else:
             toast = Adw.Toast(
-                title=_("Not enough songs found for Playback ({})").format(prev_month.strftime("%B %Y")),
+                title=_("Not enough data found for Nocturne Playback ({})").format(prev_month.strftime("%B %Y")),
                 timeout=2
             )
             GLib.idle_add(window.toast_overlay.add_toast, toast)
