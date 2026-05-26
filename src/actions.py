@@ -132,6 +132,20 @@ def __play_later(window, songs:list):
 
 # -- MISC --
 
+def search(window):
+    homepage = None
+    if app := window.get_application():
+        if window == app.main_window:
+            window.replace_root_page('home')
+            homepage = window.main_navigationview.find_page('home')
+        else:
+            __show_page(widgets.HomePage())
+            for dialog in window.get_dialogs():
+                if dialog.__gtype_name__ == 'NocturnePageDialog':
+                    homepage = dialog.navigation_view.find_page('home')
+    if homepage:
+        GLib.idle_add(homepage.search_bar.set_search_mode, True)
+
 def launch_playback(window):
     def run():
         integration = get_current_integration()

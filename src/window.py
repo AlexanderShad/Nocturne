@@ -213,6 +213,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         super().__init__(**kwargs)
         self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
 
+        self.create_action(actions.search, shortcuts=['<ctrl>F'], parameter_type=None)
         self.create_action(actions.launch_playback, parameter_type=None)
         self.create_action(actions.generate_auto_play_queue, parameter_type="b")
         self.create_action(actions.set_equalizer_preset)

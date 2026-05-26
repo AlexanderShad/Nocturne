@@ -12,7 +12,10 @@ import threading
 class HomePage(Adw.NavigationPage):
     __gtype_name__ = 'NocturneHomePage'
 
+    search_bar = Gtk.Template.Child()
+    search_entry = Gtk.Template.Child()
     main_stack = Gtk.Template.Child()
+    main_clamp = Gtk.Template.Child()
     song_wrapbox = Gtk.Template.Child()
     album_carousel = Gtk.Template.Child()
     artist_carousel = Gtk.Template.Child()
@@ -21,6 +24,14 @@ class HomePage(Adw.NavigationPage):
     def __init__(self):
         super().__init__()
 
+        self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        self.max_songs = self.settings.get_value('n-songs-home').unpack()
+        self.max_albums = self.settings.get_value('n-albums-home').unpack()
+        self.max_artists = self.settings.get_value('n-artists-home').unpack()
+        self.max_playlists = self.settings.get_value('n-playlists-home').unpack()
+        self.searching = False
+
+        list(self.search_bar)[0].set_transition_type(Gtk.RevealerTransitionType.CROSSFADE)
         self.song_wrapbox.set_header(
             label=_("Songs"),
             icon_name="music-note-symbolic",
@@ -48,52 +59,79 @@ class HomePage(Adw.NavigationPage):
             page_tag="playlists"
         )
 
+    def get_default_results(self) -> dict:
+        if integration := get_current_integration():
+            songs = integration.getRandomSongs(size=self.max_songs) if self.max_songs > 0 else []
+            albums = integration.getAlbumList(size=self.max_albums) if self.max_albums > 0 else []
+            artists = integration.getArtists(size=self.max_artists) if self.max_artists > 0 else []
+            playlists = integration.getPlaylists()[:self.max_playlists]
+            return {
+                'song': songs,
+                'album': albums,
+                'artist': artists,
+                'playlist': playlists
+            }
+        return {}
+
     def reload(self):
-        # call in different thread
-        integration = get_current_integration()
-        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
-        max_songs = settings.get_value('n-songs-home').unpack()
-        max_albums = settings.get_value('n-albums-home').unpack()
-        max_artists = settings.get_value('n-artists-home').unpack()
-        max_playlists = settings.get_value('n-playlists-home').unpack()
-
-        # -- Songs --
-        songs = integration.getRandomSongs(size=max_songs) if max_songs > 0 else []
-        threading.Thread(
-            target=self.song_wrapbox.set_widgets,
-            args=([SongSmallRow(id) for id in songs],),
-            daemon=True
-        ).start()
-
-        # -- Albums --
-        albums = integration.getAlbumList(size=max_albums) if max_albums > 0 else []
-        threading.Thread(
-            target=self.album_carousel.set_widgets,
-            args=([AlbumButton(id) for id in albums],),
-            daemon=True
-        ).start()
-
-        # -- Artists --
-        artists = integration.getArtists(size=max_artists) if max_artists > 0 else []
-        threading.Thread(
-            target=self.artist_carousel.set_widgets,
-            args=([ArtistButton(id) for id in artists],),
-            daemon=True
-        ).start()
-
-        # -- Playlists --
-        playlists = integration.getPlaylists()[:max_playlists]
-        threading.Thread(
-            target=self.playlist_carousel.set_widgets,
-            args=([PlaylistButton(id) for id in playlists],),
-            daemon=True
-        ).start()
-
-        n_elements = sum([len(s) for s in (songs, albums, artists, playlists)])
-        GLib.idle_add(self.main_stack.set_visible_child_name, 'content' if n_elements > 0 else 'no-content')
+        self.max_songs = self.settings.get_value('n-songs-home').unpack()
+        self.max_albums = self.settings.get_value('n-albums-home').unpack()
+        self.max_artists = self.settings.get_value('n-artists-home').unpack()
+        self.max_playlists = self.settings.get_value('n-playlists-home').unpack()
+        threading.Thread(target=self.search).start()
 
     def reset(self):
         threading.Thread(target=self.song_wrapbox.set_widgets, args=([],), daemon=True).start()
         threading.Thread(target=self.album_carousel.set_widgets, args=([],), daemon=True).start()
         threading.Thread(target=self.artist_carousel.set_widgets, args=([],), daemon=True).start()
         threading.Thread(target=self.playlist_carousel.set_widgets, args=([],), daemon=True).start()
+
+    def search(self):
+        if self.searching:
+            return
+        self.searching = True
+        GLib.idle_add(self.main_stack.set_visible_child_name, 'loading')
+        if integration := get_current_integration():
+            if query := self.search_entry.get_text():
+                search_results = integration.search(
+                    query=query,
+                    songCount=self.max_songs,
+                    artistCount=self.max_artists,
+                    albumCount=self.max_albums,
+                    ##TODO playlist
+                )
+            else:
+                search_results = self.get_default_results()
+            threading.Thread(
+                target=self.song_wrapbox.set_widgets,
+                args=([SongSmallRow(id) for id in search_results.get('song', [])],),
+                daemon=True
+            ).start()
+            threading.Thread(
+                target=self.album_carousel.set_widgets,
+                args=([AlbumButton(id) for id in search_results.get('album', [])],),
+                daemon=True
+            ).start()
+            threading.Thread(
+                target=self.artist_carousel.set_widgets,
+                args=([ArtistButton(id) for id in search_results.get('artist', [])],),
+                daemon=True
+            ).start()
+            threading.Thread(
+                target=self.playlist_carousel.set_widgets,
+                args=([PlaylistButton(id) for id in search_results.get('playlist', [])],),
+                daemon=True
+            ).start()
+            has_results = any([len(search_results.get(key)) > 0 for key in list(search_results)])
+        else:
+            has_results = False
+        GLib.idle_add(self.main_stack.set_visible_child_name, 'content' if has_results else 'no-content')
+        self.searching = False
+
+    @Gtk.Template.Callback()
+    def search_mode_toggled(self, button):
+        self.main_clamp.set_margin_top(0 if button.get_active() else 50)
+
+    @Gtk.Template.Callback()
+    def on_search(self, entry):
+        threading.Thread(target=self.search).start()
