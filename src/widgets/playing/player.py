@@ -599,6 +599,13 @@ class Player(EventAdapter):
                     if raw_bytes := paintable.save_to_png_bytes().get_data():
                         threading.Thread(target=self.update_palette, args=(raw_bytes,), daemon=True).start()
 
+                if model := integration.loaded_models.get(songId):
+                    if not model.get_property('duration'):
+                        self.gst.get_state(Gst.CLOCK_TIME_NONE)
+                        success, duration = self.gst.query_duration(Gst.Format.TIME)
+                        if success:
+                            model.set_property('duration', duration / Gst.SECOND)
+
         if song_id:
             if song_id != self.last_song_id:
                 stream_url = integration.get_stream_url(song_id)
