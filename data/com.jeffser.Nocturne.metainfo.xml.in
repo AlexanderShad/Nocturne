@@ -91,6 +91,20 @@
   </keywords>
 
   <releases>
+    <release version="1.2.1" date="2026-05-26">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/1.2.1</url>
+      <description translate="no">
+        <p>New</p>
+        <ul>
+          <li>Added warning if volume is set to 0 and the song changes</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Added fallback when servers do not provide higher resolution cover art images for songs</li>
+          <li>Made video streaming dependency optional for packages other than Flatpak</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.2.0" date="2026-05-26">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/1.2.0</url>
       <description translate="no">
