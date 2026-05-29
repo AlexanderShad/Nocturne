@@ -18,6 +18,10 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
         title: _("Simulate Word by Word Lyrics");
         subtitle: _("Used when only line by line lyrics are available");
       }
+      Adw.SwitchRow use_gain_el {
+        title: _("Use Track and Album Gain");
+        subtitle: _("Adjust the volume based on gain metadata");
+      }
       Adw.ComboRow default_page_el {
         title: _("Default Page on Login");
         model: Gtk.StringList {};

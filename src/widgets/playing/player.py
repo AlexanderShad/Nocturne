@@ -584,16 +584,18 @@ class Player(EventAdapter):
                     if len(artists) > 0:
                         GLib.idle_add(integration.loaded_models.get('currentSong').set_property, 'displaySongArtist', artists[0].get('name'))
 
-                new_gain = model.get_property('trackGain')
+                new_gain = 0.0
                 album_mode = False
-                if last_model := integration.loaded_models.get(self.last_song_id):
-                    if last_model.get_property('albumId') == model.get_property('albumId'):
-                        new_gain = model.get_property('albumGain')
-                        album_mode = True
-
+                if self.settings.get_value('use-gain').unpack():
+                    new_gain = model.get_property('trackGain')
+                    if last_model := integration.loaded_models.get(self.last_song_id):
+                        if last_model.get_property('albumId') == model.get_property('albumId'):
+                            new_gain = model.get_property('albumGain')
+                            album_mode = True
                 self.last_song_id = songId
                 GLib.idle_add(self.rg_volume.set_property, "fallback-gain", new_gain)
                 GLib.idle_add(self.rg_volume.set_property, "album-mode", album_mode)
+
                 if paintable := integration.getCoverArt(songId):
                     if raw_bytes := paintable.save_to_png_bytes().get_data():
                         threading.Thread(target=self.update_palette, args=(raw_bytes,), daemon=True).start()

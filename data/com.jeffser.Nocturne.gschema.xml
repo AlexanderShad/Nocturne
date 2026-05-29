@@ -13,6 +13,9 @@
 	  <key name="simulate-word-by-word-lyrics" type="b">
 	    <default>false</default>
 	  </key>
+	  <key name="use-gain" type="b">
+	    <default>true</default>
+	  </key>
 	  <key name="default-page-tag" type="s">
 	    <default>'home'</default>
 	  </key>
