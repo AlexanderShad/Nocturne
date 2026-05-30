@@ -120,11 +120,17 @@ class Base(GObject.Object):
         # Returns empty string when a url is not available
         return ""
 
-    def ping(self) -> bool:
+    def ping(self) -> dict:
         # return True if logged in and connection is successful
         # when implementing also do super().ping() to prepare SQL
-        sql_instance.ensure_schema(self)
-        return True
+        try:
+            sql_instance.ensure_schema(self)
+            return {'status': 'ok'}
+        except:
+            return {
+                'status': 'error',
+                'message': _('Could not generate SQL database')
+            }
 
     def getAlbumList(self, list_type:str="recent", size:int=10, offset:int=0) -> list:
         # add non existing elements to self.loaded_models, returns lists of IDs, nothing more

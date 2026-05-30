@@ -132,6 +132,15 @@ def __play_later(window, songs:list):
 
 # -- MISC --
 
+def show_error(window, message:str):
+    if app := window.get_application():
+        dialog = Adw.AlertDialog(
+            heading=_("Error"),
+            body=message or _("No details provided")
+        )
+        dialog.add_response('close', _('Close'))
+        dialog.choose(app.props.active_window, None, None)
+
 def search(window):
     homepage = None
     if app := window.get_application():

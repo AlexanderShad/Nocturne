@@ -132,12 +132,15 @@ class Navidrome(Base):
             return '{}?{}'.format(self.get_url('getCoverArt'), urlencode(params))
         return ""
 
-    def ping(self) -> bool:
-        try:
-            response = self.make_request('ping')
-            return response.get('status') == 'ok' and super().ping()
-        except Exception as e:
-            return False
+    def ping(self) -> dict:
+        response = self.make_request('ping')
+        if response.get('status') == 'ok':
+            return super().ping()
+        else:
+            return {
+                'status': 'error',
+                'message': '{}\n"{}"'.format(_('Server returned an error'), response.get('error', {}).get('message', _('Unknown Error')))
+            }
 
     def getAlbumList(self, list_type:str="recent", size:int=10, offset:int=0) -> list:
         # returns a list of IDs

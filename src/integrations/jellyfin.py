@@ -149,7 +149,6 @@ class Jellyfin(Base):
     def getCoverArt(self, model_id:str='', big:bool=False) -> Gdk.Paintable:
         if not model_id:
             return None
-
         if model := self.loaded_models.get(model_id):
             if isinstance(model, models.Song) and model.get_property('isExternalFile'):
                 return local.Local.getCoverArt(self, model_id, big=big)
@@ -201,7 +200,7 @@ class Jellyfin(Base):
             return '{}?{}'.format(self.get_url('Items/{id}/Images/Primary', id=model_id), urlencode(params))
         return ""
 
-    def ping(self) -> bool:
+    def ping(self) -> dict:
         self.set_property('accessToken', "")
         self.set_property('userId', "")
         response = self.make_request(
@@ -226,7 +225,12 @@ class Jellyfin(Base):
             )
             self.set_property('accessToken', response.get('AccessToken'))
             self.set_property('userId', response.get('User', {}).get('Id'))
-        return self.get_property('accessToken') and self.get_property('userId') and super().ping()
+        if self.get_property('accessToken') and self.get_property('userId'):
+            return super().ping()
+        return {
+            'status': 'error',
+            'message': _('Could not log in')
+        }
 
     def getAlbumList(self, list_type:str="recent", size:int=10, offset:int=0) -> list:
         params = {

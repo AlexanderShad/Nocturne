@@ -76,7 +76,8 @@ class NocturneWindow(Adw.ApplicationWindow):
                 integration.terminate_instance()
             self.settings.set_int('default-width', self.get_width())
             self.settings.set_int('default-height', self.get_height())
-            self.get_application().player.discord_rpc.close()
+            if player := self.get_application().player:
+                player.discord_rpc.close()
             self.get_application().quit()
 
     @Gtk.Template.Callback()
@@ -214,6 +215,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         super().__init__(**kwargs)
         self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
 
+        self.create_action(actions.show_error)
         self.create_action(actions.search, shortcuts=['<ctrl>F'], parameter_type=None)
         self.create_action(actions.launch_playback, parameter_type=None)
         self.create_action(actions.generate_auto_play_queue, parameter_type="b")

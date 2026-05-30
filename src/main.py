@@ -110,7 +110,8 @@ class NocturneApplication(Adw.Application):
 
     def try_login(self, integration):
         # call on different thread
-        if integration.ping():
+        ping_result = integration.ping()
+        if ping_result.get('status') == 'ok':
             set_current_integration(integration)
             integration.on_login()
             GLib.idle_add(self.main_window.main_stack.set_visible_child_name, "content")
@@ -126,7 +127,12 @@ class NocturneApplication(Adw.Application):
                 dialog.close()
         else:
             self.main_window.main_stack.set_visible_child_name('welcome')
-            toast = Adw.Toast(title=_("Login Failed"))
+            toast = Adw.Toast(
+                title=_("Login Failed"),
+                action_name='app.show_error',
+                action_target=GLib.Variant('s', ping_result.get('message')),
+                button_label=_("Show Details")
+            )
             dialog = self.main_window.get_visible_dialog()
             if not isinstance(dialog, LoginDialog):
                 dialog = LoginDialog(integration)
