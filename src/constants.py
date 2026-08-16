@@ -701,3 +701,8 @@ CONTEXT_LYRICS = {
         "icon-name": "user-trash-symbolic",
     }
 }
+
+COVER_SIZE = {
+    "big": 720,
+    "small": 240
+}
