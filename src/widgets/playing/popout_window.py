@@ -32,7 +32,6 @@ class PopoutWindow(Adw.ApplicationWindow):
 
         GLib.idle_add(self.playing_page.setup)
         GLib.idle_add(self.lyrics_page.setup)
-        GLib.idle_add(self.footer.setup)
         GLib.idle_add(self.queue_page.setup)
 
         self.playing_page.header_bar.get_ancestor(Adw.ToolbarView).set_extend_content_to_top_edge(False)

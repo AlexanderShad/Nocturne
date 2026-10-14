@@ -9,10 +9,6 @@ class PlayingFooter(Adw.BreakpointBin):
 
     forceHugeMode = GObject.Property(type=bool, default=False)
 
-    def setup(self):
-        # Called after login
-        pass
-
     @Gtk.Template.Callback()
     def format_progress_el_visibility(self, obj, song_id:str) -> bool:
         if integration := get_current_integration():

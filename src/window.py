@@ -195,7 +195,6 @@ class NocturneWindow(Adw.ApplicationWindow):
 
     def setup(self):
         # call using glib_add
-        self.footer.setup()
         self.playing_page.setup()
         self.lyrics_page.setup()
         self.queue_page.setup()
