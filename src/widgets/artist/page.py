@@ -123,6 +123,7 @@ class ArtistPage(Adw.NavigationPage):
             self.album_wrapbox.set_widgets(album_buttons)
 
     def update_guest_album_list(self, album_list:list):
+        # Only applicable to Jellyfin instances
         if album_list:
             albums = [a.get('id') for a in album_list if isinstance(a, dict)]
             album_buttons = []
