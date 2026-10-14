@@ -31,10 +31,6 @@ class PlayingControlPage(Adw.NavigationPage):
 
     def setup(self):
         integration = get_current_integration()
-        integration.connect_to_model('currentSong', 'positionSeconds', self.update_position)
-        integration.connect_to_model('currentSong', 'buttonState', self.state_stack_el.set_visible_child_name)
-        integration.connect_to_model('currentSong', 'displaySongTitle', self.display_title_changed)
-        integration.connect_to_model('currentSong', 'displaySongArtist', self.display_artist_changed)
         self.cover_art_el.setup()
         self.setup_sidebar_button_connection()
         if stack := self.get_ancestor(Gtk.Stack):
@@ -52,23 +48,17 @@ class PlayingControlPage(Adw.NavigationPage):
             'album': self.update_album,
             'albumId': self.update_albumId,
             'isExternalFile': self.update_isExternalFile,
-            'duration': self.progress_el.get_adjustment().set_upper,
             'userRating': self.update_userRating,
             'starred': self.update_starred
         }
         for parameter, callback in connections.items():
             integration.connect_to_current_song(parameter, callback)
 
-    def update_position(self, positionSeconds:int):
-        integration = get_current_integration()
-        song = integration.loaded_models.get(integration.get_property('current-state').get_property('songId'))
-        if song:
-            label_positive = get_display_time(positionSeconds)
-            label_negative = get_display_time(song.get_property('duration') - positionSeconds)
-            self.positive_progress_el.set_label(label_positive)
-            self.negative_progress_el.set_label('-{}'.format(label_negative))
-            if not integration.get_property('current-state').get_property('seeking'):
-                self.progress_el.get_adjustment().set_value(positionSeconds)
+    @Gtk.Template.Callback()
+    def format_progress_label(self, obj, positionSeconds:float, durationSeconds:float, is_negative:bool) -> str:
+        if is_negative:
+            return '-{}'.format(get_display_time(durationSeconds - positionSeconds))
+        return get_display_time(positionSeconds)
 
     def breakpoint_toggled(self, active:bool):
         self.breakpoint_state = active
@@ -191,13 +181,4 @@ class PlayingControlPage(Adw.NavigationPage):
             self.star_el.add_css_class('dim-label')
             self.star_el.set_icon_name('heart-outline-thick-symbolic')
             self.star_el.set_tooltip_text(_('Not Favorite'))
-
-    def display_title_changed(self, display_title:str):
-        self.title_el.set_label(display_title)
-        self.title_el.set_tooltip_text(display_title)
-
-    def display_artist_changed(self, display_artist:str):
-        self.artist_el.get_child().set_label(display_artist)
-        self.artist_el.set_tooltip_text(display_artist)
-        self.artist_el.set_visible(bool(display_artist))
 

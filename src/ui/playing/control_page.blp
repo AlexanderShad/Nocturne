@@ -48,6 +48,8 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
               lines: 2;
               ellipsize: end;
               justify: center;
+              label: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .displaySongTitle;
+              tooltip-text: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .displaySongTitle;
               styles [
                 "title-1"
               ]
@@ -62,9 +64,10 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                 halign: center;
                 hexpand: true;
                 action-target: "''";
-                tooltip-text: _("Show Artist");
+                tooltip-text: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .displaySongArtist;
                 child: Gtk.Label {
                   ellipsize: end;
+                  label: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .displaySongArtist;
                 };
                 styles [
                   "flat",
@@ -112,8 +115,8 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
               change-value => $progress_bar_changed();
               adjustment: Gtk.Adjustment {
                 lower: 0;
-                upper: 1;
-                value: 0;
+                upper: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .durationSeconds;
+                value: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .positionSeconds;
               };
               styles [
                 "p0"
@@ -132,6 +135,11 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                 xalign: 0;
                 justify: left;
                 hexpand: true;
+                label: bind $format_progress_label(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .positionSeconds,
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .durationSeconds,
+                  false
+                );
               }
               Gtk.Label negative_progress_el {
                 styles [
@@ -141,6 +149,11 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                 xalign: 1;
                 justify: right;
                 hexpand: true;
+                label: bind $format_progress_label(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .positionSeconds,
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .durationSeconds,
+                  true
+                );
               }
             }
 
@@ -162,6 +175,7 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
 
               Gtk.Stack state_stack_el {
                 transition-type: crossfade;
+                visible-child-name: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .buttonState;
 
                 Gtk.StackPage {
                   name: "play";
