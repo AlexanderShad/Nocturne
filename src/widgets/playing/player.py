@@ -723,6 +723,7 @@ class Player(GObject.Object):
                             success, duration = self.gst.query_duration(Gst.Format.TIME)
                             if success:
                                 model.set_property('duration', duration / Gst.SECOND)
+                        integration.get_property('current-state').set_property('durationSeconds', model.get_property('duration'))
                 else:
                     self.gst.set_state(Gst.State.NULL)
         else:
