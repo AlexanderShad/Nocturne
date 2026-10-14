@@ -112,7 +112,6 @@ class NocturnePreferences(Adw.PreferencesDialog):
     ## Interface
     context_button_el = Gtk.Template.Child()
     context_label_el = Gtk.Template.Child()
-    footer_big_mode_el = Gtk.Template.Child()
     translucent_player_el = Gtk.Template.Child()
     use_sidebar_player_el = Gtk.Template.Child()
     hide_singles_el = Gtk.Template.Child()
@@ -282,12 +281,6 @@ class NocturnePreferences(Adw.PreferencesDialog):
         settings.bind(
             "show-context-button-label",
             self.context_label_el,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT
-        )
-        settings.bind(
-            "use-big-footer",
-            self.footer_big_mode_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )
