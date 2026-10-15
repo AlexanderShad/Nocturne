@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, Adw, GLib, Gio, GObject, Pango
+from gi.repository import Gtk, Adw, GLib, Gio, GObject, Pango, Gly
 
 from . import actions
 from .integrations import get_current_integration, models
@@ -377,9 +377,9 @@ class NocturneWindow(Adw.ApplicationWindow):
     def show_sidebar_decoration_changed(self, settings, key):
         if settings.get_value(key).unpack():
             if os.path.isfile(SIDEBAR_DECORATION_PATH):
-                self.sidebar_decoration.set_from_file(SIDEBAR_DECORATION_PATH)
+                self.sidebar_decoration.set_filename(SIDEBAR_DECORATION_PATH)
                 return
-        self.sidebar_decoration.clear()
+        self.sidebar_decoration.set_paintable(None)
 
     @Gtk.Template.Callback()
     def on_drop(self, drop_target, file, x, y):

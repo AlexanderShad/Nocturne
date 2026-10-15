@@ -108,10 +108,9 @@ template $NocturneWindow: Adw.ApplicationWindow {
                 }
                 content: Adw.Sidebar main_sidebar {
                   activated => $on_sidebar_activated();
-                  suffix: Gtk.Image sidebar_decoration {
+                  suffix: Gtk.Picture sidebar_decoration {
                     width-request: 90;
                     height-request: 90;
-                    pixel-size: 90;
                     margin-top: 10;
                     vexpand: true;
                     valign: end;
