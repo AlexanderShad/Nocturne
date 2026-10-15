@@ -30,35 +30,26 @@ class PlayingControlPage(Adw.NavigationPage):
     breakpoint_state = False
 
     def setup(self):
-        integration = get_current_integration()
         self.cover_art_el.setup()
         self.setup_sidebar_button_connection()
         if stack := self.get_ancestor(Gtk.Stack):
             stack.get_parent().set_overflow(Gtk.Overflow.HIDDEN)
             if stack2 := stack.get_parent().get_parent():
                 stack2.get_parent().set_overflow(Gtk.Overflow.HIDDEN)
-        if extra_widget := self.get_property('extra-widget'):
-            self.main_container.prepend(extra_widget)
-
-        # Connect to Current Song
-        connections = {
-            'id': lambda model_id: self.star_el.set_action_target_value(GLib.Variant('s', model_id or '')),
-            'radioStreamUrl': self.update_radioStreamUrl,
-            'artistId': self.update_artistId,
-            'album': self.update_album,
-            'albumId': self.update_albumId,
-            'isExternalFile': self.update_isExternalFile,
-            'userRating': self.update_userRating,
-            'starred': self.update_starred
-        }
-        for parameter, callback in connections.items():
-            integration.connect_to_current_song(parameter, callback)
 
     @Gtk.Template.Callback()
     def format_progress_label(self, obj, positionSeconds:float, durationSeconds:float, is_negative:bool) -> str:
         if is_negative:
             return '-{}'.format(get_display_time(durationSeconds - positionSeconds))
         return get_display_time(positionSeconds)
+
+    @Gtk.Template.Callback()
+    def format_action_target(self, obj, value, variant:str) -> GLib.Variant:
+        return GLib.Variant(variant, value)
+
+    @Gtk.Template.Callback()
+    def format_to_bool(self, obj, value, inverse:bool) -> bool:
+        return bool(value) != inverse
 
     def breakpoint_toggled(self, active:bool):
         self.breakpoint_state = active
@@ -106,79 +97,32 @@ class PlayingControlPage(Adw.NavigationPage):
         })
         self.get_root().activate_action("app.set_rating", target_value)
 
-    def change_bottom_sheet_state(self, playing:bool):
-        bottom_sheet = self.get_ancestor(Adw.BottomSheet)
-        if bottom_sheet:
-            bottom_sheet.set_can_open(playing)
-            if not playing:
-                bottom_sheet.set_open(False)
-            bottom_sheet.set_reveal_bottom_bar(playing)
-
-        if root := self.get_root():
-            if application := root.get_application():
-                if playing:
-                    application.inhibit_suspend()
-                else:
-                    application.uninhibit_suspend()
-                    if popout_window := application.popout_window:
-                        popout_window.close()
-
-    def update_radioStreamUrl(self, radioStreamUrl:str):
-        self.radio_homepage_el.set_visible(radioStreamUrl)
-        self.artist_el.set_can_target(not radioStreamUrl)
-        self.artist_el.set_focusable(not radioStreamUrl)
-        self.positive_progress_el.set_visible(not radioStreamUrl)
-        self.negative_progress_el.set_visible(not radioStreamUrl)
-        self.progress_el.set_visible(not radioStreamUrl)
-        self.rating_button.set_visible(not radioStreamUrl)
-        self.star_el.set_visible(not radioStreamUrl)
-
+    @Gtk.Template.Callback()
+    def format_radio_homepage(self, obj, radioStreamUrl:str, return_variant:bool) -> GLib.Variant | str:
         homepage_url = ""
         if radioStreamUrl:
             stream_url = urlparse(radioStreamUrl)
             homepage_url = '{}://{}'.format(stream_url.scheme, stream_url.netloc)
-        self.radio_homepage_el.set_tooltip_text(homepage_url)
-        self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(homepage_url))
-        self.radio_homepage_el.get_child().set_label(urlparse(radioStreamUrl).netloc)
-
-    def update_artistId(self, artistId:str):
-        if artistId:
-            self.artist_el.set_action_target_value(GLib.Variant.new_string(artistId))
-            self.artist_el.set_action_name("app.show_artist")
-
-    def update_album(self, album:str):
-        self.album_el.get_child().set_label(album)
-        self.album_el.set_tooltip_text(album)
-        self.album_el.set_visible(album)
-
-    def update_albumId(self, albumId:str):
-        if albumId:
-            self.album_el.set_action_target_value(GLib.Variant.new_string(albumId))
-            self.album_el.set_action_name("app.show_album")
-            self.album_el.set_sensitive(True)
+        if return_variant:
+            return GLib.Variant('s', homepage_url)
         else:
-            self.album_el.set_action_name("")
-            self.album_el.set_sensitive(False)
+            return homepage_url
 
-    def update_isExternalFile(self, isExternalFile:bool):
-        self.album_el.get_ancestor(Adw.WrapBox).set_sensitive(not isExternalFile)
-        self.rating_container.set_visible(self.rating_container.get_visible() and not isExternalFile)
-        self.star_el.set_visible(self.star_el.get_visible() and not isExternalFile)
+    @Gtk.Template.Callback()
+    def format_all_false(self, obj, *values) -> bool:
+        # returns true if all values are false
+        return not all([bool(value) for value in values])
 
-    def update_userRating(self, userRating:int):
-        for i, el in enumerate(list(self.rating_container)):
-            el.set_icon_name("starred-symbolic" if userRating >= i+1 else "non-starred-symbolic")
-        self.rating_button.set_icon_name("starred-symbolic" if userRating > 0 else "non-starred-symbolic")
+    @Gtk.Template.Callback()
+    def format_rating_icon_name(self, obj, rating:int, index):
+        return "starred-symbolic" if rating >= index else "non-starred-symbolic"
 
-    def update_starred(self, starred:bool):
+    @Gtk.Template.Callback()
+    def format_starred_icon_name(self, obj, starred:bool) -> str:
         if starred:
             self.star_el.add_css_class('accent')
             self.star_el.remove_css_class('dim-label')
-            self.star_el.set_icon_name('heart-filled-symbolic')
-            self.star_el.set_tooltip_text(_('Favorite'))
         else:
             self.star_el.remove_css_class('accent')
             self.star_el.add_css_class('dim-label')
-            self.star_el.set_icon_name('heart-outline-thick-symbolic')
-            self.star_el.set_tooltip_text(_('Not Favorite'))
-
+        return "heart-filled-symbolic" if starred else "heart-outline-thick-symbolic"

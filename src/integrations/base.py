@@ -89,7 +89,7 @@ class Base(GObject.Object):
     limitations = ()
 
     loaded_models = {}
-    current_state = GObject.Property(type=models.CurrentSong, default=models.CurrentSong())
+    current_state = GObject.Property(type=models.CurrentState, default=models.CurrentState())
 
     url = GObject.Property(type=str)
     trustServer = GObject.Property(type=bool, default=False)

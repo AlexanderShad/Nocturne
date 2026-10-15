@@ -1,7 +1,6 @@
 # coverArt.py
 
 from gi.repository import GObject, Adw, Gtk, Gdk, GLib
-from ...integrations import get_current_integration
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/playing/cover_art.ui')
 class PlayingCoverArt(Gtk.Box, Adw.Swipeable):
@@ -105,8 +104,6 @@ class PlayingCoverArt(Gtk.Box, Adw.Swipeable):
     # ------------------------------------
 
     def setup(self):
-        integration = get_current_integration()
-        integration.connect_to_current_song('gdkPaintableBig', self.update_cover_art)
         self.spectrum_el.setup()
 
         if root := self.get_root():
@@ -115,23 +112,7 @@ class PlayingCoverArt(Gtk.Box, Adw.Swipeable):
                     if video_sink := player.gst.get_property('video-sink'):
                         self.video_el.set_paintable(video_sink.get_property('paintable'))
 
-    def update_cover_art(self, paintable):
-        if paintable:
-            self.cover_el.remove_css_class('p50')
-        else:
-            icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
-            paintable = icon_theme.lookup_icon(
-                'music-note-symbolic',
-                None,
-                64,
-                1,
-                Gtk.TextDirection.NONE,
-                0
-            )
-            self.cover_el.add_css_class('p50')
-        self.cover_el.set_paintable(paintable)
-
-    """@Gtk.Template.Callback()
+    @Gtk.Template.Callback()
     def format_cover_paintable(self, obj, paintable:Gdk.Paintable) -> Gdk.Paintable:
         if paintable:
             self.cover_el.remove_css_class('p50')
@@ -145,7 +126,7 @@ class PlayingCoverArt(Gtk.Box, Adw.Swipeable):
                 1,
                 Gtk.TextDirection.NONE,
                 0
-            )"""
+            )
 
     @Gtk.Template.Callback()
     def format_video_available(self, obj, paintable:Gdk.Paintable, videoId:str, songId:str) -> bool:

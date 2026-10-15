@@ -34,6 +34,10 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
             "p10"
           ]
 
+          Adw.Bin {
+            child: bind template.extra-widget;
+          }
+
           $NocturnePlayingCoverArt cover_art_el {
             margin-bottom: 10;
           }
@@ -59,12 +63,24 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
               child-spacing: 5;
               line-spacing: 5;
               justify: fill;
+              sensitive: bind $format_to_bool(
+                template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .isExternalFile,
+                true
+              );
 
               Gtk.Button artist_el {
                 halign: center;
                 hexpand: true;
-                action-target: "''";
+                action-target: bind $format_action_target(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .artistId,
+                  's'
+                );
+                action-name: "app.show_artist";
                 tooltip-text: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .displaySongArtist;
+                sensitive: bind $format_to_bool(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .radioStreamUrl,
+                  true
+                );
                 child: Gtk.Label {
                   ellipsize: end;
                   label: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .displaySongArtist;
@@ -79,10 +95,25 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
               Gtk.Button radio_homepage_el {
                 halign: center;
                 hexpand: true;
+                action-target: bind $format_radio_homepage(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .radioStreamUrl,
+                  true
+                );
                 action-name: "app.visit_url";
-                action-target: "''";
+                visible: bind $format_to_bool(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .radioStreamUrl,
+                  false
+                );
+                tooltip-text: bind $format_radio_homepage(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .radioStreamUrl,
+                  false
+                );
                 child: Adw.ButtonContent {
                   icon-name: "external-link-symbolic";
+                  label: bind $format_radio_homepage(
+                    template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .radioStreamUrl,
+                    false
+                  );
                 };
                 styles [
                   "flat",
@@ -97,10 +128,18 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
               Gtk.Button album_el {
                 halign: center;
                 hexpand: true;
-                action-target: "''";
-                tooltip-text: _("Show Album");
+                action-target: bind $format_action_target(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .albumId,
+                  's'
+                );
+                tooltip-text: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .album;
+                visible: bind $format_to_bool(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .album,
+                  false
+                );
                 child: Gtk.Label {
                   ellipsize: end;
+                  label: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .album;
                 };
                 styles [
                   "flat",
@@ -113,9 +152,13 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
             Gtk.Scale progress_el {
               orientation: horizontal;
               change-value => $progress_bar_changed();
+              visible: bind $format_to_bool(
+                template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .radioStreamUrl,
+                true
+              );
               adjustment: Gtk.Adjustment {
                 lower: 0;
-                upper: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .durationSeconds;
+                upper: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .duration;
                 value: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .positionSeconds;
               };
               styles [
@@ -127,6 +170,11 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
             }
 
             Gtk.Box {
+              visible: bind $format_to_bool(
+                template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .radioStreamUrl,
+                true
+              );
+
               Gtk.Label positive_progress_el {
                 styles [
                   "numeric",
@@ -137,7 +185,7 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                 hexpand: true;
                 label: bind $format_progress_label(
                   template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .positionSeconds,
-                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .durationSeconds,
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .duration,
                   false
                 );
               }
@@ -151,7 +199,7 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                 hexpand: true;
                 label: bind $format_progress_label(
                   template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .positionSeconds,
-                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .durationSeconds,
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .duration,
                   true
                 );
               }
@@ -231,16 +279,30 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
               $NocturneVolumeButton {}
 
               Gtk.MenuButton rating_button {
-                icon-name: "starred-symbolic";
+                icon-name: bind $format_rating_icon_name(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .userRating,
+                  1
+                );
                 tooltip-text: _("Rate");
+                visible: bind $format_to_bool(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .radioStreamUrl,
+                  true
+                );
                 popover: Gtk.Popover {
                   child: Gtk.Box rating_container {
                     hexpand: true;
                     halign: center;
+                    visible: bind $format_all_false(
+                      template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .radioStreamUrl,
+                      template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .isExternalFile
+                    );
                     Gtk.Button {
                       name: "1";
                       tooltip-text: _("1 Star");
-                      icon-name: "non-starred-symbolic";
+                      icon-name: bind $format_rating_icon_name(
+                        template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .userRating,
+                        1
+                      );
                       clicked => $change_rating();
                       styles [
                         "flat"
@@ -249,7 +311,10 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                     Gtk.Button {
                       name: "2";
                       tooltip-text: _("2 Stars");
-                      icon-name: "non-starred-symbolic";
+                      icon-name: bind $format_rating_icon_name(
+                        template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .userRating,
+                        2
+                      );
                       clicked => $change_rating();
                       styles [
                         "flat"
@@ -258,7 +323,10 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                     Gtk.Button {
                       name: "3";
                       tooltip-text: _("3 Stars");
-                      icon-name: "non-starred-symbolic";
+                      icon-name: bind $format_rating_icon_name(
+                        template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .userRating,
+                        3
+                      );
                       clicked => $change_rating();
                       styles [
                         "flat"
@@ -267,7 +335,10 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                     Gtk.Button {
                       name: "4";
                       tooltip-text: _("4 Stars");
-                      icon-name: "non-starred-symbolic";
+                      icon-name: bind $format_rating_icon_name(
+                        template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .userRating,
+                        4
+                      );
                       clicked => $change_rating();
                       styles [
                         "flat"
@@ -276,7 +347,10 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                     Gtk.Button {
                       name: "5";
                       tooltip-text: _("5 Stars");
-                      icon-name: "non-starred-symbolic";
+                      icon-name: bind $format_rating_icon_name(
+                        template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .userRating,
+                        5
+                      );
                       clicked => $change_rating();
                       styles [
                         "flat"
@@ -287,10 +361,14 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
               }
 
               Gtk.Button star_el {
-                icon-name: "non-starred-symbolic";
+                icon-name: bind $format_starred_icon_name(template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .starred);
                 tooltip-text: _("Star");
+                action-target: bind $format_action_target(template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .songId, 's');
                 action-name: "app.toggle_star";
-                action-target: "''";
+                visible: bind $format_all_false(
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .radioStreamUrl,
+                  template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .isExternalFile
+                );
               }
 
               Gtk.Button show_sidebar_el {

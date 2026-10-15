@@ -73,7 +73,7 @@ template $NocturnePlayingFooter: Adw.BreakpointBin {
           ]
           adjustment: Gtk.Adjustment {
             lower: 0;
-            upper: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .durationSeconds;
+            upper: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .duration;
             value: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .positionSeconds;
           };
           visible: bind $format_progress_el_visibility(template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .songId);
