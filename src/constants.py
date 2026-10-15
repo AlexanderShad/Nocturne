@@ -400,6 +400,8 @@ BITRATE_OPTIONS = {
     _("Original File"): 0
 }
 
+SIDEBAR_DECORATION_PATH = os.path.join(DATA_DIR, 'sidebar-decoration')
+
 # All items and sections must have unique names (even if items are on different sections)
 SIDEBAR_MENU = {
     'root': { # Section (These are not grouped and can't be disabled)

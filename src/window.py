@@ -21,8 +21,8 @@ from gi.repository import Gtk, Adw, GLib, Gio, GObject, Pango
 
 from . import actions
 from .integrations import get_current_integration, models
-from .constants import SIDEBAR_MENU
-import threading
+from .constants import SIDEBAR_MENU, SIDEBAR_DECORATION_PATH
+import threading, os
 from datetime import datetime, timedelta
 
 class SidebarItem(Adw.SidebarItem):
@@ -49,6 +49,7 @@ class NocturneWindow(Adw.ApplicationWindow):
     sidebar_queue_page = Gtk.Template.Child()
     sidebar_lyrics_page = Gtk.Template.Child()
     main_sidebar = Gtk.Template.Child()
+    sidebar_decoration = Gtk.Template.Child()
     main_stack = Gtk.Template.Child()
     footer = Gtk.Template.Child()
     toast_overlay = Gtk.Template.Child()
@@ -357,6 +358,8 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.settings.connect('changed::player-dynamic-bg-mode', self.dynamic_bg_mode_changed, '')
         self.dynamic_bg_mode_changed(self.settings, 'player-dynamic-bg-mode', '')
         self.settings.connect('changed::use-sidebar-player', lambda *_: self.big_breakpoint_toggled())
+        self.show_sidebar_decoration_changed(self.settings, 'show-sidebar-decoration')
+        self.settings.connect('changed::show-sidebar-decoration', self.show_sidebar_decoration_changed)
 
     def css_toggled(self, settings, key, css_class):
         if settings.get_value(key).unpack():
@@ -370,6 +373,13 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.remove_css_class('{}dynamic-bg-blur'.format(prefix))
         if value:
             self.add_css_class('{}dynamic-bg-{}'.format(prefix, value))
+
+    def show_sidebar_decoration_changed(self, settings, key):
+        if settings.get_value(key).unpack():
+            if os.path.isfile(SIDEBAR_DECORATION_PATH):
+                self.sidebar_decoration.set_from_file(SIDEBAR_DECORATION_PATH)
+                return
+        self.sidebar_decoration.clear()
 
     @Gtk.Template.Callback()
     def on_drop(self, drop_target, file, x, y):

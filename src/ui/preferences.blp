@@ -80,6 +80,7 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
               label: _("Link");
               tooltip-text: _("Link");
               valign: center;
+              halign: end;
               clicked => $listenbrainz_link_requested();
             };
           }
@@ -89,6 +90,7 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
               label: _("Unlink");
               tooltip-text: _("Unlink");
               valign: center;
+              halign: end;
               clicked => $listenbrainz_unlink_requested();
               styles [
                 "destructive-action"
@@ -184,6 +186,37 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
             tooltip: _("Big");
             label: _("Big");
             name: "big";
+          }
+        }
+      }
+
+      Adw.ActionRow {
+        title: _("Sidebar Decoration");
+        subtitle: _("Add a small image to the bottom of the left sidebar");
+        [suffix]
+        Gtk.Stack sidebar_decoration_stack_el {
+          Gtk.StackPage {
+            name: "add";
+            child: Gtk.Button {
+              label: _("Add");
+              tooltip-text: _("Add");
+              valign: center;
+              halign: end;
+              clicked => $sidebar_decoration_add_requested();
+            };
+          }
+          Gtk.StackPage {
+            name: "remove";
+            child: Gtk.Button {
+              label: _("Remove");
+              tooltip-text: _("Remove");
+              valign: center;
+              halign: end;
+              clicked => $sidebar_decoration_remove_requested();
+              styles [
+                "destructive-action"
+              ]
+            };
           }
         }
       }

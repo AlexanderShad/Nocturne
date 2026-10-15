@@ -73,6 +73,9 @@
 	  <key name="button-size" type="s">
 	    <default>'big'</default>
 	  </key>
+	  <key name="show-sidebar-decoration" type="b">
+	    <default>false</default>
+	  </key>
 	  <!--### Section: Dynamic Background-->
     <key name="global-dynamic-bg-mode" type="s">
 	    <default>'blur'</default>

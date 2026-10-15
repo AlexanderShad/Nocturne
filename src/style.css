@@ -50,7 +50,6 @@ searchbar > revealer > box {
   padding: 0;
 }
 
-window:not(.popout-window).showing-footer sidebar scrolledwindow > viewport > *,
 window:not(.popout-window).showing-footer .main-navigationview navigation-view-page > toolbarview > scrolledwindow > viewport > *,
 window:not(.popout-window).showing-footer .main-navigationview navigation-view-page > toolbarview > stack > scrolledwindow > viewport > * {
   padding-bottom: 100px;

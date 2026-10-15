@@ -1,9 +1,9 @@
 # preferences.py
 
-from gi.repository import GObject, Gtk, Adw, GLib, Gio, Gdk, Pango, Xdp, XdpGtk4
+from gi.repository import GObject, Gtk, Adw, GLib, Gio, Gdk, Pango, Xdp, XdpGtk4, Gly
 
 from .integrations import get_current_integration, secret
-from .constants import SIDEBAR_MENU, BITRATE_OPTIONS, IN_FLATPAK, CACHE_DIR, DATA_DIR
+from .constants import SIDEBAR_MENU, BITRATE_OPTIONS, IN_FLATPAK, CACHE_DIR, DATA_DIR, SIDEBAR_DECORATION_PATH
 import os, threading, shutil
 
 # Handles sections and items of sidebar
@@ -116,6 +116,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
     use_sidebar_player_el = Gtk.Template.Child()
     hide_singles_el = Gtk.Template.Child()
     button_size_el = Gtk.Template.Child()
+    sidebar_decoration_stack_el = Gtk.Template.Child()
 
     ## Dynamic Background
     global_dynamic_bg_el = Gtk.Template.Child()
@@ -308,6 +309,10 @@ class NocturnePreferences(Adw.PreferencesDialog):
             "active-name",
             Gio.SettingsBindFlags.DEFAULT
         )
+
+        if settings.get_value('show-sidebar-decoration').unpack() and not os.path.isfile(SIDEBAR_DECORATION_PATH):
+            settings.set_boolean('show-sidebar-decoration', False)
+        self.sidebar_decoration_stack_el.set_visible_child_name('remove' if settings.get_value('show-sidebar-decoration').unpack() else 'add')
 
         ## Dynamic Background
         settings.bind(
@@ -646,4 +651,32 @@ class NocturnePreferences(Adw.PreferencesDialog):
                 )
                 dialog.add_response('c', _("Close"))
                 dialog.choose(self.get_root(), None, lambda *_, st=settings, ky=key: st.set_boolean(ky, False))
+
+    @Gtk.Template.Callback()
+    def sidebar_decoration_add_requested(self, button):
+        def response(dialog, task):
+            settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+            if file := dialog.open_finish(task):
+                shutil.copyfile(file.get_path(), SIDEBAR_DECORATION_PATH)
+                settings.set_boolean('show-sidebar-decoration', True)
+            else:
+                settings.set_boolean('show-sidebar-decoration', False)
+            self.sidebar_decoration_stack_el.set_visible_child_name('remove' if settings.get_value('show-sidebar-decoration').unpack() else 'add')
+
+        file_filter_list = Gio.ListStore(item_type=Gtk.FileFilter)
+        file_filter_list.append(Gtk.FileFilter(
+            name=_("Image"),
+            mime_types=Gly.Loader.get_mime_types()
+        ))
+        Gtk.FileDialog(
+            filters=file_filter_list
+        ).open(self.get_root(), None, response)
+
+    @Gtk.Template.Callback()
+    def sidebar_decoration_remove_requested(self, button):
+        if os.path.isfile(SIDEBAR_DECORATION_PATH):
+            os.remove(SIDEBAR_DECORATION_PATH)
+        Gio.Settings(schema_id="com.jeffser.Nocturne").set_boolean('show-sidebar-decoration', False)
+        self.sidebar_decoration_stack_el.set_visible_child_name('add')
+
 

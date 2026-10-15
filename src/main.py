@@ -27,6 +27,7 @@ gi.require_version('Secret', '1')
 gi.require_version('Gst', '1.0')
 gi.require_version('Xdp', '1.0')
 gi.require_version('XdpGtk4', '1.0')
+gi.require_version('Gly', '2')
 
 from gi.repository import GObject, Gtk, Gdk, Gio, Adw, GLib
 from .window import NocturneWindow
