@@ -173,10 +173,13 @@ class NocturneWindow(Adw.ApplicationWindow):
             self.update_loading_message(integration)
 
         def update_row_paintable(row, paintable):
-            picture = Gtk.Picture(
+            picture = Gtk.Image(
                 paintable=paintable,
                 margin_top=2,
                 margin_bottom=2,
+                height_request=32,
+                pixel_size=32,
+                overflow=Gtk.Overflow.HIDDEN,
                 css_classes=['rounded-corner']
             )
             row.set_prefix(picture)
