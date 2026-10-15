@@ -666,7 +666,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
         file_filter_list = Gio.ListStore(item_type=Gtk.FileFilter)
         file_filter_list.append(Gtk.FileFilter(
             name=_("Image"),
-            mime_types=Gly.Loader.get_mime_types()
+            mime_types=[mime for mime in Gly.Loader.get_mime_types() if 'webp' not in mime]
         ))
         Gtk.FileDialog(
             filters=file_filter_list
