@@ -126,13 +126,6 @@ class Base(GObject.Object):
     # Epic custom lightweight cache manager
     cache_manager = CacheManager()
 
-    # For usage in connect_to_current_song
-    song_connections = {
-        'songId': '',
-        'connectionId': '',
-        'callbacks': {} # param : [list of callbacks]
-    }
-
     # List of library IDs to retrieve from
     library_ids = []
 
@@ -140,36 +133,10 @@ class Base(GObject.Object):
         # do not change
         super().__init__(*args, **kwargs)
         self.loaded_models = {}
-        self.get_property('current-state').connect('notify::songId', lambda *_: self.song_changed())
 
         self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         self.library_ids = self.settings.get_strv("library-ids")
         self.settings.connect("changed::library-ids", self.changeLibrary)
-
-    def current_song_property_changed(self, param:str, value:object):
-        # do not change
-        for callback in self.song_connections.get('callbacks', {}).get(param, []):
-            callback(value)
-
-    def song_changed(self):
-        # do not change
-        previousSongId = self.song_connections.get('songId', '')
-        currentSongId = self.get_property('current-state').get_property('songId')
-        if previousSongId != currentSongId:
-            if previousSong := self.loaded_models.get(previousSongId):
-                try:
-                    previousSong.disconnect(self.song_connections.get('connectionId', ''))
-                except:
-                    pass
-
-            if currentSongId:
-                if currentSongId not in self.loaded_models:
-                    self.verifySong(currentSongId)
-                if currentSongModel := self.loaded_models.get(currentSongId):
-                    self.song_connections['songId'] = currentSongId
-                    self.song_connections['connectionId'] = currentSongModel.connect('notify', lambda item, gparam: GLib.idle_add(self.current_song_property_changed, gparam.get_name(), item.get_property(gparam.get_name())))
-                    for param in list(self.song_connections.get('callbacks', {})):
-                        self.current_song_property_changed(param, currentSongModel.get_property(param))
 
     def open_json(self, filename:str, fallback={}) -> dict:
         # please use sql when possible
@@ -212,17 +179,6 @@ class Base(GObject.Object):
     def check_if_ready(self, row) -> bool:
         # gets called to see if it is ready to show login page
         return True
-
-    def connect_to_current_song(self, parameter:str, callback:callable):
-        # do not modify this function, it works as is in any instance
-        if parameter in list(self.song_connections.get('callbacks')):
-            self.song_connections['callbacks'][parameter].append(callback)
-        else:
-            self.song_connections['callbacks'][parameter] = [callback]
-
-        if current_song_id := self.get_property('current-state').get_property('songId'):
-            if current_song_model := self.loaded_models.get(current_song_id):
-                callback(current_song_model.get_property(parameter))
 
     def connect_to_model(self, model_id:str, parameter:str, callback:callable) -> str:
         connection_id = ""

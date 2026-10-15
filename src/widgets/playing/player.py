@@ -345,17 +345,6 @@ class Player(GObject.Object):
         self.settings.connect('changed::discord-rpc-enabled', lambda *_: self.discord_rpc.update())
         self.settings.connect('changed::discord-rpc-client-id', lambda *_: self.discord_rpc.update())
         integration = get_current_integration()
-        # Connect to Current Song
-        connections = {
-            'title': self.update_title,
-            'radioStreamUrl': self.update_radioStreamUrl,
-            'artists': self.update_artists,
-            'trackGain': self.update_trackGain,
-            'albumGain': self.update_albumGain,
-            'gdkPaintable': lambda paintable: threading.Thread(target=self.update_palette, args=(paintable,), daemon=True).start()
-        }
-        for parameter, callback in connections.items():
-            integration.connect_to_current_song(parameter, callback)
 
         integration.connect_to_model('currentSong', 'songId', self.song_changed)
         integration.connect_to_model('currentSong', 'songId', lambda *_: self.discord_rpc.update())
@@ -620,7 +609,8 @@ class Player(GObject.Object):
     def update_palette(self, paintable):
         # Load Image
         if not paintable:
-            return
+            self.application.css_provider.load_from_string('')
+            integration.get_property('current-state').set_property('accentColor', [0,0,0])
         raw_bytes = paintable.save_to_png_bytes().get_data()
         if not raw_bytes:
             return
@@ -669,26 +659,20 @@ class Player(GObject.Object):
         integration = get_current_integration()
         integration.get_property('current-state').set_property('accentColor', palette[0])
 
-    def update_title(self, title:str):
-        integration = get_current_integration()
-        integration.get_property('current-state').set_property('displaySongTitle', title)
-
-    def update_radioStreamUrl(self, radioStreamUrl:str):
-        pass #Maybe add the radio stream URL to the current-state or something?
-
     def update_artists(self, artists:list):
         integration = get_current_integration()
         integration.get_property('current-state').set_property('displaySongArtist', artists[0].get('name') if len(artists) > 0 else '')
 
     def update_trackGain(self, trackGain:float):
+
+
+    def update_albumGain(self, albumGain:float):
         if self.settings.get_value('use-gain').unpack():
             self.rg_volume.set_property('fallback-gain', trackGain)
             self.rg_volume.set_property('album-mode', False)
-
-    def update_albumGain(self, albumGain:float):
-        if self.settings.get_value('use-gain').unpack() and self.rg_volume.get_property('fallback-gain') == 0.0:
-            self.rg_volume.set_property('fallback-gain', albumGain)
-            self.rg_volume.set_property('album-mode', True)
+            if self.rg_volume.get_property('fallback-gain') == 0.0:
+                self.rg_volume.set_property('fallback-gain', albumGain)
+                self.rg_volume.set_property('album-mode', True)
 
     def song_changed(self, song_id:str):
         integration = get_current_integration()
@@ -716,13 +700,33 @@ class Player(GObject.Object):
                     else:
                         self.gst.set_state(Gst.State.PLAYING)
 
-                    # Fix duration
+                    # Model stuff
                     if model := integration.loaded_models.get(song_id):
+                        # Fix duration (if for whatever reason it was not set in the model data)
                         if not model.get_property('duration'):
                             self.gst.get_state(Gst.CLOCK_TIME_NONE)
                             success, duration = self.gst.query_duration(Gst.Format.TIME)
                             if success:
                                 model.set_property('duration', duration / Gst.SECOND)
+                        # Title and Artists (it could also be changed by radio dynamic tags)
+                        integration.get_property('current-state').set_property('displaySongTitle', model.get_property('title'))
+                        artists = model.get_property('artists')
+                        integration.get_property('current-state').set_property('displaySongArtist', artists[0].get('name') if len(artists) > 0 else model.get_property('artist'))
+
+                        # Gains
+                        if self.settings.get_value('use-gain').unpack():
+                        if trackGain := model.get_property('trackGain'):
+                            self.rg_volume.set_property('fallback-gain', trackGain)
+                            self.rg_volume.set_property('album-mode', False)
+                        elif albumGain := model.get_property('albumGain'):
+                            self.rg_volume.set_property('fallback-gain', albumGain)
+                            self.rg_volume.set_property('album-mode', True)
+                        else:
+                            self.rg_volume.set_property('fallback-gain', 0.0)
+                            self.rg_volume.set_property('album-mode', False)
+
+                        # Paintable
+                        threading.Thread(target=self.update_palette, args=(model.get_property('gdkPaintable'),), daemon=True).start()
                         integration.get_property('current-state').set_property('currentSong', model)
                 else:
                     self.gst.set_state(Gst.State.NULL)
@@ -730,3 +734,4 @@ class Player(GObject.Object):
             self.gst.set_state(Gst.State.NULL)
         self.preloaded_id = ""
         gc.collect()
+
