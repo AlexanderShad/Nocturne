@@ -132,6 +132,7 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                   template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .albumId,
                   's'
                 );
+                action-name: "app.show_album";
                 tooltip-text: bind template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .album;
                 visible: bind $format_to_bool(
                   template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .currentSong as <$NocturneModelSong> .album,
