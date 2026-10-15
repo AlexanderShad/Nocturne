@@ -2,7 +2,7 @@ using Gtk 4.0;
 using Adw 1;
 
 template $NocturneSongRow: Adw.ActionRow {
-  activatable: true;
+  activatable: bind $format_activatable(template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .songId);
   use-markup: false;
   action-name: "app.play_song";
   action-target: bind $format_action_target(template.model as <$NocturneModelSong> .id, 's');
@@ -33,7 +33,11 @@ template $NocturneSongRow: Adw.ActionRow {
 
     Gtk.Image icon_el {
       valign: center;
-      visible: false;
+      icon-name: bind $format_icon_name(
+        template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .songId,
+        template.draggable
+      );
+      visible: bind $format_to_bool(icon_el.icon-name);
       styles [
         "dimmed"
       ]

@@ -22,7 +22,7 @@ class JellyfinPlaySession():
 
     def __init__(self, integration):
         self.integration = integration
-        self.integration.connect_to_model('currentSong', 'songId', self.song_changed)
+        self.integration.connect_to_state('songId', self.song_changed)
 
     def create_session(self, item_id:str, start_paused:bool=False):
         self.item_id = item_id

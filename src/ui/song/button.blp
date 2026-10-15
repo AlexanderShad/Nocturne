@@ -4,6 +4,7 @@ template $NocturneSongButton: Gtk.Box {
   orientation: vertical;
   halign: center;
   name: bind template.model as <$NocturneModelSong> .title;
+  sensitive: bind $format_sensitive(template.root as <$NocturneWindow> .application as <$NocturneApplication> .integration as <$NocturneIntegrationBase> .current-state as <$NocturneModelCurrentState> .songId);
 
   Gtk.Button cover_button_el {
     styles [

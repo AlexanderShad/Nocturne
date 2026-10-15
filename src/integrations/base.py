@@ -180,6 +180,14 @@ class Base(GObject.Object):
         # gets called to see if it is ready to show login page
         return True
 
+    def connect_to_state(parameter:str, callback:callable) -> str:
+        connection_id = self.get_property('current-state').connect(
+            'notify::{}'.format(parameter),
+            lambda *_, p=parameter, cb=callback: GLib.idle_add(self._dispatch_model_callback, cb, self.get_property('current-state').get_property(p))
+        )
+        GLib.idle_add(self._dispatch_model_callback, callback, self.get_property('current-state').get_property(parameter))
+        return connection_id
+
     def connect_to_model(self, model_id:str, parameter:str, callback:callable) -> str:
         connection_id = ""
         if model_id in self.loaded_models:
@@ -190,13 +198,6 @@ class Base(GObject.Object):
             )
             GLib.idle_add(self._dispatch_model_callback, callback, self.loaded_models.get(model_id).get_property(parameter))
             self._auto_disconnect_on_unroot(callback, model, connection_id)
-        elif model_id == 'currentSong':
-            #TODO ^ temp code whilst I migrate everything to reference current-state directly
-            connection_id = self.get_property('current-state').connect(
-                'notify::{}'.format(parameter),
-                lambda *_, p=parameter, cb=callback: GLib.idle_add(self._dispatch_model_callback, cb, self.get_property('current-state').get_property(p))
-            )
-            GLib.idle_add(self._dispatch_model_callback, callback, self.get_property('current-state').get_property(parameter))
         return connection_id
 
     def _dispatch_model_callback(self, cb, *args):

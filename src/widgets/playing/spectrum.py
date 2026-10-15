@@ -21,9 +21,9 @@ class Spectrum(Gtk.DrawingArea):
 
         self.set_draw_func(self.on_draw)
 
-        integration.connect_to_model('currentSong', 'buttonState', self.playback_changed)
-        integration.connect_to_model('currentSong', 'positionSeconds', self.on_timestamp_changed)
-        integration.connect_to_model('currentSong', 'accentColor', self.update_color)
+        integration.connect_to_state('buttonState', self.playback_changed)
+        integration.connect_to_state('positionSeconds', self.on_timestamp_changed)
+        integration.connect_to_state('accentColor', self.update_color)
 
         self.settings.bind(
             "show-visualizer",

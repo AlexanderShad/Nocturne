@@ -12,6 +12,8 @@ class SongRow(Adw.ActionRow):
     __gtype_name__ = 'NocturneSongRow'
 
     model = GObject.Property(type=models.Song)
+    draggable = GObject.Property(type=bool, default=False)
+    removable = GObject.Property(type=bool, default=False)
 
     icon_el = Gtk.Template.Child()
     title_el = Gtk.Template.Child()
@@ -26,12 +28,12 @@ class SongRow(Adw.ActionRow):
 
     def __init__(self, id:str, draggable:bool=False, removable:bool=False):
         self.id = id
-        self.draggable = draggable
-        self.removable = removable # used in queue
         integration = get_current_integration()
         integration.verifySong(self.id)
         super().__init__(
-            model=integration.loaded_models.get(self.id)
+            model=integration.loaded_models.get(self.id),
+            draggable=draggable,
+            removable=removable
         )
         Gio.Settings(schema_id="com.jeffser.Nocturne").bind(
             "show-context-button",
@@ -42,7 +44,6 @@ class SongRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'artists', self.update_artists)
         integration.connect_to_model(self.id, 'radioStreamUrl', self.update_radioStreamUrl) # for radios
         integration.connect_to_model(self.id, 'deleted', self.delete_status_changed)
-        integration.connect_to_model('currentSong', 'songId', self.current_song_changed)
 
     @Gtk.Template.Callback()
     def format_action_target(self, obj, value, variant) -> GLib.Variant:
@@ -73,6 +74,19 @@ class SongRow(Adw.ActionRow):
     def format_starred_visibility(self, obj, isExternalFile:bool, radioStreamUrl:str) -> bool:
         return not isExternalFile and not radioStreamUrl
 
+    @Gtk.Template.Callback()
+    def format_icon_name(self, obj, currentSongId:str, draggable:bool) -> str | None:
+        if currentSongId == self.id:
+            self.add_css_class('accent')
+            return 'sound-symbolic'
+        self.remove_css_class('accent')
+        if draggable:
+            return 'list-drag-handle-symbolic'
+
+    @Gtk.Template.Callback()
+    def format_activatable(self, obj, currentSongId:str) -> bool:
+        return currentSongId != self.id
+
     def delete_status_changed(self, status:bool):
         if status:
             if listbox := self.get_ancestor(Gtk.ListBox):
@@ -89,7 +103,7 @@ class SongRow(Adw.ActionRow):
 
         context_dict['rating']['value'] = integration.loaded_models.get(self.id).get_property('userRating')
 
-        if not model or not (model.get_property('radioStreamUrl') and not self.draggable):
+        if not model or not (model.get_property('radioStreamUrl') and not self.get_property('draggable')):
             del context_dict["edit-radio"]
             del context_dict["delete-radio"]
 
@@ -108,9 +122,9 @@ class SongRow(Adw.ActionRow):
             del context_dict["add-to-playlist"]
             del context_dict["show-album"]
             del context_dict["show-artist"]
-            if not self.draggable:
+            if not self.get_property('draggable'):
                 del context_dict["select"]
-        if self.removable:
+        if self.get_property('removable'):
             context_dict["remove"]["connection"] = self.remove_selected
         else:
             del context_dict["remove"]
@@ -217,26 +231,11 @@ class SongRow(Adw.ActionRow):
             )
             self.artist_container_el.set_child(button)
 
-    def current_song_changed(self, songId:str):
-        self.set_activatable(songId != self.id)
-        if songId == self.id:
-            self.icon_el.set_from_icon_name('sound-symbolic')
-            self.icon_el.set_visible(True)
-            self.add_css_class('accent')
-        else:
-            self.remove_css_class('accent')
-            if self.draggable:
-                self.icon_el.set_from_icon_name('list-drag-handle-symbolic')
-                self.icon_el.set_visible(True)
-            else:
-                self.icon_el.set_from_icon_name(None)
-                self.icon_el.set_visible(False)
-
     # -- Callbacks --
 
     @Gtk.Template.Callback()
     def on_drop(self, drop_target, row, x, y):
-        if self != row and self.draggable:
+        if self != row and self.get_property('draggable'):
             index_source = list(row.get_ancestor(Gtk.ListBox)).index(row)
             index_target = list(self.get_ancestor(Gtk.ListBox)).index(self)
             if y > self.get_height() / 2: # bottom
@@ -248,13 +247,13 @@ class SongRow(Adw.ActionRow):
 
     @Gtk.Template.Callback()
     def on_drag_begin(self, drag_source, drag):
-        if self.draggable:
+        if self.get_property('draggable'):
             paintable = Gtk.WidgetPaintable.new(self)
             drag_source.set_icon(paintable, 0, 0)
 
     @Gtk.Template.Callback()
     def on_drag_prepare(self, drag_source, x, y):
-        if self.draggable:
+        if self.get_property('draggable'):
             return Gdk.ContentProvider.new_for_value(self)
 
     def select_clicked(self):
@@ -312,8 +311,4 @@ class SongRow(Adw.ActionRow):
         )
         popover.set_parent(self)
         popover.popup()
-
-
-
-
 

@@ -110,8 +110,8 @@ class PlayingLyricsPage(Gtk.Stack):
     def setup(self):
         # Called after login
         integration = get_current_integration()
-        integration.connect_to_model('currentSong', 'songId', self.song_changed)
-        integration.connect_to_model('currentSong', 'positionSeconds', self.position_changed)
+        integration.connect_to_state('songId', self.song_changed)
+        integration.connect_to_state('positionSeconds', self.position_changed)
 
     def update_lyrics(self, song_id:str, attempt_download:bool):
         # We verify if the song requested and the current song are the same

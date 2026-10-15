@@ -346,10 +346,7 @@ class Player(GObject.Object):
         self.settings.connect('changed::discord-rpc-client-id', lambda *_: self.discord_rpc.update())
         integration = get_current_integration()
 
-        integration.connect_to_model('currentSong', 'songId', self.song_changed)
-        integration.connect_to_model('currentSong', 'songId', lambda *_: self.discord_rpc.update())
-        integration.connect_to_model('currentSong', 'displaySongTitle', lambda *_: self.discord_rpc.update())
-        integration.connect_to_model('currentSong', 'displaySongArtist', lambda *_: self.discord_rpc.update())
+        integration.connect_to_state('songId', self.song_changed)
 
         # Track ID of song when it's preloaded
         self.preloaded_id = ""
@@ -727,7 +724,10 @@ class Player(GObject.Object):
 
                         # Paintable
                         threading.Thread(target=self.update_palette, args=(model.get_property('gdkPaintable'),), daemon=True).start()
+
+                        # Misc
                         integration.get_property('current-state').set_property('currentSong', model)
+                        self.discord_rpc.update()
                 else:
                     self.gst.set_state(Gst.State.NULL)
         else:

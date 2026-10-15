@@ -26,7 +26,6 @@ class SongButton(Gtk.Box):
         super().__init__(
             model=integration.loaded_models.get(self.id)
         )
-        integration.connect_to_model('currentSong', 'songId', self.current_song_changed)
 
     def update_size(self):
         isBig = self.settings.get_value('button-size').unpack() == 'big'
@@ -50,14 +49,14 @@ class SongButton(Gtk.Box):
         GLib.idle_add(self.update_size)
         return paintable
 
-    def current_song_changed(self, songId):
-        self.play_indicator_el.set_visible(self.id == songId)
-        if self.id == songId:
-            self.cover_button_el.set_sensitive(False)
+    @Gtk.Template.Callback()
+    def format_sensitive(self, obj, currentSongId:str) -> bool:
+        if currentSongId == self.id:
             self.cover_button_el.add_css_class('accent')
+            return False
         else:
-            self.cover_button_el.set_sensitive(True)
             self.cover_button_el.remove_css_class('accent')
+            return True
 
     def generate_context_menu(self) -> ContextContainer:
         integration = get_current_integration()

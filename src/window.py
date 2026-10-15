@@ -206,15 +206,18 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.sidebar_playing_page.show_sidebar_el.set_visible(False)
         threading.Thread(target=self.notify_playback).start()
         integration = get_current_integration()
-        integration.connect_to_model('currentSong', 'songId', self.song_changed)
+        integration.connect_to_state('buttonState', self.playback_changed)
+        integration.connect_to_state('songId', self.song_changed)
+
+    def playback_changed(self, buttonState:str):
+        if buttonState == 'play' # it is paused
+            application.uninhibit_suspend()
+        else: # it is playing
+            application.inhibit_suspend()
 
     def song_changed(self, songId:str):
-        playing = bool(songId)
-        if application := self.get_root().get_application():
-            if playing:
-                application.inhibit_suspend()
-            else:
-                application.uninhibit_suspend()
+        if not songId:
+            if application := self.get_root().get_application():
                 if popout_window := application.popout_window:
                     popout_window.close()
         self.big_breakpoint_toggled()
