@@ -416,8 +416,6 @@ class Base(GObject.Object):
     def getLyrics(self, songId:str, requestOnline:bool=False) -> tuple:
         # call this function first super().getLyrics(args)
         # it loads lyrics from db, as a last resource
-        #TODO make this work without syncedlyrics since it does not support python 3.14
-        return 'radio', ''
 
         if model := self.loaded_models.get(songId):
             # Radio
@@ -426,13 +424,25 @@ class Base(GObject.Object):
 
             # Online
             if requestOnline:
-                def job(track_name, artist_name):
-                    return True, syncedlyrics.search(
-                        "[{}] [{}]".format(track_name, artist_name),
-                        enhanced=True,
-                        synced_only=True
+                def job(track_name, artist_name, album_name, duration):
+                    params = {
+                        'track_name': track_name,
+                        'artist_name': artist_name
+                    }
+                    if album_name: #optional
+                        params['album_name'] = album_name
+                    if duration: #optional
+                        params['duration'] = duration
+                    response = requests.get(
+                        'https://lrclib.net/api/get',
+                        params=params,
+                        headers={"User-Agent": "Nocturne (https://jeffser.com/nocturne)"}
                     )
-                if content := self.cache_manager.get_result(f'OnlineLyrics:{songId}', job, model.get_property('title'), model.get_property('artist')):
+                    if response.status_code == 200:
+                        data = response.json()
+                        return True, data.get("syncedLyrics", "")
+                    return True, ''
+                if content := self.cache_manager.get_result(f'OnlineLyrics:{songId}', job, model.get_property('title'), model.get_property('artist'), model.get_property('album'), model.get_property('duration')):
                     self.saveLyrics(songId, content, 'lrc')
                     return 'lrc', content
                 else:
