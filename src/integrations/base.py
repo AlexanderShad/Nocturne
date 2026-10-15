@@ -180,7 +180,7 @@ class Base(GObject.Object):
         # gets called to see if it is ready to show login page
         return True
 
-    def connect_to_state(parameter:str, callback:callable) -> str:
+    def connect_to_state(self, parameter:str, callback:callable) -> str:
         connection_id = self.get_property('current-state').connect(
             'notify::{}'.format(parameter),
             lambda *_, p=parameter, cb=callback: GLib.idle_add(self._dispatch_model_callback, cb, self.get_property('current-state').get_property(p))

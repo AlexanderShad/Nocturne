@@ -660,17 +660,6 @@ class Player(GObject.Object):
         integration = get_current_integration()
         integration.get_property('current-state').set_property('displaySongArtist', artists[0].get('name') if len(artists) > 0 else '')
 
-    def update_trackGain(self, trackGain:float):
-
-
-    def update_albumGain(self, albumGain:float):
-        if self.settings.get_value('use-gain').unpack():
-            self.rg_volume.set_property('fallback-gain', trackGain)
-            self.rg_volume.set_property('album-mode', False)
-            if self.rg_volume.get_property('fallback-gain') == 0.0:
-                self.rg_volume.set_property('fallback-gain', albumGain)
-                self.rg_volume.set_property('album-mode', True)
-
     def song_changed(self, song_id:str):
         integration = get_current_integration()
 
@@ -711,14 +700,17 @@ class Player(GObject.Object):
                         integration.get_property('current-state').set_property('displaySongArtist', artists[0].get('name') if len(artists) > 0 else model.get_property('artist'))
 
                         # Gains
+                        gain_set = False
                         if self.settings.get_value('use-gain').unpack():
-                        if trackGain := model.get_property('trackGain'):
-                            self.rg_volume.set_property('fallback-gain', trackGain)
-                            self.rg_volume.set_property('album-mode', False)
-                        elif albumGain := model.get_property('albumGain'):
-                            self.rg_volume.set_property('fallback-gain', albumGain)
-                            self.rg_volume.set_property('album-mode', True)
-                        else:
+                            if trackGain := model.get_property('trackGain'):
+                                self.rg_volume.set_property('fallback-gain', trackGain)
+                                self.rg_volume.set_property('album-mode', False)
+                                gain_set = True
+                            elif albumGain := model.get_property('albumGain'):
+                                self.rg_volume.set_property('fallback-gain', albumGain)
+                                self.rg_volume.set_property('album-mode', True)
+                                gain_set = True
+                        if not gain_set:
                             self.rg_volume.set_property('fallback-gain', 0.0)
                             self.rg_volume.set_property('album-mode', False)
 

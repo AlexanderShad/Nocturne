@@ -210,10 +210,11 @@ class NocturneWindow(Adw.ApplicationWindow):
         integration.connect_to_state('songId', self.song_changed)
 
     def playback_changed(self, buttonState:str):
-        if buttonState == 'play' # it is paused
-            application.uninhibit_suspend()
-        else: # it is playing
-            application.inhibit_suspend()
+        if application := self.get_application():
+            if buttonState == 'play': # it is paused
+                application.uninhibit_suspend()
+            else: # it is playing
+                application.inhibit_suspend()
 
     def song_changed(self, songId:str):
         if not songId:
