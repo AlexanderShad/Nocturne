@@ -3,7 +3,7 @@
 from gi.repository import GObject, GLib, Gdk, Gtk, Gio
 from . import models, secret, sql_instance
 from ..constants import get_nocturne_version, INTEGRATIONS_DIR, DATA_DIR
-import requests, urllib3, time, os, json, threading, logging, syncedlyrics
+import requests, urllib3, time, os, json, threading, logging
 from datetime import datetime
 from requests.adapters import HTTPAdapter, Retry
 from concurrent.futures import ThreadPoolExecutor
@@ -416,6 +416,8 @@ class Base(GObject.Object):
     def getLyrics(self, songId:str, requestOnline:bool=False) -> tuple:
         # call this function first super().getLyrics(args)
         # it loads lyrics from db, as a last resource
+        #TODO make this work without syncedlyrics since it does not support python 3.14
+        return 'radio', ''
 
         if model := self.loaded_models.get(songId):
             # Radio

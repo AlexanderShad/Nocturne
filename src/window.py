@@ -175,8 +175,9 @@ class NocturneWindow(Adw.ApplicationWindow):
         def update_row_paintable(row, paintable):
             picture = Gtk.Picture(
                 paintable=paintable,
-                margin_top=5,
-                margin_bottom=5
+                margin_top=2,
+                margin_bottom=2,
+                css_classes=['rounded-corner']
             )
             row.set_prefix(picture)
 
@@ -190,8 +191,7 @@ class NocturneWindow(Adw.ApplicationWindow):
                 integration.connect_to_model(playlistId, "name", lambda name, row=item: row.set_title(name))
                 integration.connect_to_model(playlistId, "name", lambda name, row=item: row.set_tooltip(name))
                 integration.connect_to_model(playlistId, "songCount", lambda n, row=item: row.set_subtitle(('{} Songs' if n > 1 else '{} Song').format(n)))
-                #integration.connect_to_model(playlistId, "gdkPaintable", lambda paintable, row=item: update_row_paintable(row, paintable))
-                #TODO: enable this once Adw 1.10 is out https://gnome.pages.gitlab.gnome.org/libadwaita/doc/main/method.SidebarItem.set_prefix.html
+                integration.connect_to_model(playlistId, "gdkPaintable", lambda paintable, row=item: update_row_paintable(row, paintable))
 
     def setup(self):
         # call using glib_add
